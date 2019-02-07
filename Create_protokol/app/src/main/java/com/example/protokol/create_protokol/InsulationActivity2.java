@@ -2,6 +2,7 @@ package com.example.protokol.create_protokol;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -56,10 +58,13 @@ public class InsulationActivity2 extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity2.this);
-                View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
+                final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
                 alert.setCancelable(false);
                 alert.setTitle("Введите название щита:");
                 final EditText input = myView.findViewById(R.id.editText);
+                //ОТКРЫВАЕМ КЛАВИАТУРУ
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
                 alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         final String nameLine = input.getText().toString();
@@ -67,6 +72,9 @@ public class InsulationActivity2 extends AppCompatActivity {
                         contentValues.put(DBHelper.LN_NAME, nameLine);
                         contentValues.put(DBHelper.LN_ID_ROOM, idRoom);
                         database.insert(DBHelper.TABLE_LINES, null, contentValues);
+                        //СКРЫВАЕМ КЛАВИАТУРУ
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
                         //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
                         addSpisokLines(database, lines, idRoom);
                         Toast toast = Toast.makeText(getApplicationContext(),
@@ -76,7 +84,9 @@ public class InsulationActivity2 extends AppCompatActivity {
                 });
                 alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-
+                        //СКРЫВАЕМ КЛАВИАТУРУ
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
                     }
                 });
                 alert.setView(myView);

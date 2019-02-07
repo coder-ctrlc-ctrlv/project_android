@@ -2,6 +2,7 @@ package com.example.protokol.create_protokol;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -88,7 +90,7 @@ public class InsulationActivity3 extends AppCompatActivity {
                         //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID НУЖНОЙ ГРУППЫ
                         Cursor cursor4 = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
                         cursor4.moveToPosition(position);
-                        int groupIndex = cursor4.getColumnIndex(DBHelper.LN_ID);
+                        int groupIndex = cursor4.getColumnIndex(DBHelper.GR_ID);
                         final int groupId = cursor4.getInt(groupIndex);
                         cursor4.close();
 
@@ -223,7 +225,11 @@ public class InsulationActivity3 extends AppCompatActivity {
                                         contentValues.put(DBHelper.GR_N_PE, "-");
                                         contentValues.put(DBHelper.GR_CONCLUSION, "-");
                                         database.insert(DBHelper.TABLE_GROUPS, null, contentValues);
+                                        swapGroups(position, groups.getAdapter().getCount() + 1, idLine, database);
                                         addSpisokGroups(database, groups, idLine);
+                                        Toast toast2 = Toast.makeText(getApplicationContext(),
+                                                "Группа добавлена", Toast.LENGTH_SHORT);
+                                        toast2.show();
                                     }
                                 });
                                 alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
@@ -236,7 +242,7 @@ public class InsulationActivity3 extends AppCompatActivity {
                             //ЕСЛИ НЕ РЕЗЕРВ
                             else {
                                 changePhase(groups, database, idLine, nameGroup,
-                                        numberWorkU, nameMark, numberVein, numberSection, numberU, numberR);
+                                        numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position);
                             }
                         }
 
@@ -316,6 +322,8 @@ public class InsulationActivity3 extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+    //ГЕНЕРАЦИЯ ЧИСЛА
     public String getRandomNumber(String x) {
         if (x.contains(","))
             return x;
@@ -336,18 +344,21 @@ public class InsulationActivity3 extends AppCompatActivity {
     }
 
     //РЕКУРСИВНАЯ ИЗМЕНА ФАЗЫ
-    void changePhase(final ListView groups, final SQLiteDatabase database, final int idLine, final String nameGroup, final String numberWorkU, final String nameMark, final String numberVein, final String numberSection, final String numberU, final String numberR) {
+    void changePhase(final ListView groups, final SQLiteDatabase database, final int idLine, final String nameGroup, final String numberWorkU, final String nameMark, final String numberVein, final String numberSection, final String numberU, final String numberR, final int position) {
         AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity3.this);
-        View myView = getLayoutInflater().inflate(R.layout.dialog_for_repeat_group,null);
+        final View myView = getLayoutInflater().inflate(R.layout.dialog_for_repeat_group,null);
         alert.setCancelable(false);
         if (numberVein.equals("2") || numberVein.equals("3"))
             alert.setTitle("Выберете фазу и введите значение:");
-        else
+        else {
             alert.setTitle("Введите значение сопротивления:");
+            //ОТКРЫВАЕМ КЛАВИАТУРУ
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+        }
         final RadioGroup grradio = myView.findViewById(R.id.radioGroup);
         final RadioButton phaseA = myView.findViewById(R.id.phaseA);
         final RadioButton phaseB = myView.findViewById(R.id.phaseB);
-        RadioButton phaseC = myView.findViewById(R.id.phaseC);
         final EditText input = myView.findViewById(R.id.editText2);
         if (numberVein.equals("4") || numberVein.equals("5"))
             grradio.setVisibility(View.GONE);
@@ -361,7 +372,7 @@ public class InsulationActivity3 extends AppCompatActivity {
                     alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             changePhase(groups, database, idLine, nameGroup,
-                                    numberWorkU, nameMark, numberVein, numberSection, numberU, numberR);
+                                    numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position);
                         }
                     });
                     alert.show();
@@ -374,7 +385,7 @@ public class InsulationActivity3 extends AppCompatActivity {
                         alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 changePhase(groups, database, idLine, nameGroup,
-                                        numberWorkU, nameMark, numberVein, numberSection, numberU, numberR);
+                                        numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position);
                             }
                         });
                         alert.show();
@@ -390,8 +401,12 @@ public class InsulationActivity3 extends AppCompatActivity {
                                 else
                                     namePhase = "C";
                         }
-                        else
+                        else {
                             namePhase = "-";
+                            //СКРЫВАЕМ КЛАВИАТУРУ
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        }
                         ContentValues contentValues = new ContentValues();
                         contentValues.put(DBHelper.GR_LINE_ID, idLine);
                         contentValues.put(DBHelper.GR_NAME, nameGroup);
@@ -491,6 +506,7 @@ public class InsulationActivity3 extends AppCompatActivity {
                             contentValues.put(DBHelper.GR_N_PE, getRandomNumber(numb));
                         }
                         database.insert(DBHelper.TABLE_GROUPS, null, contentValues);
+                        swapGroups(position, groups.getAdapter().getCount() + 1, idLine, database);
                         addSpisokGroups(database, groups, idLine);
                         Toast toast2 = Toast.makeText(getApplicationContext(),
                                 "Группа добавлена", Toast.LENGTH_SHORT);
@@ -500,13 +516,69 @@ public class InsulationActivity3 extends AppCompatActivity {
         });
         alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-
+                if (numberVein.equals("4") || numberVein.equals("5")) {
+                    //СКРЫВАЕМ КЛАВИАТУРУ
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                }
             }
         });
         alert.setView(myView);
         alert.show();
     }
 
+    public void swapGroups(int positionStop, int positionCurrent, int idLine, SQLiteDatabase database) {
+        if (positionCurrent - positionStop == 1)
+            return;
+        int idCurrent, idUp, groupIndex, nameIndex;
+        String nameCurrent, nameUp;
+
+        //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID И НАЗВАНИЯ ТЕКУЩЕЙ ГРУППЫ
+        Cursor cursor4 = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID, DBHelper.GR_NAME}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
+        cursor4.moveToPosition(positionCurrent - 1);
+        groupIndex = cursor4.getColumnIndex(DBHelper.GR_ID);
+        nameIndex = cursor4.getColumnIndex(DBHelper.GR_NAME);
+        idCurrent = cursor4.getInt(groupIndex);
+        nameCurrent = cursor4.getString(nameIndex);
+        cursor4.close();
+
+        while (positionCurrent - positionStop != 1) {
+
+            //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID И НАЗВАНИЯ ГРУППЫ ПОВЫШЕ
+            Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID, DBHelper.GR_NAME}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
+            cursor.moveToPosition(positionCurrent - 1);
+            groupIndex = cursor.getColumnIndex(DBHelper.GR_ID);
+            nameIndex = cursor.getColumnIndex(DBHelper.GR_NAME);
+            idUp = cursor.getInt(groupIndex);
+            nameUp = cursor.getString(nameIndex);
+            cursor.close();
+
+            //МЕНЯЕМ НАЗВАНИЕ
+            ContentValues values = new ContentValues();
+            values.put(DBHelper.GR_NAME, "Гр " + Integer.toString(positionCurrent));
+            database.update(DBHelper.TABLE_GROUPS, values,"_id = ?", new String[]{Integer.toString(idCurrent)});
+            values = new ContentValues();
+            values.put(DBHelper.GR_NAME, "Гр " + Integer.toString(positionCurrent + 1));
+            database.update(DBHelper.TABLE_GROUPS, values,"_id = ?", new String[]{Integer.toString(idUp)});
+
+            //МЕНЯЕМ ID
+            values = new ContentValues();
+            values.put(DBHelper.GR_ID, "-1");
+            database.update(DBHelper.TABLE_GROUPS, values,"_id = ?", new String[]{Integer.toString(idUp)});
+            values = new ContentValues();
+            values.put(DBHelper.GR_ID, Integer.toString(idUp));
+            database.update(DBHelper.TABLE_GROUPS, values,"_id = ?", new String[]{Integer.toString(idCurrent)});
+            values = new ContentValues();
+            values.put(DBHelper.GR_ID, Integer.toString(idCurrent));
+            database.update(DBHelper.TABLE_GROUPS, values,"_id = ?", new String[]{"-1"});
+
+            idCurrent = idUp;
+            positionCurrent--;
+        }
+
+    }
+
+    //ОБНОВЛЕНИЕ СПИСКА
     public void addSpisokGroups(SQLiteDatabase database, ListView groups, int idLine) {
         final ArrayList<String> spisokGroups = new ArrayList <String>();
         Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_NAME, DBHelper.GR_MARK,

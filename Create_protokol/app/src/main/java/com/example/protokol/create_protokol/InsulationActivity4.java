@@ -2,6 +2,7 @@ package com.example.protokol.create_protokol;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -26,6 +28,8 @@ public class InsulationActivity4 extends AppCompatActivity {
     DBHelper dbHelper;
     String nameRoom, nameLine;
     int idRoom, idLine;
+    Switch reserve;
+    TextView mark, vein, section, workU, u, r, phase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,21 +40,14 @@ public class InsulationActivity4 extends AppCompatActivity {
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
 
         final TextView group = findViewById(R.id.textView8);
-        final Switch reserve = findViewById(R.id.switch3);
-        final TextView mark = findViewById(R.id.textView12);
-        ImageButton chooseMark = findViewById(R.id.button10);
-        final TextView vein = findViewById(R.id.textView13);
-        ImageButton chooseVein = findViewById(R.id.button11);
-        final TextView section = findViewById(R.id.textView14);
-        ImageButton chooseSection = findViewById(R.id.button12);
-        final TextView workU = findViewById(R.id.textView15);
-        ImageButton chooseWorkU = findViewById(R.id.button13);
-        final TextView u = findViewById(R.id.textView16);
-        ImageButton chooseU = findViewById(R.id.button14);
-        final TextView r = findViewById(R.id.textView17);
-        ImageButton chooseR = findViewById(R.id.button15);
-        final TextView phase = findViewById(R.id.textView18);
-        ImageButton choosePhase = findViewById(R.id.button16);
+        reserve = findViewById(R.id.switch3);
+        mark = findViewById(R.id.textView12);
+        vein = findViewById(R.id.textView13);
+        section = findViewById(R.id.textView14);
+        workU = findViewById(R.id.textView15);
+        u = findViewById(R.id.textView16);
+        r = findViewById(R.id.textView17);
+        phase = findViewById(R.id.textView18);
         final EditText number = findViewById(R.id.editText2);
         Button save = findViewById(R.id.button17);
 
@@ -166,325 +163,6 @@ public class InsulationActivity4 extends AppCompatActivity {
                     r.setText("Доп. сопротивление: 0,5");
                     phase.setText("Фаза: Не выбрана");
                     number.setText("");
-                }
-            }
-        });
-
-        //ВЫБОР МАРОК
-        chooseMark.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!reserve.isChecked()) {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                    alert.setCancelable(false);
-                    alert.setTitle("Выберете марку:");
-                    final String marks[] = {"ПВС", "ВВГ", "АВВГ", "ПУНП", "АПУНП", "ШВВП", "АПВ", "ПВ", "ПВ3"};
-                    alert.setItems(marks, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mark.setText("Марка: " + marks[which]);
-                        }
-                    });
-                    alert.setPositiveButton("Ввести", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity4.this);
-                            View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
-                            alert1.setCancelable(false);
-                            alert1.setTitle("Введите марку:");
-                            final EditText input = myView.findViewById(R.id.editText);
-                            alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    String nameMark = input.getText().toString();
-                                    mark.setText("Марка: " + nameMark);
-                                }
-                            });
-                            alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-
-                                }
-                            });
-                            alert1.setView(myView);
-                            alert1.show();
-                        }
-                    });
-                    alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert.show();
-                }
-                else {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                    alert.setCancelable(false);
-                    alert.setMessage("Выбор марок не доступен, так как группа резервная. " +
-                            "Чтобы выбрать марку, нажмите на ползунок, сделав его неактивным");
-                    alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert.show();
-                }
-            }
-        });
-
-        //ВЫБОР КОЛ-ВА ЖИЛ
-        chooseVein.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!reserve.isChecked()) {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                    alert.setCancelable(false);
-                    alert.setTitle("Выберете кол-во жил:");
-                    final String veins[] = {"2", "3", "4", "5"};
-                    alert.setItems(veins, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            vein.setText("Кол-во жил: " + veins[which]);
-                            if (which == 2 || which == 3)
-                                phase.setText("Фаза: -");
-                        }
-                    });
-                    alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert.show();
-                }
-                else {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                    alert.setCancelable(false);
-                    alert.setMessage("Выбор кол-ва жил не доступен, так как группа резервная. " +
-                            "Чтобы выбрать кол-во жил, нажмите на ползунок, сделав его неактивным");
-                    alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert.show();
-                }
-            }
-        });
-
-        //ВЫБОР СЕЧЕНИЯ
-        chooseSection.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!reserve.isChecked()) {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                    alert.setCancelable(false);
-                    alert.setTitle("Выберете сечение:");
-                    final String sectoins[] = {"0,5", "0,75", "1", "1,5", "2,5", "4", "6", "10", "16", "25", "35", "50", "70", "95", "120", "150", "185", "240"};
-                    alert.setItems(sectoins, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            section.setText("Сечение: " + sectoins[which]);
-                        }
-                    });
-                    alert.setPositiveButton("Ввести", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity4.this);
-                            View myView = getLayoutInflater().inflate(R.layout.dialog_for_section,null);
-                            alert1.setCancelable(false);
-                            alert1.setTitle("Введите сечение:");
-                            final EditText input = myView.findViewById(R.id.editText2);
-                            alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    String numberSection = input.getText().toString();
-                                    section.setText("Сечение: " + numberSection);
-                                }
-                            });
-                            alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-
-                                }
-                            });
-                            alert1.setView(myView);
-                            alert1.show();
-                        }
-                    });
-                    alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert.show();
-                }
-                else {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                    alert.setCancelable(false);
-                    alert.setMessage("Выбор сечения не доступен, так как группа резервная. " +
-                            "Чтобы выбрать сечение, нажмите на ползунок, сделав его неактивным");
-                    alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert.show();
-                }
-            }
-        });
-
-        //ВЫБОР РАБОЧЕГО НАПРЯЖЕНИЯ
-        chooseWorkU.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!reserve.isChecked()) {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                    alert.setCancelable(false);
-                    alert.setTitle("Выберете рабочее напряжение:");
-                    final String arrWorkU[] = {"220", "380"};
-                    alert.setItems(arrWorkU, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            workU.setText("Раб. напряжение: " + arrWorkU[which]);
-                        }
-                    });
-                    alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert.show();
-                }
-                else {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                    alert.setCancelable(false);
-                    alert.setMessage("Выбор напряжения не доступен, так как группа резервная. " +
-                            "Чтобы выбрать напряжение, нажмите на ползунок, сделав его неактивным");
-                    alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert.show();
-                }
-            }
-        });
-
-        //ВЫБОР НАПРЯЖЕНИЯ МЕГАОММЕТРА
-        chooseU.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!reserve.isChecked()) {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                    alert.setCancelable(false);
-                    alert.setTitle("Выберете напряжение мегаомметра:");
-                    final String arrU[] = {"500", "1000", "2500"};
-                    alert.setItems(arrU, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            u.setText("Напр. мегаомметра: " + arrU[which]);
-                        }
-                    });
-                    alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert.show();
-                }
-                else {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                    alert.setCancelable(false);
-                    alert.setMessage("Выбор напряжения не доступен, так как группа резервная. " +
-                            "Чтобы выбрать напряжение, нажмите на ползунок, сделав его неактивным");
-                    alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert.show();
-                }
-            }
-        });
-
-        //ВЫБОР СОПРОТИВЛЕНИЯ
-        chooseR.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!reserve.isChecked()) {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                    alert.setCancelable(false);
-                    alert.setTitle("Выберете допустимое сопротивление:");
-                    final String arrR[] = {"0,5", "1"};
-                    alert.setItems(arrR, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            r.setText("Доп. сопротивление: " + arrR[which]);
-                        }
-                    });
-                    alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert.show();
-                }
-                else {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                    alert.setCancelable(false);
-                    alert.setMessage("Выбор сопротивления не доступен, так как группа резервная. " +
-                            "Чтобы выбрать сопротивление, нажмите на ползунок, сделав его неактивным");
-                    alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert.show();
-                }
-            }
-        });
-
-        //ВЫБОР ФАЗЫ
-        choosePhase.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if ((vein.getText().toString().substring(12).equals("4") || vein.getText().toString().substring(12).equals("5"))) {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                    alert.setCancelable(false);
-                    alert.setMessage("Выбор фазы доступен, если количество жил равно 2 или 3. " +
-                            "При ином количестве жил переходите сразу к вводу значения.");
-                    alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert.show();
-                }
-                else {
-                    if (!reserve.isChecked()) {
-                        AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                        alert.setCancelable(false);
-                        alert.setTitle("Выберете фазу:");
-                        final String phases[] = {"A", "B", "C"};
-                        alert.setItems(phases, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                phase.setText("Фаза: " + phases[which]);
-                            }
-                        });
-                        alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-
-                            }
-                        });
-                        alert.show();
-                    }
-                    else {
-                        AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                        alert.setCancelable(false);
-                        alert.setMessage("Выбор фазы не доступен, так как группа резервная. " +
-                                "Чтобы выбрать фазу, нажмите на ползунок, сделав его неактивным");
-                        alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-
-                            }
-                        });
-                        alert.show();
-                    }
                 }
             }
         });
@@ -707,6 +385,321 @@ public class InsulationActivity4 extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    //ВЫБОР МАРКИ
+    public void onClickMark(View view) {
+        if (!reserve.isChecked()) {
+            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            alert.setCancelable(false);
+            alert.setTitle("Выберете марку:");
+            final String marks[] = {"ПВС", "ВВГ", "АВВГ", "ПУНП", "АПУНП", "ШВВП", "АПВ", "ПВ", "ПВ3"};
+            alert.setItems(marks, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mark.setText("Марка: " + marks[which]);
+                }
+            });
+            alert.setPositiveButton("Ввести", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity4.this);
+                    final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
+                    alert1.setCancelable(false);
+                    alert1.setTitle("Введите марку:");
+                    final EditText input = myView.findViewById(R.id.editText);
+                    //ОТКРЫВАЕМ КЛАВИАТУРУ
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                    alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            //СКРЫВАЕМ КЛАВИАТУРУ
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                            String nameMark = input.getText().toString();
+                            mark.setText("Марка: " + nameMark);
+                        }
+                    });
+                    alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            //СКРЫВАЕМ КЛАВИАТУРУ
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        }
+                    });
+                    alert1.setView(myView);
+                    alert1.show();
+                }
+            });
+            alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+            alert.show();
+        }
+        else {
+            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            alert.setCancelable(false);
+            alert.setMessage("Выбор марок не доступен, так как группа резервная. " +
+                    "Чтобы выбрать марку, нажмите на ползунок, сделав его неактивным");
+            alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+            alert.show();
+        }
+    }
+
+    //ВЫБОР КОЛ-ВА ЖИЛ
+    public void onClickVein(View view) {
+        if (!reserve.isChecked()) {
+            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            alert.setCancelable(false);
+            alert.setTitle("Выберете кол-во жил:");
+            final String veins[] = {"2", "3", "4", "5"};
+            alert.setItems(veins, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    vein.setText("Кол-во жил: " + veins[which]);
+                    if (which == 2 || which == 3)
+                        phase.setText("Фаза: -");
+                }
+            });
+            alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+            alert.show();
+        }
+        else {
+            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            alert.setCancelable(false);
+            alert.setMessage("Выбор кол-ва жил не доступен, так как группа резервная. " +
+                    "Чтобы выбрать кол-во жил, нажмите на ползунок, сделав его неактивным");
+            alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+            alert.show();
+        }
+
+    }
+
+    //ВЫБОР СЕЧЕНИЯ
+    public void onClickSection(View view) {
+        if (!reserve.isChecked()) {
+            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            alert.setCancelable(false);
+            alert.setTitle("Выберете сечение:");
+            final String sectoins[] = {"0,5", "0,75", "1", "1,5", "2,5", "4", "6", "10", "16", "25", "35", "50", "70", "95", "120", "150", "185", "240"};
+            alert.setItems(sectoins, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    section.setText("Сечение: " + sectoins[which]);
+                }
+            });
+            alert.setPositiveButton("Ввести", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity4.this);
+                    final View myView = getLayoutInflater().inflate(R.layout.dialog_for_section,null);
+                    alert1.setCancelable(false);
+                    alert1.setTitle("Введите сечение:");
+                    final EditText input = myView.findViewById(R.id.editText2);
+                    //ОТКРЫВАЕМ КЛАВИАТУРУ
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                    alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            //СКРЫВАЕМ КЛАВИАТУРУ
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                            String numberSection = input.getText().toString();
+                            section.setText("Сечение: " + numberSection);
+                        }
+                    });
+                    alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            //СКРЫВАЕМ КЛАВИАТУРУ
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        }
+                    });
+                    alert1.setView(myView);
+                    alert1.show();
+                }
+            });
+            alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+            alert.show();
+        }
+        else {
+            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            alert.setCancelable(false);
+            alert.setMessage("Выбор сечения не доступен, так как группа резервная. " +
+                    "Чтобы выбрать сечение, нажмите на ползунок, сделав его неактивным");
+            alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+            alert.show();
+        }
+    }
+
+    //ВЫБОР РАБОЧЕГО НАПРЯЖЕНИЯ
+    public void onClickWorkU(View view) {
+        if (!reserve.isChecked()) {
+            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            alert.setCancelable(false);
+            alert.setTitle("Выберете рабочее напряжение:");
+            final String arrWorkU[] = {"220", "380"};
+            alert.setItems(arrWorkU, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    workU.setText("Раб. напряжение: " + arrWorkU[which]);
+                }
+            });
+            alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+            alert.show();
+        }
+        else {
+            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            alert.setCancelable(false);
+            alert.setMessage("Выбор напряжения не доступен, так как группа резервная. " +
+                    "Чтобы выбрать напряжение, нажмите на ползунок, сделав его неактивным");
+            alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+            alert.show();
+        }
+    }
+
+    //ВЫБОР НАПРЯЖЕНИЯ МЕГАОММЕТРА
+    public void onClickU(View view) {
+        if (!reserve.isChecked()) {
+            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            alert.setCancelable(false);
+            alert.setTitle("Выберете напряжение мегаомметра:");
+            final String arrU[] = {"500", "1000", "2500"};
+            alert.setItems(arrU, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    u.setText("Напр. мегаомметра: " + arrU[which]);
+                }
+            });
+            alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+            alert.show();
+        }
+        else {
+            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            alert.setCancelable(false);
+            alert.setMessage("Выбор напряжения не доступен, так как группа резервная. " +
+                    "Чтобы выбрать напряжение, нажмите на ползунок, сделав его неактивным");
+            alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+            alert.show();
+        }
+    }
+
+    //ВЫБОР ДОПУСТИМОГО СОПРОТИВЛЕНИЯ
+    public void onClickR(View view) {
+        if (!reserve.isChecked()) {
+            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            alert.setCancelable(false);
+            alert.setTitle("Выберете допустимое сопротивление:");
+            final String arrR[] = {"0,5", "1"};
+            alert.setItems(arrR, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    r.setText("Доп. сопротивление: " + arrR[which]);
+                }
+            });
+            alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+            alert.show();
+        }
+        else {
+            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            alert.setCancelable(false);
+            alert.setMessage("Выбор сопротивления не доступен, так как группа резервная. " +
+                    "Чтобы выбрать сопротивление, нажмите на ползунок, сделав его неактивным");
+            alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+            alert.show();
+        }
+    }
+
+    //ВЫБОР ФАЗЫ
+    public void onClickPhase(View view) {
+        if ((vein.getText().toString().substring(12).equals("4") || vein.getText().toString().substring(12).equals("5"))) {
+            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            alert.setCancelable(false);
+            alert.setMessage("Выбор фазы доступен, если количество жил равно 2 или 3. " +
+                    "При ином количестве жил переходите сразу к вводу значения.");
+            alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+            alert.show();
+        }
+        else {
+            if (!reserve.isChecked()) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+                alert.setCancelable(false);
+                alert.setTitle("Выберете фазу:");
+                final String phases[] = {"A", "B", "C"};
+                alert.setItems(phases, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        phase.setText("Фаза: " + phases[which]);
+                    }
+                });
+                alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                    }
+                });
+                alert.show();
+            }
+            else {
+                AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+                alert.setCancelable(false);
+                alert.setMessage("Выбор фазы не доступен, так как группа резервная. " +
+                        "Чтобы выбрать фазу, нажмите на ползунок, сделав его неактивным");
+                alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                    }
+                });
+                alert.show();
+            }
+        }
     }
 
     public String getRandomNumber(String x) {
