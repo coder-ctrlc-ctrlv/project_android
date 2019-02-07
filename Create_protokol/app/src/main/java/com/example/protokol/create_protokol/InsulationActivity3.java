@@ -225,7 +225,7 @@ public class InsulationActivity3 extends AppCompatActivity {
                                         contentValues.put(DBHelper.GR_N_PE, "-");
                                         contentValues.put(DBHelper.GR_CONCLUSION, "-");
                                         database.insert(DBHelper.TABLE_GROUPS, null, contentValues);
-                                        swapGroups(position, groups.getAdapter().getCount() + 1, idLine, database);
+                                        swapGroups(position + 1, groups.getAdapter().getCount() + 1, idLine, database);
                                         addSpisokGroups(database, groups, idLine);
                                         Toast toast2 = Toast.makeText(getApplicationContext(),
                                                 "Группа добавлена", Toast.LENGTH_SHORT);
@@ -321,7 +321,6 @@ public class InsulationActivity3 extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     //ГЕНЕРАЦИЯ ЧИСЛА
     public String getRandomNumber(String x) {
@@ -506,7 +505,7 @@ public class InsulationActivity3 extends AppCompatActivity {
                             contentValues.put(DBHelper.GR_N_PE, getRandomNumber(numb));
                         }
                         database.insert(DBHelper.TABLE_GROUPS, null, contentValues);
-                        swapGroups(position, groups.getAdapter().getCount() + 1, idLine, database);
+                        swapGroups(position + 1, groups.getAdapter().getCount() + 1, idLine, database);
                         addSpisokGroups(database, groups, idLine);
                         Toast toast2 = Toast.makeText(getApplicationContext(),
                                 "Группа добавлена", Toast.LENGTH_SHORT);
@@ -530,35 +529,30 @@ public class InsulationActivity3 extends AppCompatActivity {
     public void swapGroups(int positionStop, int positionCurrent, int idLine, SQLiteDatabase database) {
         if (positionCurrent - positionStop == 1)
             return;
-        int idCurrent, idUp, groupIndex, nameIndex;
-        String nameCurrent, nameUp;
+        int idCurrent, idUp, groupIndex;
 
         //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID И НАЗВАНИЯ ТЕКУЩЕЙ ГРУППЫ
-        Cursor cursor4 = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID, DBHelper.GR_NAME}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
+        Cursor cursor4 = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
         cursor4.moveToPosition(positionCurrent - 1);
         groupIndex = cursor4.getColumnIndex(DBHelper.GR_ID);
-        nameIndex = cursor4.getColumnIndex(DBHelper.GR_NAME);
         idCurrent = cursor4.getInt(groupIndex);
-        nameCurrent = cursor4.getString(nameIndex);
         cursor4.close();
 
         while (positionCurrent - positionStop != 1) {
 
             //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID И НАЗВАНИЯ ГРУППЫ ПОВЫШЕ
-            Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID, DBHelper.GR_NAME}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
-            cursor.moveToPosition(positionCurrent - 1);
+            Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
+            cursor.moveToPosition(positionCurrent - 2);
             groupIndex = cursor.getColumnIndex(DBHelper.GR_ID);
-            nameIndex = cursor.getColumnIndex(DBHelper.GR_NAME);
             idUp = cursor.getInt(groupIndex);
-            nameUp = cursor.getString(nameIndex);
             cursor.close();
 
             //МЕНЯЕМ НАЗВАНИЕ
             ContentValues values = new ContentValues();
-            values.put(DBHelper.GR_NAME, "Гр " + Integer.toString(positionCurrent));
+            values.put(DBHelper.GR_NAME, "Гр " + Integer.toString(positionCurrent - 1));
             database.update(DBHelper.TABLE_GROUPS, values,"_id = ?", new String[]{Integer.toString(idCurrent)});
             values = new ContentValues();
-            values.put(DBHelper.GR_NAME, "Гр " + Integer.toString(positionCurrent + 1));
+            values.put(DBHelper.GR_NAME, "Гр " + Integer.toString(positionCurrent));
             database.update(DBHelper.TABLE_GROUPS, values,"_id = ?", new String[]{Integer.toString(idUp)});
 
             //МЕНЯЕМ ID
