@@ -70,6 +70,8 @@ public class InsulationActivity2 extends AppCompatActivity {
                         final String nameLine = input.getText().toString();
                         ContentValues contentValues = new ContentValues();
                         contentValues.put(DBHelper.LN_NAME, nameLine);
+                        contentValues.put(DBHelper.LN_HEADER, "-");
+                        contentValues.put(DBHelper.LN_EMPTY_STRINGS, 0);
                         contentValues.put(DBHelper.LN_ID_ROOM, idRoom);
                         database.insert(DBHelper.TABLE_LINES, null, contentValues);
                         //СКРЫВАЕМ КЛАВИАТУРУ
@@ -100,7 +102,7 @@ public class InsulationActivity2 extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, final View view, final int position, final long id) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity2.this);
                 alert.setTitle(((TextView) view).getText());
-                String arrayMenu[] = {"Перейти к группам", "Изменить название", "Удалить щит"};
+                String arrayMenu[] = {"\nПерейти к группам\n", "\nИзменить название\n", "\nУдалить щит\n"};
                 alert.setItems(arrayMenu, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -125,10 +127,13 @@ public class InsulationActivity2 extends AppCompatActivity {
                         //ИЗМЕНИТЬ НАЗВАНИЕ
                         if (which == 1) {
                             AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity2.this);
+                            final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
                             alert1.setCancelable(false);
                             alert1.setTitle("Введите новое название щита:");
-                            final EditText input = new EditText(InsulationActivity2.this);
-                            alert1.setView(input);
+                            final EditText input = myView.findViewById(R.id.editText);
+                            //ОТКРЫВАЕМ КЛАВИАТУРУ
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
                             alert1.setPositiveButton("Изменить", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     String namel = input.getText().toString();
@@ -138,6 +143,9 @@ public class InsulationActivity2 extends AppCompatActivity {
                                             uppname,
                                             "_id = ?",
                                             new String[] {String.valueOf(lineId)});
+                                    //СКРЫВАЕМ КЛАВИАТУРУ
+                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
                                     //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
                                     addSpisokLines(database, lines, idRoom);
                                     Toast toast1 = Toast.makeText(getApplicationContext(),
@@ -147,9 +155,12 @@ public class InsulationActivity2 extends AppCompatActivity {
                             });
                             alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
-
+                                    //СКРЫВАЕМ КЛАВИАТУРУ
+                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
                                 }
                             });
+                            alert1.setView(myView);
                             alert1.show();
                         }
 
@@ -219,7 +230,7 @@ public class InsulationActivity2 extends AppCompatActivity {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, spisokLines);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.list_item, spisokLines);
         lines.setAdapter(adapter);
     }
 }

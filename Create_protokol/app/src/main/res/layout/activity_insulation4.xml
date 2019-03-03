@@ -5,23 +5,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fon"
-    tools:context=".InsulationActivity4"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true"
-    tools:layout_editor_absoluteY="25dp">
+    tools:context=".InsulationActivity4">
 
     <ScrollView
         android:id="@+id/scroll"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="15dp"
         android:layout_marginRight="15dp"
         android:layout_marginBottom="15dp"
-        app:layout_constraintBottom_toTopOf="@+id/button17"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -44,119 +44,119 @@
                 android:layout_width="140dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:text="Резерв"
                 android:textColor="@color/text"
-                android:textSize="18sp" />
+                android:textSize="20sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <ImageButton
                     android:id="@+id/button10"
-                    android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:onClick="onClickMark"
-                    android:background="@drawable/buttons2"
+                    android:layout_weight="1"
                     android:adjustViewBounds="true"
-                    android:padding="7dp"
+                    android:background="@drawable/buttons"
+                    android:onClick="onClickMark"
+                    android:padding="15dp"
                     android:scaleType="fitCenter"
                     android:src="@mipmap/menu" />
 
                 <TextView
                     android:id="@+id/textView12"
-                    android:layout_weight="8"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="5dp"
+                    android:layout_weight="10"
                     android:gravity="center_vertical"
                     android:onClick="onClickMark"
                     android:text="Марка: Не выбрана"
                     android:textColor="@color/text"
-                    android:textSize="18sp" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <ImageButton
                     android:id="@+id/button11"
-                    android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:onClick="onClickVein"
+                    android:layout_weight="1"
                     android:adjustViewBounds="true"
-                    android:background="@drawable/buttons2"
-                    android:padding="7dp"
+                    android:background="@drawable/buttons"
+                    android:onClick="onClickVein"
+                    android:padding="15dp"
                     android:scaleType="fitCenter"
                     android:src="@mipmap/menu" />
 
                 <TextView
                     android:id="@+id/textView13"
-                    android:layout_weight="8"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="5dp"
+                    android:layout_weight="10"
                     android:gravity="center_vertical"
                     android:onClick="onClickVein"
                     android:text="Кол-во жил: Не выбрано"
                     android:textColor="@color/text"
-                    android:textSize="18sp" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <ImageButton
                     android:id="@+id/button12"
-                    android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:onClick="onClickSection"
+                    android:layout_weight="1"
                     android:adjustViewBounds="true"
-                    android:background="@drawable/buttons2"
-                    android:padding="7dp"
+                    android:background="@drawable/buttons"
+                    android:onClick="onClickSection"
+                    android:padding="15dp"
                     android:scaleType="fitCenter"
                     android:src="@mipmap/menu" />
 
                 <TextView
                     android:id="@+id/textView14"
-                    android:layout_weight="8"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:gravity="center_vertical"
                     android:layout_marginLeft="5dp"
+                    android:layout_weight="10"
+                    android:gravity="center_vertical"
                     android:onClick="onClickSection"
                     android:text="Сечение: Не выбрано"
                     android:textColor="@color/text"
-                    android:textSize="18sp" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <ImageButton
                     android:id="@+id/button13"
-                    android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:onClick="onClickWorkU"
+                    android:layout_weight="1"
                     android:adjustViewBounds="true"
-                    android:background="@drawable/buttons2"
-                    android:padding="7dp"
+                    android:background="@drawable/buttons"
+                    android:onClick="onClickWorkU"
+                    android:padding="15dp"
                     android:scaleType="fitCenter"
                     android:src="@mipmap/menu" />
 
@@ -165,29 +165,29 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="5dp"
-                    android:layout_weight="8"
+                    android:layout_weight="10"
                     android:gravity="center_vertical"
                     android:onClick="onClickWorkU"
                     android:text="Раб. напряжение: Не выбрано"
                     android:textColor="@color/text"
-                    android:textSize="18sp" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <ImageButton
                     android:id="@+id/button14"
-                    android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:onClick="onClickU"
+                    android:layout_weight="1"
                     android:adjustViewBounds="true"
-                    android:background="@drawable/buttons2"
-                    android:padding="7dp"
+                    android:background="@drawable/buttons"
+                    android:onClick="onClickU"
+                    android:padding="15dp"
                     android:scaleType="fitCenter"
                     android:src="@mipmap/menu" />
 
@@ -196,29 +196,29 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="5dp"
-                    android:layout_weight="8"
+                    android:layout_weight="10"
                     android:gravity="center_vertical"
                     android:onClick="onClickU"
                     android:text="Напр. мегаомметра: 1000"
                     android:textColor="@color/text"
-                    android:textSize="18sp" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <ImageButton
                     android:id="@+id/button15"
-                    android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:onClick="onClickR"
+                    android:layout_weight="1"
                     android:adjustViewBounds="true"
-                    android:background="@drawable/buttons2"
-                    android:padding="7dp"
+                    android:background="@drawable/buttons"
+                    android:onClick="onClickR"
+                    android:padding="15dp"
                     android:scaleType="fitCenter"
                     android:src="@mipmap/menu" />
 
@@ -227,49 +227,49 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="5dp"
-                    android:layout_weight="8"
+                    android:layout_weight="10"
                     android:gravity="center_vertical"
                     android:onClick="onClickR"
                     android:text="Доп. сопротивление: 0,5"
                     android:textColor="@color/text"
-                    android:textSize="18sp" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <ImageButton
                     android:id="@+id/button16"
-                    android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:onClick="onClickPhase"
+                    android:layout_weight="1"
                     android:adjustViewBounds="true"
-                    android:background="@drawable/buttons2"
-                    android:padding="7dp"
+                    android:background="@drawable/buttons"
+                    android:onClick="onClickPhase"
+                    android:padding="15dp"
                     android:scaleType="fitCenter"
                     android:src="@mipmap/menu" />
 
                 <TextView
                     android:id="@+id/textView18"
-                    android:layout_weight="8"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="5dp"
+                    android:layout_weight="10"
                     android:gravity="center_vertical"
                     android:onClick="onClickPhase"
                     android:text="Фаза: Не выбрана"
                     android:textColor="@color/text"
-                    android:textSize="18sp" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
                 android:orientation="horizontal">
 
                 <TextView
@@ -280,7 +280,7 @@
                     android:gravity="center_vertical"
                     android:text="Введите значение:"
                     android:textColor="@color/text"
-                    android:textSize="18sp" />
+                    android:textSize="20sp" />
 
                 <EditText
                     android:id="@+id/editText2"
@@ -294,27 +294,17 @@
                     android:textColor="@color/text" />
             </LinearLayout>
 
+            <Button
+                android:id="@+id/button17"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/buttons"
+                android:text="Cохранить"
+                android:textColor="@color/fon" />
 
         </LinearLayout>
     </ScrollView>
 
-    <Button
-        android:id="@+id/button17"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:layout_gravity="center"
-        android:layout_marginStart="15dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginBottom="15dp"
-        android:background="@drawable/buttons2"
-        android:text="Cохранить"
-        android:textColor="@color/fon"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scroll" />
 
 </android.support.constraint.ConstraintLayout>

@@ -72,7 +72,7 @@ public class RoomElementActivity2 extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, final View view, final int position, final long id) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(RoomElementActivity2.this);
                 alert.setTitle(((TextView) view).getText());
-                String arrayMenu[] = {"Посмотреть", "Редактировать", "Удалить элемент"};
+                String arrayMenu[] = {"\nПосмотреть\n", "\nРедактировать\n", "\nУдалить элемент\n"};
                 alert.setItems(arrayMenu, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -365,7 +365,7 @@ public class RoomElementActivity2 extends AppCompatActivity {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, spisokElements);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.list_item, spisokElements);
         elements.setAdapter(adapter);
     }
 

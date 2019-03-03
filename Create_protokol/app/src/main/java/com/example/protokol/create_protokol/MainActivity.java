@@ -43,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
                         database.delete(DBHelper.TABLE_LINE_ROOMS, null, null);
                         database.delete(DBHelper.TABLE_LINES, null, null);
                         database.delete(DBHelper.TABLE_GROUPS, null, null);
+                        database.delete(DBHelper.TABLE_TITLE, null, null);
+                        database.delete(DBHelper.TABLE_GD, null, null);
+                        database.delete(DBHelper.TABLE_MAIN_DEVICES, null, null);
                     }
                 });
                 builder.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
@@ -55,6 +58,17 @@ public class MainActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
+    }
+
+    public void titlePage (View view) {
+        Intent intent = new Intent("android.intent.action.TitlePage");
+        startActivity(intent);
+    }
+
+
+    public void groundingDevices (View view) {
+        Intent intent = new Intent("android.intent.action.GroundingDevices");
+        startActivity(intent);
     }
 
     public void roomElement (View view) {

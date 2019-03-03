@@ -82,7 +82,7 @@ public class InsulationActivity3 extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, final View view, final int position, final long id) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity3.this);
                 alert.setTitle(((TextView) view).getText());
-                String arrayMenu[] = {"Посмотреть", "Редактировать", "Повторить группу", "Удалить группу"};
+                String arrayMenu[] = {"\nПосмотреть\n", "\nРедактировать\n", "\nПовторить группу\n", "\nУдалить группу\n"};
                 alert.setItems(arrayMenu, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -167,7 +167,7 @@ public class InsulationActivity3 extends AppCompatActivity {
                             intent.putExtra("idRoom", idRoom);
                             intent.putExtra("nameLine", nameLine);
                             intent.putExtra("idLine", idLine);
-                            intent.putExtra("nameGroup", "Группа №" + ((TextView) view).getText().toString().substring(3, ((TextView) view).getText().toString().indexOf(" ", 3)));
+                            intent.putExtra("nameGroup", "Группа №" + ((TextView) view).getText().toString().substring(3, ((TextView) view).getText().toString().indexOf(' ' , 3)));
                             intent.putExtra("idGroup", groupId);
                             startActivity(intent);
                         }
@@ -597,7 +597,7 @@ public class InsulationActivity3 extends AppCompatActivity {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, spisokGroups);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.list_item, spisokGroups);
         groups.setAdapter(adapter);
     }
 }

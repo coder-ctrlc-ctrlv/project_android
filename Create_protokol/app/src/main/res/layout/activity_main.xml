@@ -9,7 +9,7 @@
     tools:layout_editor_absoluteY="81dp">
 
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -21,171 +21,181 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="35dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/button4"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/buttons"
+                    android:textAllCaps="false"
+                    android:text="СОДЕРЖАНИЕ\n(план работ)"
+                    android:textColor="@color/fon" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/button5"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/buttons"
+                    android:onClick="titlePage"
+                    android:text="Титульный лист"
+                    android:textColor="@color/fon" />
+
+                <Button
+                    android:id="@+id/button43"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginLeft="10dp"
+                    android:textColor="@color/fon"
+                    android:background="@drawable/buttons"
+                    android:layout_weight="1"
+                    android:text="Заключение" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/button7"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginRight="10sp"
+                    android:layout_weight="1"
+                    android:background="@drawable/buttons"
+                    android:text="Основные данные"
+                    android:textColor="@color/fon" />
+
+                <Button
+                    android:id="@+id/button6"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginLeft="10sp"
+                    android:layout_weight="1"
+                    android:background="@drawable/buttons"
+                    android:text="Визуальный осмотр"
+                    android:textColor="@color/fon" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/button19"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginRight="10sp"
+                    android:layout_weight="1"
+                    android:background="@drawable/buttons"
+                    android:onClick="insulation"
+                    android:text="Изоляция"
+                    android:textColor="@color/fon" />
+
+                <Button
+                    android:id="@+id/button18"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginLeft="10sp"
+                    android:layout_weight="1"
+                    android:background="@drawable/buttons"
+                    android:text='"фаза-нуль"'
+                    android:textColor="@color/fon" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/button21"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginRight="10sp"
+                    android:layout_weight="1"
+                    android:background="@drawable/buttons"
+                    android:text="Автоматические выключатели"
+                    android:textColor="@color/fon" />
+
+                <Button
+                    android:id="@+id/button20"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginLeft="10sp"
+                    android:layout_weight="1"
+                    android:background="@drawable/buttons"
+                    android:text="Дифференциальные автоматы"
+                    android:textColor="@color/fon" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/button23"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginRight="10sp"
+                    android:layout_weight="1"
+                    android:background="@drawable/buttons"
+                    android:onClick="roomElement"
+                    android:text="Заземл. установки и элементы"
+                    android:textColor="@color/fon" />
+
+                <Button
+                    android:id="@+id/button22"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginLeft="10sp"
+                    android:layout_weight="1"
+                    android:background="@drawable/buttons"
+                    android:onClick="groundingDevices"
+                    android:text="Заземлители и заземл. устройства"
+                    android:textColor="@color/fon" />
+            </LinearLayout>
 
             <Button
-                android:id="@+id/button5"
-                android:layout_width="0dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="7dp"
-                android:layout_weight="1"
-                android:background="@drawable/buttons"
-                android:text="Основные данные"
-                android:textColor="@color/fon"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/button4"
-                android:layout_width="0dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="7dp"
-                android:layout_marginRight="15dp"
-                android:layout_weight="1"
-                android:background="@drawable/buttons"
-                android:text="Содержание"
-                android:textColor="@color/fon"
-                android:textSize="12sp" />
+                android:id="@+id/button24"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/another_buttons"
+                android:text="Удаление данных"
+                android:textColor="@color/fon" />
         </LinearLayout>
+    </ScrollView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/button7"
-                android:layout_width="0dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="7dp"
-                android:layout_weight="1"
-                android:background="@drawable/buttons"
-                android:text="Заключение"
-                android:textColor="@color/fon"
-                android:textSize="12sp" />
 
-            <Button
-                android:id="@+id/button6"
-                android:layout_width="0dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="7dp"
-                android:layout_marginRight="15dp"
-                android:layout_weight="1"
-                android:background="@drawable/buttons"
-                android:text="Визуальный осмотр"
-                android:textColor="@color/fon"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/button19"
-                android:layout_width="0dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="7dp"
-                android:layout_weight="1"
-                android:background="@drawable/buttons"
-                android:text="Изоляция"
-                android:onClick="insulation"
-                android:textColor="@color/fon"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/button18"
-                android:layout_width="0dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="7dp"
-                android:layout_marginRight="15dp"
-                android:layout_weight="1"
-                android:background="@drawable/buttons"
-                android:text='"фаза-нуль"'
-                android:textColor="@color/fon"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/button21"
-                android:layout_width="0dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="7dp"
-                android:layout_weight="1"
-                android:background="@drawable/buttons"
-                android:text="Автоматические выключатели"
-                android:textColor="@color/fon"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/button20"
-                android:layout_width="0dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="7dp"
-                android:layout_marginRight="15dp"
-                android:layout_weight="1"
-                android:background="@drawable/buttons"
-                android:text="Дифференциальные автоматы"
-                android:textColor="@color/fon"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/button23"
-                android:layout_width="0dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="7dp"
-                android:layout_weight="1"
-                android:background="@drawable/buttons"
-                android:onClick="roomElement"
-                android:text="Заземл. установки и элементы"
-                android:textColor="@color/fon"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/button22"
-                android:layout_width="0dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="7dp"
-                android:layout_marginRight="15dp"
-                android:layout_weight="1"
-                android:background="@drawable/buttons"
-                android:text="Заземлители и заземл. устройства"
-                android:textColor="@color/fon"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/button24"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginRight="15dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/another_buttons"
-            android:text="Удаление данных"
-            android:textColor="@color/fon" />
-
-    </LinearLayout>
 </android.support.constraint.ConstraintLayout>
