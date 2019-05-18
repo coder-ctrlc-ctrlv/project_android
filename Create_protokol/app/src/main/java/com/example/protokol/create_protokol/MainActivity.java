@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -45,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
                         database.delete(DBHelper.TABLE_GROUPS, null, null);
                         database.delete(DBHelper.TABLE_TITLE, null, null);
                         database.delete(DBHelper.TABLE_GD, null, null);
-                        database.delete(DBHelper.TABLE_MAIN_DEVICES, null, null);
                     }
                 });
                 builder.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
@@ -79,5 +80,45 @@ public class MainActivity extends AppCompatActivity {
     public void insulation (View view) {
         Intent intent = new Intent("android.intent.action.Insulation");
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.libraries, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.libraries:
+                AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+                alert.setCancelable(false);
+                alert.setTitle("Выберите библиотеку:");
+                final String libararies[] = {"\nНазвания элементов\n", "\nМарки\n"};
+                alert.setItems(libararies, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(which == 0) {
+                            Intent intent = new Intent("android.intent.action.Library");
+                            intent.putExtra("lib", "namesEl");
+                            startActivity(intent);
+                        }
+                        if (which == 1) {
+                            Intent intent = new Intent("android.intent.action.Library");
+                            intent.putExtra("lib", "marks");
+                            startActivity(intent);
+                        }
+                    }
+                });
+                alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                    }
+                });
+                alert.show();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

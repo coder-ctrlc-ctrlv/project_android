@@ -9,6 +9,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,12 +31,13 @@ public class RoomElementActivity extends AppCompatActivity {
     private DBHelper dbHelper;
 
     //ЗАГОЛОВКИ
-    private String[]header = {"№ п/п", "Месторасположение и наименование электрооборудования", "Кол-во проверенных элементов", "R перех. допустимое, (Ом)", "R перех. измеренное, (Ом)", "Вывод о соответствии нормативному документу"};
+    private String[]header = {"№ п/п", "Месторасположение и наименование электрооборудования", "Кол-во проверенных элементов", "R перех. допустимое, (Ом)", "R перех. измеренное, (Ом)", "Вывод о\nсоответствии нормативному документу"};
     private String date = "Дата проведения проверки «__» ___________ _______г. ";
     private String zag = "Климатические условия при проведении измерений";
     private String uslovia = "Температура воздуха __С. Влажность воздуха __%. Атмосферное давление ___ мм.рт.ст.(бар).";
     private String zag2 = "Нормативные и технические документы, на соответствие требованиям которых проведена проверка:";
-    private String line = "______________________________________________________________________________________";
+    private String line1 = "                                                                       ";
+    private String line2 = "ПУЭ 1.8.39 п.2; ПТЭЭП Приложение 3";
 
     //ЗАКЛЮЧЕНИЕ
     private String zakl = "Заключение:";
@@ -43,11 +46,6 @@ public class RoomElementActivity extends AppCompatActivity {
                               "Проверил:                 _____________________     ___________    _____________" + "\n" +
                               "                                           (Должность)                    (Подпись)          (Ф.И.О.)";
     private TemplatePDF templatePDF;
-    private ArrayList<String[]>getNumbers(){
-        ArrayList<String[]>rows = new ArrayList<>();
-        rows.add(new String[]{"1","2","3","4","5","6"});
-        return rows;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +62,7 @@ public class RoomElementActivity extends AppCompatActivity {
 
         //НАСТРАИВАЕМ ACTIONBAR
         getSupportActionBar().setSubtitle("Комнаты");
-        getSupportActionBar().setTitle("Заземл. уст. и элементы");
+        getSupportActionBar().setTitle("Металлосвязь");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА КОМНАТ
@@ -288,13 +286,13 @@ public class RoomElementActivity extends AppCompatActivity {
         templatePDF = new TemplatePDF(getApplicationContext());
         templatePDF.openDocument(namefile, false);
         templatePDF.addMetaData("Protokol", "Item", "Company");
-        templatePDF.addTitles_BD("РЕЗУЛЬТАТЫ", "проверки наличия цепи между заземленными установками и элементами заземленной установки", 12);
-        templatePDF.addParagraph_NotBD(date, 10);
-        templatePDF.addCenter_BD_NotBefore(zag, 12);
-        templatePDF.addCenter_NotBD(uslovia, 10);
-        templatePDF.addCenter_BD_withBefore(zag2, 12);
-        templatePDF.addCenter_NotBD(line, 10);
-        templatePDF.createTableRE(header, getNumbers());
+        templatePDF.addTitles("РЕЗУЛЬТАТЫ", "проверки наличия цепи между заземленными установками и элементами заземленной установки", 12);
+        templatePDF.addParagraph_Normal(date, 10,5,5);
+        templatePDF.addCenter_BD(zag, 12, 0,5);
+        templatePDF.addCenter_Nomal(uslovia, 10,7,5);
+        templatePDF.addCenter_BD(zag2, 12,7,5);
+        templatePDF.addCenter_Under(line1 + line2 + line1, 10,0,5);
+        templatePDF.createTableRE(header);
     }
 
     //НАСТРОЙКА ПДФ С РЕКУРСИЕЙ
@@ -482,14 +480,18 @@ public class RoomElementActivity extends AppCompatActivity {
             templatePDF.emptyStringsRE(1);
         }
         cursor.close();
-        String joinedNZ = TextUtils.join("; ", NZ);
-        String end = "a) Проверена целостность и прочность проводников заземления и зануления, переходные контакты их    соединений, болтовые соединения проверены на затяжку, сварные – ударом молотка." + "\n" +
-                "b) Сопротивление переходных контактов выше нормы, указаны в п/п ______________." + "\n" +
-                "c) Не заземлено оборудование, указанное в п/п : " + joinedNZ + "\n" +
-                "d) Величина измеренного переходного сопротивления прочих контактов заземляющих и нулевых проводников,  элементов электрооборудования соответствует (не соответствует) нормам __________________________.";
-        templatePDF.addCenter_BD_withBefore(zakl, 12);
-        templatePDF.addParagraph_NotBD(end, 10);
-        templatePDF.addParagraph_NotBD(proverka, 10);
+        String joinedNZ;
+        if (!NZ.isEmpty())
+            joinedNZ = TextUtils.join("; ", NZ);
+        else
+            joinedNZ = "нет";
+        String end1 = "a) Проверена целостность и прочность проводников заземления и зануления, переходные контакты их соединений, болтовые соединения проверены на затяжку, сварные – ударом молотка." + "\n" +
+                "b) Сопротивление переходных контактов выше нормы, указаны в п/п ";
+        String end2 = "\n" + "c) Не заземлено оборудование, указанное в п/п ";
+        String end3 = "\n" + "d) Величина измеренного переходного сопротивления прочих контактов заземляющих и нулевых проводников,  элементов электрооборудования соответствует (не соответствует) нормам ";
+        templatePDF.addCenter_BD(zakl, 12, 7, 5);
+        templatePDF.addParagraph_RE_end(end1,"        нет        ", end2,"        " + joinedNZ + "        ", end3,"                          ",10);
+        templatePDF.addParagraph_Normal(proverka, 10,5,5);
         templatePDF.closeDocument();
         templatePDF.appViewPDF(RoomElementActivity.this);
     }

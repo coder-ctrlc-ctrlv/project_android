@@ -112,7 +112,7 @@ public class TitlePageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(TitlePageActivity.this);
                 alert.setCancelable(false);
-                alert.setTitle("Выберете цель испытаний:");
+                alert.setTitle("Выберите цель испытаний:");
                 final String targets[] = {"приёмо-сдаточные", "периодические", "контрольные"};
                 alert.setItems(targets, new DialogInterface.OnClickListener() {
                     @Override
@@ -226,41 +226,8 @@ public class TitlePageActivity extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(TitlePageActivity.this);
-                alert.setCancelable(false);
-                alert.setMessage("Вы уверены, что хотите сохранить изменения?");
-                alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        if (!isNew)
-                            database.delete(DBHelper.TABLE_TITLE, null, null);
-                        ContentValues contentValues = new ContentValues();
-                        contentValues.put(DBHelper.TITLE_ADDRESS, addressTEXT.getText().toString());
-                        contentValues.put(DBHelper.TITLE_TARGET, targetTEXT.getText().toString());
-                        contentValues.put(DBHelper.TITLE_NAME_ELECTRO, nameElectroTEXT.getText().toString());
-                        contentValues.put(DBHelper.TITLE_NUMBER_OF_PROTOKOL, numberPrTEXT.getText().toString());
-                        contentValues.put(DBHelper.TITLE_DATE, dateTEXT.getText().toString());
-                        database.insert(DBHelper.TABLE_TITLE, null, contentValues);
-                        Toast toast = Toast.makeText(getApplicationContext(),
-                                "Изменения сохранены", Toast.LENGTH_SHORT);
-                        toast.show();
-                    }
-                });
-                alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-                alert.show();
-            }
-        });
-
-        //ОТКРЫТИЕ ПДФ
-        openPDF.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
                 if (nameElectroTEXT.getText().toString().equals("Нет") || addressTEXT.getText().toString().equals("Нет") || targetTEXT.getText().toString().equals("Нет") ||
-                    numberPrTEXT.getText().toString().equals("Нет") || dateTEXT.getText().toString().equals("Нет")) {
+                        numberPrTEXT.getText().toString().equals("Нет") || dateTEXT.getText().toString().equals("Нет")) {
                     AlertDialog.Builder alert = new AlertDialog.Builder(TitlePageActivity.this);
                     alert.setCancelable(false);
                     alert.setMessage("Заполните все поля!");
@@ -272,8 +239,41 @@ public class TitlePageActivity extends AppCompatActivity {
                     alert.show();
                 }
                 else {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(TitlePageActivity.this);
+                    alert.setCancelable(false);
+                    alert.setMessage("Вы уверены, что хотите сохранить изменения?");
+                    alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            if (!isNew)
+                                database.delete(DBHelper.TABLE_TITLE, null, null);
+                            ContentValues contentValues = new ContentValues();
+                            contentValues.put(DBHelper.TITLE_ADDRESS, addressTEXT.getText().toString());
+                            contentValues.put(DBHelper.TITLE_TARGET, targetTEXT.getText().toString());
+                            contentValues.put(DBHelper.TITLE_NAME_ELECTRO, nameElectroTEXT.getText().toString());
+                            contentValues.put(DBHelper.TITLE_NUMBER_OF_PROTOKOL, numberPrTEXT.getText().toString());
+                            contentValues.put(DBHelper.TITLE_DATE, dateTEXT.getText().toString());
+                            database.insert(DBHelper.TABLE_TITLE, null, contentValues);
+                            Toast toast = Toast.makeText(getApplicationContext(),
+                                    "Изменения сохранены", Toast.LENGTH_SHORT);
+                            toast.show();
+                        }
+                    });
+                    alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
+                        }
+                    });
+                    alert.show();
                 }
+            }
+        });
+
+        //ОТКРЫТИЕ ПДФ
+        openPDF.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
 

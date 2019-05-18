@@ -27,12 +27,14 @@ import java.util.ArrayList;
 public class InsulationActivity extends AppCompatActivity {
 
     DBHelper dbHelper;
+    private TemplatePDF templatePDF;
 
     private String date = "Дата проведения проверки «__» ___________ _______г. ";
     private String zag = "Климатические условия при проведении измерений";
     private String uslovia = "Температура воздуха __С. Влажность воздуха __%. Атмосферное давление ___ мм.рт.ст.(бар).";
     private String zag2 = "Нормативные и технические документы, на соответствие требованиям которых проведена проверка:";
-    private String line = "_______________________________________________________________________________________________________________________";
+    private String line1 = "                                                                                                        ";
+    private String line2 = "ПУЭ 1.8.37 п.1, 1.8.40 п.2; ПТЭЭП Приложение 3";
     private String proverka = "               Проверку провели:                  _____________________                    ___________                   _____________" + "\n" +
             "                                                                         (Должность)                                   (Подпись)                         (Ф.И.О.)" + "\n" + "\n" +
             "               Проверил:                                _____________________                    ___________                   _____________" + "\n" +
@@ -40,7 +42,8 @@ public class InsulationActivity extends AppCompatActivity {
     private String[] header = {"№\nп/п", "Наименование линий, по проекту", "Рабочее\nнапряжение, В", "Марка провода,\nкабеля", "Количество\nжил, сечение\nпровода,\nкабеля, мм кв.",
             "Напряжение\nмегаомметра, В", "Допустимое\nсопротивление\nизоляции, МОм", "Сопротивление изоляции, МОм", "L1-L2\n(A-B)", "L2-L3\n(В-С)", "L3-L1\n(C-A)", "L1-N\n(A-N)\n(PEN)",
             "L2-N\n(B-N)\n(PEN)", "L3-N\n(C-N)\n(PEN)", "L1-PE\n(A-PE)", "L2-PE\n(B-PE)", "L3-PE\n(C-PE)", "N-PE", "Вывод о\nсоответствии\nнормативному\nдокументу"};
-    private TemplatePDF templatePDF;
+    private String[] end = {"Примечание: ", "                       \u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014",
+            "Заключение: ", "   Сопротивление изоляции проводов и кабелей соответствует требованиям ПУЭ 1.8.37 п.1, 1.8.40 п.2; ПТЭЭП Приложение 3"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -287,12 +290,12 @@ public class InsulationActivity extends AppCompatActivity {
         templatePDF = new TemplatePDF(getApplicationContext());
         templatePDF.openDocument(namefile, true);
         templatePDF.addMetaData("Protokol", "Item", "Company");
-        templatePDF.addTitles_BD("РЕЗУЛЬТАТЫ", "проверки сопротивления изоляции проводов и кабелей", 12);
-        templatePDF.addParagraph_NotBD(date, 10);
-        templatePDF.addCenter_BD_NotBefore(zag, 12);
-        templatePDF.addCenter_NotBD(uslovia, 10);
-        templatePDF.addCenter_BD_withBefore(zag2, 12);
-        templatePDF.addCenter_NotBD(line, 10);
+        templatePDF.addTitles("РЕЗУЛЬТАТЫ", "проверки сопротивления изоляции проводов и кабелей", 12);
+        templatePDF.addParagraph_Normal(date, 10,5,5);
+        templatePDF.addCenter_BD(zag, 12,0,5);
+        templatePDF.addCenter_Nomal(uslovia, 10,7,5);
+        templatePDF.addCenter_BD(zag2, 12,7,5);
+        templatePDF.addCenter_Under(line1 + line2 + line1, 10,0,5);
         templatePDF.createTableInsulation(header);
     }
 
@@ -606,12 +609,8 @@ public class InsulationActivity extends AppCompatActivity {
             templatePDF.emptyStringsInsulation(1);
         }
         cursor.close();
-        String end = "Примечание: ___________________________________________________________________________________________________________________";
-        String end2 = "Заключене: ____________________________________________________________________________________________________________________" + "\n" +
-                "_______________________________________________________________________________________________________________________________";
-        templatePDF.addParagraph_BD(end, 12);
-        templatePDF.addParagraph_BD(end2, 12);
-        templatePDF.addParagraph_NotBD(proverka, 10);
+        templatePDF.addParagraph_Ground_end(end);
+        templatePDF.addParagraph_Normal(proverka, 10,10,5);
         templatePDF.closeDocument();
         templatePDF.appViewPDF(InsulationActivity.this);
     }

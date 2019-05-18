@@ -19,8 +19,9 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -86,16 +87,16 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".GroundingDevicesActivity3">
+        <activity android:name=".TitlePageActivity">
             <intent-filter>
-                <action android:name="android.intent.action.GroundingDevices3" />
+                <action android:name="android.intent.action.TitlePage" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".TitlePageActivity">
+        <activity android:name=".LibraryActivity">
             <intent-filter>
-                <action android:name="android.intent.action.TitlePage" />
+                <action android:name="android.intent.action.Library" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

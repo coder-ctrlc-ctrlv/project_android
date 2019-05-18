@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -149,12 +150,12 @@ public class InsulationActivity3 extends AppCompatActivity {
 
                                 }
                             });
-                            builder4.setMessage("Раб. напряжение: " + workU + "\n" + "Марка: " + mark + "\n" +
-                                "Кол-во жил: " + vein + "\n" + "Сечение: " + section + "\n" +
-                                "Напряж. мегаомметра: " + u + "\n" + "Доп. сопротивление: " + r + "\n" + "A-B: " + a_b + "\n" +
-                                "B-C: " + b_c + "\n" + "C-A: " + c_a + "\n" + "A-N: " + a_n + "\n" + "B-N: " + b_n + "\n" +
-                                "C-N: " + c_n + "\n" + "A-PE: " + a_pe + "\n" + "B-PE: " + b_pe + "\n" +
-                                "C-PE: " + c_pe + "\n" + "N-PE: " + n_pe + "\n" + "Вывод: " + conclusion);
+                            builder4.setMessage(Html.fromHtml("<b>Раб. напряжение: </b>" + workU + "<br>" + "<b>Марка: </b>" + mark + "<br>" +
+                                "<b>Кол-во жил: </b>" + vein + "<br>" + "<b>Сечение: </b>" + section + "<br>" +
+                                "<b>Напряж. мегаомметра: </b>" + u + "<br>" + "<b>Доп. сопротивление: </b>" + r + "<br>" + "<b>A-B: </b>" + a_b + "<br>" +
+                                "<b>B-C: </b>" + b_c + "<br>" + "<b>C-A: </b>" + c_a + "<br>" + "<b>A-N: </b>" + a_n + "<br>" + "<b>B-N: </b>" + b_n + "<br>" +
+                                "<b>C-N: </b>" + c_n + "<br>" + "<b>A-PE: </b>" + a_pe + "<br>" + "<b>B-PE: </b>" + b_pe + "<br>" +
+                                "<b>C-PE: </b>" + c_pe + "<br>" + "<b>N-PE: </b>" + n_pe + "<br>" + "<b>Вывод: </b>" + conclusion));
                             builder4.setTitle(((TextView) view).getText());
                             AlertDialog dialog4 = builder4.create();
                             dialog4.show();

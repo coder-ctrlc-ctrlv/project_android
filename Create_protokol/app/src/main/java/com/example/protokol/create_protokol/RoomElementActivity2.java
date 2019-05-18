@@ -3,12 +3,14 @@ package com.example.protokol.create_protokol;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,19 +26,19 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 public class RoomElementActivity2 extends AppCompatActivity {
 
     DBHelper dbHelper;
-
-    private static final String[] elements = new String[]{"Розетка с з.к.", "Розетка без з.к.", "Системный блок", "Сетевой фильтр 5 гн", "Сетевой фильтр 6 гн", "Удлинитель с з.к. 5 гн", "Удлинитель без з.к.", "Принтер", "МФУ", "Блок розеток с з.к. 2 гн", "Копир. аппарат", "СВЧ-печь", "Холодильник"};
     private String[] soprot = {"0,02","0,03","0,04"} ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room_element2);
+
 
         dbHelper = new DBHelper(this);
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
@@ -49,7 +51,7 @@ public class RoomElementActivity2 extends AppCompatActivity {
 
         //НАСТРАИВАЕМ ACTIONBAR
         getSupportActionBar().setSubtitle("Элементы");
-        getSupportActionBar().setTitle("Заземл. уст. и элементы");
+        getSupportActionBar().setTitle("Металлосвязь");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //ВЫВОД КОМНАТЫ
@@ -62,7 +64,7 @@ public class RoomElementActivity2 extends AppCompatActivity {
         addElement.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FormAddEl(database, listElements, idRoom);
+                FormAddEl(database, listElements, idRoom, false, "", "");
             }
         });
 
@@ -108,8 +110,8 @@ public class RoomElementActivity2 extends AppCompatActivity {
 
                                 }
                             });
-                            builder4.setMessage("Кол-во элементов: " + numb + "\n" + "R допустимое: " + "0,05" + "\n" +
-                                    "R измеренное: " + r + "\n" + "Вывод: " + conclusion);
+                            builder4.setMessage(Html.fromHtml("<b>Кол-во элементов: </b>" + numb + "<br>" + "<b>R допустимое: </b>" + "0,05" + "<br>" +
+                                    "<b>R измеренное: </b>" + r + "<br>" + "<b>Вывод: </b>" + conclusion));
                             builder4.setTitle(((TextView) view).getText());
                             AlertDialog dialog4 = builder4.create();
                             dialog4.show();
@@ -211,12 +213,14 @@ public class RoomElementActivity2 extends AppCompatActivity {
             nz.setChecked(true);
 
         //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
-        ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, elements);
+        ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, getNamesEl(database));
         nameEl.setAdapter(adapter1);
         arrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                hideKeyboard(RoomElementActivity2.this);
+                //СКРЫВАЕМ КЛАВИАТУРУ
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
                 nameEl.showDropDown();
             }
         });
@@ -273,7 +277,7 @@ public class RoomElementActivity2 extends AppCompatActivity {
     }
 
     //ДОБАВЛЕНИЕ ЭЛЕМЕНТА С РЕКУРСИЕЙ
-    public void FormAddEl(final SQLiteDatabase database, final ListView listElements, final int idRoom) {
+    public void FormAddEl(final SQLiteDatabase database, final ListView listElements, final int idRoom, boolean flag, String nameParam, String numbParam) {
         final AlertDialog.Builder alert = new AlertDialog.Builder(RoomElementActivity2.this);
         final View myView = getLayoutInflater().inflate(R.layout.dialog_for_add_element,null);
         alert.setCancelable(false);
@@ -283,19 +287,26 @@ public class RoomElementActivity2 extends AppCompatActivity {
         final Switch nz = myView.findViewById(R.id.switch8);
         final EditText numbEl = myView.findViewById(R.id.editText3);
         //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
-        ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, elements);
+        ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, getNamesEl(database));
         nameEl.setAdapter(adapter1);
         arrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                hideKeyboard(RoomElementActivity2.this);
+                //СКРЫВАЕМ КЛАВИАТУРУ
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
                 nameEl.showDropDown();
             }
         });
+        //ЗАПОЛНЕНИЕ НАЧАЛЬНЫХ ДАННЫХ
+        nameEl.setText(nameParam);
+        numbEl.setText(numbParam);
+        nz.setChecked(flag);
         alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                String el =  nameEl.getText().toString();
-                String numb = numbEl.getText().toString();
+                final String el =  nameEl.getText().toString();
+                final String numb = numbEl.getText().toString();
+                final boolean fl = nz.isChecked();
                 String r, conclusion;
                 if (el.equals("") || numb.equals("")) {
                     AlertDialog.Builder alert = new AlertDialog.Builder(RoomElementActivity2.this);
@@ -303,13 +314,19 @@ public class RoomElementActivity2 extends AppCompatActivity {
                     alert.setMessage("Заполните все поля!");
                     alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            FormAddEl(database, listElements, idRoom);
+                            FormAddEl(database, listElements, idRoom, fl, el, numb);
                         }
                     });
                     alert.show();
                 }
                 else {
-                    if (!nz.isChecked()) {
+                    //Если новое название элемента, то вносим его в базу
+                    if (!Arrays.asList(getNamesEl(database)).contains(el)){
+                        ContentValues newName = new ContentValues();
+                        newName.put(DBHelper.NAME_EL, el);
+                        database.insert(DBHelper.TABLE_NAMES_EL, null, newName);
+                    }
+                    if (!fl) {
                         r = random();
                         conclusion = "соответствует";
                     }
@@ -369,13 +386,17 @@ public class RoomElementActivity2 extends AppCompatActivity {
         elements.setAdapter(adapter);
     }
 
-    //СКРЫТИЕ КЛАВИАТУРЫ
-    public static void hideKeyboard(Activity activity) {
-        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        View view = activity.getCurrentFocus();
-        if (view == null) {
-            view = new View(activity);
+    //ПОЛУЧЕНИЕ НАЗВАНИЙ ЭЛЕМЕНТОВ
+    public String[] getNamesEl(SQLiteDatabase database) {
+        final ArrayList<String> nameEl = new ArrayList <String>();
+        Cursor cursor = database.query(DBHelper.TABLE_NAMES_EL, new String[] {DBHelper.NAME_EL}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int nameIndex = cursor.getColumnIndex(DBHelper.NAME_EL);
+            do {
+                nameEl.add(cursor.getString(nameIndex));
+            } while (cursor.moveToNext());
         }
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        cursor.close();
+        return nameEl.toArray(new String[nameEl.size()]);
     }
 }

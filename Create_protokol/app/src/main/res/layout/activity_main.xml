@@ -21,40 +21,40 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
             android:layout_marginLeft="35dp"
             android:layout_marginRight="35dp"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_marginTop="30dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/button4"
                     android:layout_width="0dp"
                     android:layout_height="100dp"
+                    android:padding="10dp"
                     android:layout_weight="1"
                     android:background="@drawable/buttons"
-                    android:textAllCaps="false"
                     android:text="СОДЕРЖАНИЕ\n(план работ)"
+                    android:textAllCaps="false"
                     android:textColor="@color/fon" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/button5"
                     android:layout_width="0dp"
-                    android:layout_height="100dp"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
                     android:layout_marginRight="10dp"
                     android:layout_weight="1"
                     android:background="@drawable/buttons"
@@ -65,24 +65,26 @@
                 <Button
                     android:id="@+id/button43"
                     android:layout_width="0dp"
-                    android:layout_height="100dp"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
                     android:layout_marginLeft="10dp"
-                    android:textColor="@color/fon"
-                    android:background="@drawable/buttons"
                     android:layout_weight="1"
-                    android:text="Заключение" />
+                    android:background="@drawable/buttons"
+                    android:text="Заключение"
+                    android:textColor="@color/fon" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/button7"
                     android:layout_width="0dp"
-                    android:layout_height="100dp"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
                     android:layout_marginRight="10sp"
                     android:layout_weight="1"
                     android:background="@drawable/buttons"
@@ -92,7 +94,8 @@
                 <Button
                     android:id="@+id/button6"
                     android:layout_width="0dp"
-                    android:layout_height="100dp"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
                     android:layout_marginLeft="10sp"
                     android:layout_weight="1"
                     android:background="@drawable/buttons"
@@ -102,14 +105,15 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/button19"
                     android:layout_width="0dp"
-                    android:layout_height="100dp"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
                     android:layout_marginRight="10sp"
                     android:layout_weight="1"
                     android:background="@drawable/buttons"
@@ -120,7 +124,8 @@
                 <Button
                     android:id="@+id/button18"
                     android:layout_width="0dp"
-                    android:layout_height="100dp"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
                     android:layout_marginLeft="10sp"
                     android:layout_weight="1"
                     android:background="@drawable/buttons"
@@ -130,14 +135,15 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/button21"
                     android:layout_width="0dp"
-                    android:layout_height="100dp"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
                     android:layout_marginRight="10sp"
                     android:layout_weight="1"
                     android:background="@drawable/buttons"
@@ -147,7 +153,8 @@
                 <Button
                     android:id="@+id/button20"
                     android:layout_width="0dp"
-                    android:layout_height="100dp"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
                     android:layout_marginLeft="10sp"
                     android:layout_weight="1"
                     android:background="@drawable/buttons"
@@ -157,25 +164,27 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/button23"
                     android:layout_width="0dp"
-                    android:layout_height="100dp"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
                     android:layout_marginRight="10sp"
                     android:layout_weight="1"
                     android:background="@drawable/buttons"
                     android:onClick="roomElement"
-                    android:text="Заземл. установки и элементы"
+                    android:text="Металлосвязь"
                     android:textColor="@color/fon" />
 
                 <Button
                     android:id="@+id/button22"
                     android:layout_width="0dp"
-                    android:layout_height="100dp"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
                     android:layout_marginLeft="10sp"
                     android:layout_weight="1"
                     android:background="@drawable/buttons"
@@ -188,8 +197,9 @@
                 android:id="@+id/button24"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
+                android:padding="10dp"
                 android:layout_marginTop="20dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="30dp"
                 android:background="@drawable/another_buttons"
                 android:text="Удаление данных"
                 android:textColor="@color/fon" />

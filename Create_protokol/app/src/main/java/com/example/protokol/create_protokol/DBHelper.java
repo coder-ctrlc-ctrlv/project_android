@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 39;
+    public static final int DATABASE_VERSION = 41;
     public static final String DATABLE_NAME = "contactDB";
 
     //ROOM_ELEMENT
@@ -86,35 +86,47 @@ public class DBHelper extends SQLiteOpenHelper {
     //table7
     public static final String TABLE_GD = "grounding_devices";
     public static final String GD_DEVICE_ID = "_id";
+    //Global data
     public static final String GD_RESULT_VIEW = "result_view";
     public static final String GD_GROUND = "ground";
     public static final String GD_CHARACTER_GROUND = "character";
     public static final String GD_U = "u_volt";
     public static final String GD_MODE_NEUTRAL = "neutral";
     public static final String GD_R = "r_om";
+    //Local data
+    public static final String GD_PURPOSE = "purpose";
+    public static final String GD_PLACE = "place";
+    public static final String GD_DISTANCE = "distance";
+    public static final String GD_R1 = "r1";
+    public static final String GD_01L = "l1";
+    public static final String GD_02L = "l2";
+    public static final String GD_03L = "l3";
+    public static final String GD_04L = "l4";
+    public static final String GD_05L = "l5";
+    public static final String GD_06L = "l6";
+    public static final String GD_07L = "l7";
+    public static final String GD_08L = "l8";
+    public static final String GD_09L = "l9";
+    public static final String GD_GRAPHICS = "graphic";
+    public static final String GD_R2 = "r2";
+    public static final String GD_K = "k";
+    public static final String GD_R3 = "r3";
+    public static final String GD_CONCLUSION = "conclusion";
+    public static final String GD_NOTE = "note";
+
+    //LIBRARY_NAME_EL
 
     //table8
-    public static final String TABLE_MAIN_DEVICES = "main_devices";
-    public static final String MD_DEVICE_ID = "_id";
-    public static final String MD_PURPOSE = "purpose";
-    public static final String MD_PLACE = "place";
-    public static final String MD_DISTANCE = "distance";
-    public static final String MD_R1 = "r1";
-    public static final String MD_01L = "l1";
-    public static final String MD_02L = "l2";
-    public static final String MD_03L = "l3";
-    public static final String MD_04L = "l4";
-    public static final String MD_05L = "l5";
-    public static final String MD_06L = "l6";
-    public static final String MD_07L = "l7";
-    public static final String MD_08L = "l8";
-    public static final String MD_09L = "l9";
-    public static final String MD_GRAPHICS = "graphic";
-    public static final String MD_R2 = "r2";
-    public static final String MD_K = "k";
-    public static final String MD_R3 = "r3";
-    public static final String MD_CONCLUSION = "conclusion";
-    public static final String MD_NOTE = "note";
+    public static final String TABLE_NAMES_EL = "names_el";
+    public static final String NAME_EL_ID = "_id";
+    public static final String NAME_EL = "name_el";
+
+    //LIBRARY_MARKS
+
+    //table9
+    public static final String TABLE_MARKS = "marks";
+    public static final String MARK_ID = "_id";
+    public static final String MARK = "mark";
 
     public DBHelper(Context context) {
         super(context, DATABLE_NAME, null, DATABASE_VERSION);
@@ -134,21 +146,46 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("create table " + TABLE_LINES + "(" + LN_ID + " integer primary key AUTOINCREMENT," + LN_NAME +
             " text," + LN_ID_ROOM + " integer," + LN_HEADER + " text," + LN_EMPTY_STRINGS + " integer" + ");");
 
-        db.execSQL("create table " + TABLE_GROUPS + "(" + GR_ID + " integer primary key AUTOINCREMENT," + GR_LINE_ID + " integer," + GR_NAME +
-            " text," + GR_U1 + " text,"  + GR_MARK + " text," + GR_VEIN + " text," + GR_SECTION + " text," + GR_U2 + " text," + GR_R + " text," + GR_PHASE + " text," + GR_A_B + " text," +
-            GR_B_C + " text," + GR_C_A + " text," + GR_A_N + " text," + GR_B_N + " text," + GR_C_N + " text," + GR_A_PE + " text," + GR_B_PE + " text," + GR_C_PE + " text," +
-            GR_N_PE + " text," + GR_CONCLUSION + " text" + ");");
+        db.execSQL("create table " + TABLE_GROUPS + "(" + GR_ID + " integer primary key AUTOINCREMENT," + GR_LINE_ID +
+            " integer," + GR_NAME + " text," + GR_U1 + " text,"  + GR_MARK + " text," + GR_VEIN + " text," + GR_SECTION +
+            " text," + GR_U2 + " text," + GR_R + " text," + GR_PHASE + " text," + GR_A_B + " text," + GR_B_C +
+            " text," + GR_C_A + " text," + GR_A_N + " text," + GR_B_N + " text," + GR_C_N + " text," + GR_A_PE +
+            " text," + GR_B_PE + " text," + GR_C_PE + " text," + GR_N_PE + " text," + GR_CONCLUSION + " text" + ");");
 
-        db.execSQL("create table " + TABLE_TITLE + "(" + TITLE_ID + " integer primary key AUTOINCREMENT," + TITLE_NAME_ELECTRO + " text," + TITLE_TARGET + " text," + TITLE_ADDRESS + " text," +
-            TITLE_NUMBER_OF_PROTOKOL + " text," + TITLE_DATE + " text" + ");");
+        db.execSQL("create table " + TABLE_TITLE + "(" + TITLE_ID + " integer primary key AUTOINCREMENT," + TITLE_NAME_ELECTRO +
+            " text," + TITLE_TARGET + " text," + TITLE_ADDRESS + " text," + TITLE_NUMBER_OF_PROTOKOL + " text," + TITLE_DATE + " text" + ");");
 
-        db.execSQL("create table " + TABLE_GD + "(" + GD_DEVICE_ID + " integer primary key AUTOINCREMENT," + GD_RESULT_VIEW + " text," + GD_GROUND + " text," + GD_CHARACTER_GROUND +
-                " text," + GD_U + " text," + GD_MODE_NEUTRAL + " text," + GD_R + " text" + ");");
+        db.execSQL("create table " + TABLE_GD + "(" + GD_DEVICE_ID + " integer primary key AUTOINCREMENT," + GD_RESULT_VIEW +
+            " text," + GD_GROUND + " text," + GD_CHARACTER_GROUND + " text," + GD_U + " text," + GD_MODE_NEUTRAL +
+            " text," + GD_R + " text," + GD_PURPOSE + " text," + GD_PLACE + " text," + GD_DISTANCE + " text," + GD_R1 +
+            " text," + GD_01L + " text," + GD_02L + " text," + GD_03L + " text," + GD_04L + " text," + GD_05L +
+            " text," + GD_06L + " text," + GD_07L + " text," + GD_08L + " text," + GD_09L + " text," + GD_GRAPHICS +
+            " text," + GD_R2 + " text," + GD_K + " text," + GD_R3 + " text," + GD_CONCLUSION + " text," + GD_NOTE + " text" + ");");
 
-        db.execSQL("create table " + TABLE_MAIN_DEVICES + "(" + MD_DEVICE_ID + " integer primary key AUTOINCREMENT," + MD_PURPOSE +
-                " text," + MD_PLACE + " text," + MD_DISTANCE + " text," + MD_R1 + " text," + MD_01L + " text," + MD_02L + " text," + MD_03L + " text," +
-                MD_04L + " text," + MD_05L + " text," + MD_06L + " text," + MD_07L + " text," + MD_08L + " text," + MD_09L + " text," +
-                MD_GRAPHICS + " text," + MD_R2 + " text," + MD_K + " text," + MD_R3 + " text," + MD_CONCLUSION + " text," + MD_NOTE + " text" + ");");
+        db.execSQL("create table " + TABLE_NAMES_EL + "(" + NAME_EL_ID + " integer primary key AUTOINCREMENT," + NAME_EL + " text" + ");");
+        db.execSQL("insert into " + TABLE_NAMES_EL + "(" + NAME_EL + ")" + " values " + "('Розетка с з.к.');");
+        db.execSQL("insert into " + TABLE_NAMES_EL + "(" + NAME_EL + ")" + " values " + "('Розетка без з.к.');");
+        db.execSQL("insert into " + TABLE_NAMES_EL + "(" + NAME_EL + ")" + " values " + "('Системный блок');");
+        db.execSQL("insert into " + TABLE_NAMES_EL + "(" + NAME_EL + ")" + " values " + "('Сетевой фильтр');");
+        db.execSQL("insert into " + TABLE_NAMES_EL + "(" + NAME_EL + ")" + " values " + "('Удлинитель с з.к.');");
+        db.execSQL("insert into " + TABLE_NAMES_EL + "(" + NAME_EL + ")" + " values " + "('Удлинитель без з.к.');");
+        db.execSQL("insert into " + TABLE_NAMES_EL + "(" + NAME_EL + ")" + " values " + "('Принтер');");
+        db.execSQL("insert into " + TABLE_NAMES_EL + "(" + NAME_EL + ")" + " values " + "('МФУ');");
+        db.execSQL("insert into " + TABLE_NAMES_EL + "(" + NAME_EL + ")" + " values " + "('Блок розеток с з.к.');");
+        db.execSQL("insert into " + TABLE_NAMES_EL + "(" + NAME_EL + ")" + " values " + "('Копир. аппарат');");
+        db.execSQL("insert into " + TABLE_NAMES_EL + "(" + NAME_EL + ")" + " values " + "('СВЧ-печь');");
+        db.execSQL("insert into " + TABLE_NAMES_EL + "(" + NAME_EL + ")" + " values " + "('Холодильник');");
+
+        db.execSQL("create table " + TABLE_MARKS + "(" + MARK_ID + " integer primary key AUTOINCREMENT," + MARK + " text" + ");");
+        db.execSQL("insert into " + TABLE_MARKS + "(" + MARK + ")" + " values " + "('ПВС');");
+        db.execSQL("insert into " + TABLE_MARKS + "(" + MARK + ")" + " values " + "('ВВГ');");
+        db.execSQL("insert into " + TABLE_MARKS + "(" + MARK + ")" + " values " + "('АВВГ');");
+        db.execSQL("insert into " + TABLE_MARKS + "(" + MARK + ")" + " values " + "('ПУНП');");
+        db.execSQL("insert into " + TABLE_MARKS + "(" + MARK + ")" + " values " + "('АПУНП');");
+        db.execSQL("insert into " + TABLE_MARKS + "(" + MARK + ")" + " values " + "('ШВВП');");
+        db.execSQL("insert into " + TABLE_MARKS + "(" + MARK + ")" + " values " + "('АПВ');");
+        db.execSQL("insert into " + TABLE_MARKS + "(" + MARK + ")" + " values " + "('ПВ');");
+        db.execSQL("insert into " + TABLE_MARKS + "(" + MARK + ")" + " values " + "('ПВ3');");
     }
 
     @Override
@@ -160,7 +197,6 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("drop table if exists " + TABLE_GROUPS);
         db.execSQL("drop table if exists " + TABLE_TITLE);
         db.execSQL("drop table if exists " + TABLE_GD);
-        db.execSQL("drop table if exists " + TABLE_MAIN_DEVICES);
         onCreate(db);
     }
 }

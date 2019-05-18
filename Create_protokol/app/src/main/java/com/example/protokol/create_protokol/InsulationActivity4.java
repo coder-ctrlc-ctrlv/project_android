@@ -1,5 +1,6 @@
 package com.example.protokol.create_protokol;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -13,14 +14,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 public class InsulationActivity4 extends AppCompatActivity {
@@ -30,6 +36,7 @@ public class InsulationActivity4 extends AppCompatActivity {
     int idRoom, idLine;
     Switch reserve;
     TextView mark, vein, section, workU, u, r, phase;
+    SQLiteDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +44,7 @@ public class InsulationActivity4 extends AppCompatActivity {
         setContentView(R.layout.activity_insulation4);
 
         dbHelper = new DBHelper(this);
-        final SQLiteDatabase database = dbHelper.getWritableDatabase();
+        database = dbHelper.getWritableDatabase();
 
         final TextView group = findViewById(R.id.textView8);
         reserve = findViewById(R.id.switch3);
@@ -390,44 +397,34 @@ public class InsulationActivity4 extends AppCompatActivity {
     //ВЫБОР МАРКИ
     public void onClickMark(View view) {
         if (!reserve.isChecked()) {
-            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            final AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+            final View myView = getLayoutInflater().inflate(R.layout.dialog_for_marks,null);
             alert.setCancelable(false);
-            alert.setTitle("Выберете марку:");
-            final String marks[] = {"ПВС", "ВВГ", "АВВГ", "ПУНП", "АПУНП", "ШВВП", "АПВ", "ПВ", "ПВ3"};
-            alert.setItems(marks, new DialogInterface.OnClickListener() {
+            alert.setTitle("Введите марку:");
+            final AutoCompleteTextView marks = myView.findViewById(R.id.autoCompleteTextView3);
+            ImageView arrow = myView.findViewById(R.id.imageView4);
+            //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
+            ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, getMarks());
+            marks.setAdapter(adapter1);
+            arrow.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    mark.setText("Марка: " + marks[which]);
+                public void onClick(View view) {
+                    //СКРЫВАЕМ КЛАВИАТУРУ
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                    marks.showDropDown();
                 }
             });
-            alert.setPositiveButton("Ввести", new DialogInterface.OnClickListener() {
+            alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity4.this);
-                    final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
-                    alert1.setCancelable(false);
-                    alert1.setTitle("Введите марку:");
-                    final EditText input = myView.findViewById(R.id.editText);
-                    //ОТКРЫВАЕМ КЛАВИАТУРУ
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
-                    alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            //СКРЫВАЕМ КЛАВИАТУРУ
-                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
-                            String nameMark = input.getText().toString();
-                            mark.setText("Марка: " + nameMark);
-                        }
-                    });
-                    alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            //СКРЫВАЕМ КЛАВИАТУРУ
-                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
-                        }
-                    });
-                    alert1.setView(myView);
-                    alert1.show();
+                    String nameMark = marks.getText().toString();
+                    mark.setText("Марка: " + nameMark);
+                    //Если новое название элемента, то вносим его в базу
+                    if (!Arrays.asList(getMarks()).contains(nameMark)){
+                        ContentValues newName = new ContentValues();
+                        newName.put(DBHelper.MARK, nameMark);
+                        database.insert(DBHelper.TABLE_MARKS, null, newName);
+                    }
                 }
             });
             alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
@@ -435,6 +432,7 @@ public class InsulationActivity4 extends AppCompatActivity {
 
                 }
             });
+            alert.setView(myView);
             alert.show();
         }
         else {
@@ -454,24 +452,34 @@ public class InsulationActivity4 extends AppCompatActivity {
     //ВЫБОР КОЛ-ВА ЖИЛ
     public void onClickVein(View view) {
         if (!reserve.isChecked()) {
-            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-            alert.setCancelable(false);
-            alert.setTitle("Выберете кол-во жил:");
-            final String veins[] = {"2", "3", "4", "5"};
-            alert.setItems(veins, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    vein.setText("Кол-во жил: " + veins[which]);
-                    if (which == 2 || which == 3)
+            AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity4.this);
+            final View myView = getLayoutInflater().inflate(R.layout.dialog_for_veins,null);
+            alert1.setCancelable(false);
+            alert1.setTitle("Введите кол-во жил:");
+            final EditText input = myView.findViewById(R.id.editText2);
+            //ОТКРЫВАЕМ КЛАВИАТУРУ
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+            alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    //СКРЫВАЕМ КЛАВИАТУРУ
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                    String numberVein = input.getText().toString();
+                    vein.setText("Кол-во жил: " + numberVein);
+                    if (numberVein.equals("4") || numberVein.equals("5"))
                         phase.setText("Фаза: -");
                 }
             });
-            alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+            alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-
+                    //СКРЫВАЕМ КЛАВИАТУРУ
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
                 }
             });
-            alert.show();
+            alert1.setView(myView);
+            alert1.show();
         }
         else {
             AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
@@ -485,58 +493,37 @@ public class InsulationActivity4 extends AppCompatActivity {
             });
             alert.show();
         }
-
     }
 
     //ВЫБОР СЕЧЕНИЯ
     public void onClickSection(View view) {
         if (!reserve.isChecked()) {
-            AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-            alert.setCancelable(false);
-            alert.setTitle("Выберете сечение:");
-            final String sectoins[] = {"0,5", "0,75", "1", "1,5", "2,5", "4", "6", "10", "16", "25", "35", "50", "70", "95", "120", "150", "185", "240"};
-            alert.setItems(sectoins, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    section.setText("Сечение: " + sectoins[which]);
-                }
-            });
-            alert.setPositiveButton("Ввести", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity4.this);
-                    final View myView = getLayoutInflater().inflate(R.layout.dialog_for_section,null);
-                    alert1.setCancelable(false);
-                    alert1.setTitle("Введите сечение:");
-                    final EditText input = myView.findViewById(R.id.editText2);
-                    //ОТКРЫВАЕМ КЛАВИАТУРУ
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
-                    alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            //СКРЫВАЕМ КЛАВИАТУРУ
-                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
-                            String numberSection = input.getText().toString();
-                            section.setText("Сечение: " + numberSection);
-                        }
-                    });
-                    alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            //СКРЫВАЕМ КЛАВИАТУРУ
-                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
-                        }
-                    });
-                    alert1.setView(myView);
-                    alert1.show();
-                }
-            });
-            alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-
-                }
-            });
-            alert.show();
+                AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity4.this);
+                final View myView = getLayoutInflater().inflate(R.layout.dialog_for_section,null);
+                alert1.setCancelable(false);
+                alert1.setTitle("Введите сечение:");
+                final EditText input = myView.findViewById(R.id.editText2);
+                //ОТКРЫВАЕМ КЛАВИАТУРУ
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //СКРЫВАЕМ КЛАВИАТУРУ
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        String numberSection = input.getText().toString();
+                        section.setText("Сечение: " + numberSection);
+                    }
+                });
+                alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //СКРЫВАЕМ КЛАВИАТУРУ
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                    }
+                });
+                alert1.setView(myView);
+                alert1.show();
         }
         else {
             AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
@@ -557,8 +544,8 @@ public class InsulationActivity4 extends AppCompatActivity {
         if (!reserve.isChecked()) {
             AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
             alert.setCancelable(false);
-            alert.setTitle("Выберете рабочее напряжение:");
-            final String arrWorkU[] = {"220", "380"};
+            alert.setTitle("Выберите рабочее напряжение:");
+            final String arrWorkU[] = {"12", "24", "36","220", "380"};
             alert.setItems(arrWorkU, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -591,7 +578,7 @@ public class InsulationActivity4 extends AppCompatActivity {
         if (!reserve.isChecked()) {
             AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
             alert.setCancelable(false);
-            alert.setTitle("Выберете напряжение мегаомметра:");
+            alert.setTitle("Выберите напряжение мегаомметра:");
             final String arrU[] = {"500", "1000", "2500"};
             alert.setItems(arrU, new DialogInterface.OnClickListener() {
                 @Override
@@ -625,7 +612,7 @@ public class InsulationActivity4 extends AppCompatActivity {
         if (!reserve.isChecked()) {
             AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
             alert.setCancelable(false);
-            alert.setTitle("Выберете допустимое сопротивление:");
+            alert.setTitle("Выберите допустимое сопротивление:");
             final String arrR[] = {"0,5", "1"};
             alert.setItems(arrR, new DialogInterface.OnClickListener() {
                 @Override
@@ -672,7 +659,7 @@ public class InsulationActivity4 extends AppCompatActivity {
             if (!reserve.isChecked()) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
                 alert.setCancelable(false);
-                alert.setTitle("Выберете фазу:");
+                alert.setTitle("Выберите фазу:");
                 final String phases[] = {"A", "B", "C"};
                 alert.setItems(phases, new DialogInterface.OnClickListener() {
                     @Override
@@ -719,5 +706,19 @@ public class InsulationActivity4 extends AppCompatActivity {
         if (3000 <= oldNumb)
             random = (generator.nextInt(11) - 5) * 200 + oldNumb;
         return String.valueOf(random);
+    }
+
+    //ПОЛУЧЕНИЕ МАРОК
+    public String[] getMarks() {
+        final ArrayList<String> marks = new ArrayList <String>();
+        Cursor cursor = database.query(DBHelper.TABLE_MARKS, new String[] {DBHelper.MARK}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int nameIndex = cursor.getColumnIndex(DBHelper.MARK);
+            do {
+                marks.add(cursor.getString(nameIndex));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return marks.toArray(new String[marks.size()]);
     }
 }
