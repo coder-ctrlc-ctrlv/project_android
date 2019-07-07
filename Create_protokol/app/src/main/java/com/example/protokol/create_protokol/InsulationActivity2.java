@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class InsulationActivity2 extends AppCompatActivity {
 
@@ -58,27 +60,38 @@ public class InsulationActivity2 extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity2.this);
-                final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
+                final View myView = getLayoutInflater().inflate(R.layout.dialog_for_marks,null);
                 alert.setCancelable(false);
                 alert.setTitle("Введите название щита:");
-                final EditText input = myView.findViewById(R.id.editText);
-                //ОТКРЫВАЕМ КЛАВИАТУРУ
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                final AutoCompleteTextView input = myView.findViewById(R.id.autoCompleteTextView3);
+                ImageView arrow = myView.findViewById(R.id.imageView4);
+                //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
+                ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(InsulationActivity2.this, android.R.layout.simple_dropdown_item_1line, getLines(database));
+                input.setAdapter(adapter1);
+                arrow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //СКРЫВАЕМ КЛАВИАТУРУ
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        input.showDropDown();
+                    }
+                });
                 alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         final String nameLine = input.getText().toString();
                         ContentValues contentValues = new ContentValues();
                         contentValues.put(DBHelper.LN_NAME, nameLine);
-                        contentValues.put(DBHelper.LN_HEADER, "-");
-                        contentValues.put(DBHelper.LN_EMPTY_STRINGS, 0);
                         contentValues.put(DBHelper.LN_ID_ROOM, idRoom);
                         database.insert(DBHelper.TABLE_LINES, null, contentValues);
-                        //СКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
                         //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
                         addSpisokLines(database, lines, idRoom);
+                        //Если новое название щита, то вносим его в базу
+                        if (!Arrays.asList(getLines(database)).contains(nameLine)){
+                            ContentValues newName = new ContentValues();
+                            newName.put(DBHelper.LIB_LINE_NAME, nameLine);
+                            database.insert(DBHelper.TABLE_LIBRARY_LINES, null, newName);
+                        }
                         Toast toast = Toast.makeText(getApplicationContext(),
                                 "Щит <" + nameLine + "> добавлен", Toast.LENGTH_SHORT);
                         toast.show();
@@ -108,7 +121,7 @@ public class InsulationActivity2 extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ НУЖНОЙ ЛИНИИ
-                        Cursor cursor = database.query(DBHelper.TABLE_LINES, new String[] {DBHelper.LN_ID}, "lnr_id = ?", new String[] {String.valueOf(idRoom)}, null, null, null);
+                        Cursor cursor = database.query(DBHelper.TABLE_LINES, new String[] {DBHelper.LN_ID}, "lnr_id = ?", new String[] {String.valueOf(idRoom)}, null, null, "_id DESC");
                         cursor.moveToPosition(position);
                         int lineIndex = cursor.getColumnIndex(DBHelper.LN_ID);
                         final int lineId = cursor.getInt(lineIndex);
@@ -127,13 +140,24 @@ public class InsulationActivity2 extends AppCompatActivity {
                         //ИЗМЕНИТЬ НАЗВАНИЕ
                         if (which == 1) {
                             AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity2.this);
-                            final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
+                            final View myView = getLayoutInflater().inflate(R.layout.dialog_for_marks,null);
                             alert1.setCancelable(false);
                             alert1.setTitle("Введите новое название щита:");
-                            final EditText input = myView.findViewById(R.id.editText);
-                            //ОТКРЫВАЕМ КЛАВИАТУРУ
-                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                            final AutoCompleteTextView input = myView.findViewById(R.id.autoCompleteTextView3);
+                            ImageView arrow = myView.findViewById(R.id.imageView4);
+                            input.setText(((TextView) view).getText().toString());
+                            //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
+                            ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(InsulationActivity2.this, android.R.layout.simple_dropdown_item_1line, getLines(database));
+                            input.setAdapter(adapter1);
+                            arrow.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    //СКРЫВАЕМ КЛАВИАТУРУ
+                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                                    input.showDropDown();
+                                }
+                            });
                             alert1.setPositiveButton("Изменить", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     String namel = input.getText().toString();
@@ -143,11 +167,14 @@ public class InsulationActivity2 extends AppCompatActivity {
                                             uppname,
                                             "_id = ?",
                                             new String[] {String.valueOf(lineId)});
-                                    //СКРЫВАЕМ КЛАВИАТУРУ
-                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                    imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
                                     //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
                                     addSpisokLines(database, lines, idRoom);
+                                    //Если новое название щита, то вносим его в базу
+                                    if (!Arrays.asList(getLines(database)).contains(namel)){
+                                        ContentValues newName = new ContentValues();
+                                        newName.put(DBHelper.LIB_LINE_NAME, namel);
+                                        database.insert(DBHelper.TABLE_LIBRARY_LINES, null, newName);
+                                    }
                                     Toast toast1 = Toast.makeText(getApplicationContext(),
                                             "Название изменено: " + namel, Toast.LENGTH_SHORT);
                                     toast1.show();
@@ -222,7 +249,7 @@ public class InsulationActivity2 extends AppCompatActivity {
 
     public void addSpisokLines(SQLiteDatabase database, ListView lines, int idRoom) {
         final ArrayList<String> spisokLines = new ArrayList <String>();
-        Cursor cursor = database.query(DBHelper.TABLE_LINES, new String[] {DBHelper.LN_NAME}, "lnr_id = ?", new String[] {String.valueOf(idRoom)}, null, null, null);
+        Cursor cursor = database.query(DBHelper.TABLE_LINES, new String[] {DBHelper.LN_NAME}, "lnr_id = ?", new String[] {String.valueOf(idRoom)}, null, null, "_id DESC");
         if (cursor.moveToFirst()) {
             int nameIndex = cursor.getColumnIndex(DBHelper.LN_NAME);
             do {
@@ -232,5 +259,19 @@ public class InsulationActivity2 extends AppCompatActivity {
         cursor.close();
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.list_item, spisokLines);
         lines.setAdapter(adapter);
+    }
+
+    //ПОЛУЧЕНИЕ ЩИТОВ
+    public String[] getLines(SQLiteDatabase database) {
+        final ArrayList<String> linesDB = new ArrayList <String>();
+        Cursor cursor = database.query(DBHelper.TABLE_LIBRARY_LINES, new String[] {DBHelper.LIB_LINE_NAME}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int nameIndex = cursor.getColumnIndex(DBHelper.LIB_LINE_NAME);
+            do {
+                linesDB.add(cursor.getString(nameIndex));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return linesDB.toArray(new String[linesDB.size()]);
     }
 }

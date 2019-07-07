@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,29 +68,37 @@ public class InsulationActivity3 extends AppCompatActivity {
         addGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String numb_gr = "";
+                Cursor cursor1 = database.rawQuery("SELECT count(*) FROM " + DBHelper.TABLE_GROUPS +
+                        " WHERE " + DBHelper.GR_LINE_ID + " = " + String.valueOf(idLine) + " AND " + DBHelper.GR_NAME + " NOT LIKE '%/%'", null);
+                if (cursor1.moveToFirst()) {
+                    int countIndex = cursor1.getColumnIndex("count(*)");
+                    numb_gr = String.valueOf(cursor1.getInt(countIndex) + 1);
+                }
+                cursor1.close();
                 Intent intent = new Intent("android.intent.action.Insulation4");
                 intent.putExtra("nameRoom", nameRoom);
                 intent.putExtra("idRoom", idRoom);
                 intent.putExtra("nameLine", nameLine);
                 intent.putExtra("idLine", idLine);
-                intent.putExtra("nameGroup", "Группа №" + String.valueOf(groups.getAdapter().getCount() + 1));
+                intent.putExtra("nameGroup", "Группа №" + numb_gr);
                 startActivity(intent);
             }
         });
 
-        //ПОСМОТРЕТЬ, ИЗМЕНИТЬ И УДАЛИТЬ ГРУППУ
+        //ПОСМОТРЕТЬ, ИЗМЕНИТЬ, ПОВТОРИТЬ, УДАЛИТЬ ГРУППУ И ДОБАВИТЬ ПОДГРУППУ
         groups.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view, final int position, final long id) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity3.this);
                 alert.setTitle(((TextView) view).getText());
-                String arrayMenu[] = {"\nПосмотреть\n", "\nРедактировать\n", "\nПовторить группу\n", "\nУдалить группу\n"};
+                final String arrayMenu[] = {"\nПосмотреть\n", "\nРедактировать\n", "\nПовторить\n", "\nДобавить подгруппу\n", "\nУдалить\n"};
                 alert.setItems(arrayMenu, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
                         //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID НУЖНОЙ ГРУППЫ
-                        Cursor cursor4 = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
+                        Cursor cursor4 = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, "_id DESC");
                         cursor4.moveToPosition(position);
                         int groupIndex = cursor4.getColumnIndex(DBHelper.GR_ID);
                         final int groupId = cursor4.getInt(groupIndex);
@@ -175,8 +184,48 @@ public class InsulationActivity3 extends AppCompatActivity {
 
                         //ПОВТОРИТЬ ГРУППУ
                         if (which == 2) {
-                            final String nameGroup = "Гр " + String.valueOf(groups.getAdapter().getCount() + 1);
+                            //ПОЛУЧАЕМ НАЗВАНИЕ
+                            final String nameGroup;
+                            int countSubgroup = 0;
+                            String mainNumb_gr;
+                            if (((TextView) view).getText().toString().contains("/")) {
+                                mainNumb_gr = ((TextView) view).getText().toString().substring(3, ((TextView) view).getText().toString().indexOf('/'));
+
+                                //СЧИТАЕМ КОЛ-ВО ПОДГРУПП И ОПРЕДЕЛЯЕМ ИМЯ
+                                Cursor cursor1 = database.rawQuery("SELECT count(*) FROM " + DBHelper.TABLE_GROUPS +
+                                        " WHERE " + DBHelper.GR_LINE_ID + " = " + String.valueOf(idLine) + " AND " + DBHelper.GR_NAME + " LIKE '%" + mainNumb_gr + "/%'", null);
+                                if (cursor1.moveToFirst()) {
+                                    int countIndex = cursor1.getColumnIndex("count(*)");
+                                    countSubgroup = cursor1.getInt(countIndex);
+                                }
+                                cursor1.close();
+                                nameGroup = "Гр " + mainNumb_gr + "/" + String.valueOf(countSubgroup + 1);
+                            }
+                            else {
+                                int countGroup = 0;
+                                mainNumb_gr = ((TextView) view).getText().toString().substring(3, ((TextView) view).getText().toString().indexOf(' ', 3));
+
+                                //СЧИТАЕМ КОЛ-ВО ПОДГРУПП
+                                Cursor cursor3 = database.rawQuery("SELECT count(*) FROM " + DBHelper.TABLE_GROUPS +
+                                        " WHERE " + DBHelper.GR_LINE_ID + " = " + String.valueOf(idLine) + " AND " + DBHelper.GR_NAME + " LIKE '%" + mainNumb_gr + "/%'", null);
+                                if (cursor3.moveToFirst()) {
+                                    int countIndex = cursor3.getColumnIndex("count(*)");
+                                    countSubgroup = cursor3.getInt(countIndex);
+                                }
+                                cursor3.close();
+
+                                //СЧИТАЕМ КОЛ-ВО ГРУПП И ОПРЕДЕЛЯЕМ ИМЯ
+                                Cursor cursor1 = database.rawQuery("SELECT count(*) FROM " + DBHelper.TABLE_GROUPS +
+                                        " WHERE " + DBHelper.GR_LINE_ID + " = " + String.valueOf(idLine) + " AND " + DBHelper.GR_NAME + " NOT LIKE '%/%'", null);
+                                if (cursor1.moveToFirst()) {
+                                    int countIndex = cursor1.getColumnIndex("count(*)");
+                                    countGroup = cursor1.getInt(countIndex);
+                                }
+                                cursor1.close();
+                                nameGroup = "Гр " + String.valueOf(countGroup + 1);
+                            }
                             String nameMark = "", numberVein = "", numberSection = "", numberWorkU = "", numberU = "", numberR = "";
+
                             //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ИНФО О ГРУППЕ
                             Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_MARK,
                                     DBHelper.GR_VEIN, DBHelper.GR_SECTION, DBHelper.GR_U1,
@@ -199,6 +248,7 @@ public class InsulationActivity3 extends AppCompatActivity {
 
                             //ЕСЛИ ОНА РЕЗЕРВ
                             if (nameMark.equals("резерв")) {
+                                final int countSubgroupFinal = countSubgroup;
                                 AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity3.this);
                                 alert.setCancelable(false);
                                 alert.setMessage("Вы точно хотите добавить линию(резерв)?");
@@ -226,7 +276,10 @@ public class InsulationActivity3 extends AppCompatActivity {
                                         contentValues.put(DBHelper.GR_N_PE, "-");
                                         contentValues.put(DBHelper.GR_CONCLUSION, "-");
                                         database.insert(DBHelper.TABLE_GROUPS, null, contentValues);
-                                        swapGroups(position + 1, groups.getAdapter().getCount() + 1, idLine, database);
+                                        if (!nameGroup.contains("/"))
+                                            swapGroups((groups.getAdapter().getCount() - position) + countSubgroupFinal, groups.getAdapter().getCount() + 1, idLine, database);
+                                        else
+                                            swapGroups(groups.getAdapter().getCount() - position, groups.getAdapter().getCount() + 1, idLine, database);
                                         addSpisokGroups(database, groups, idLine);
                                         Toast toast2 = Toast.makeText(getApplicationContext(),
                                                 "Группа добавлена", Toast.LENGTH_SHORT);
@@ -243,12 +296,57 @@ public class InsulationActivity3 extends AppCompatActivity {
                             //ЕСЛИ НЕ РЕЗЕРВ
                             else {
                                 changePhase(groups, database, idLine, nameGroup,
-                                        numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position);
+                                        numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position, countSubgroup);
+                            }
+                        }
+
+                        //ДОБАВИТЬ ПОДГРУППУ
+                        if (which == 3) {
+                            String mainNumb_gr = ((TextView) view).getText().toString().substring(3, ((TextView) view).getText().toString().indexOf(' ' , 3));
+                            if (mainNumb_gr.contains("/")) {
+                                AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity3.this);
+                                alert.setCancelable(false);
+                                alert.setMessage("Данный элемент уже является подгруппой.");
+                                alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                                    }
+                                });
+                                alert.show();
+                            } else {
+                                int countSubgroup = 0;
+                                Cursor cursor1 = database.rawQuery("SELECT count(*) FROM " + DBHelper.TABLE_GROUPS +
+                                        " WHERE " + DBHelper.GR_LINE_ID + " = " + String.valueOf(idLine) + " AND " + DBHelper.GR_NAME + " LIKE '%" + mainNumb_gr + "/%'", null);
+                                if (cursor1.moveToFirst()) {
+                                    int countIndex = cursor1.getColumnIndex("count(*)");
+                                    countSubgroup = cursor1.getInt(countIndex);
+                                }
+                                cursor1.close();
+                                Intent intent = new Intent("android.intent.action.Insulation4");
+                                intent.putExtra("nameRoom", nameRoom);
+                                intent.putExtra("idRoom", idRoom);
+                                intent.putExtra("nameLine", nameLine);
+                                intent.putExtra("idLine", idLine);
+                                intent.putExtra("nameGroup", "Группа №" + mainNumb_gr + "/" + String.valueOf(countSubgroup + 1));
+                                intent.putExtra("currentIndexSwap", groups.getAdapter().getCount() + 1);
+                                intent.putExtra("stopIndexSwap", (groups.getAdapter().getCount() - position) + countSubgroup);
+                                startActivity(intent);
                             }
                         }
 
                         //УДАЛИТЬ ГРУППУ
-                        if (which == 3) {
+                        if (which == 4) {
+
+                            final String nameDelete;
+                            Cursor cursor5 = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_NAME}, "_id= ?", new String[] {String.valueOf(groupId)}, null, null, null);
+                            if (cursor5.moveToFirst()) {
+                                int nameIndex = cursor5.getColumnIndex(DBHelper.GR_NAME);
+                                nameDelete = cursor5.getString(nameIndex);
+                            }
+                            else {
+                                nameDelete = "";
+                            }
+                            cursor5.close();
 
                             //ПОДТВЕРЖДЕНИЕ
                             AlertDialog.Builder builder4 = new AlertDialog.Builder(InsulationActivity3.this);
@@ -256,25 +354,66 @@ public class InsulationActivity3 extends AppCompatActivity {
                             builder4.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     database.delete(DBHelper.TABLE_GROUPS, "_id = ?", new String[] {String.valueOf(groupId)});
-                                    //ВЫЧИТАЕМ ИЗ НАЗВАНИЙ ГРУПП ЕДИНИЦУ
-                                    Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID, DBHelper.GR_NAME, DBHelper.GR_LINE_ID}, "_id > ?", new String[] {String.valueOf(groupId)}, null, null, null);
-                                    if (cursor.moveToFirst()) {
-                                        int namechangeIndex = cursor.getColumnIndex(DBHelper.GR_NAME);
-                                        int groupidIndex = cursor.getColumnIndex(DBHelper.GR_ID);
-                                        int grLineIdIndex = cursor.getColumnIndex(DBHelper.GR_LINE_ID);
-                                        do {
-                                            if (cursor.getInt(grLineIdIndex) == idLine) {
-                                                //В НАЗВАНИИ
+                                    if (!nameDelete.contains("/")) {
+                                        //УЗНАЕМ, ЕСТЬ ЛИ ПОДГРУППЫ У ГРУППЫ
+                                        int countSubgroup = 0;
+                                        String mainNumb_gr = ((TextView) view).getText().toString().substring(3, ((TextView) view).getText().toString().indexOf(' ', 3));
+                                        Cursor cursor3 = database.rawQuery("SELECT count(*) FROM " + DBHelper.TABLE_GROUPS +
+                                                " WHERE " + DBHelper.GR_LINE_ID + " = " + String.valueOf(idLine) + " AND " + DBHelper.GR_NAME + " LIKE '%" + mainNumb_gr + "/%'", null);
+                                        if (cursor3.moveToFirst()) {
+                                            int countIndex = cursor3.getColumnIndex("count(*)");
+                                            countSubgroup = cursor3.getInt(countIndex);
+                                        }
+                                        cursor3.close();
+
+                                        //УДАЛЯЕМ ПОДГРУППЫ, ЕСЛИ ЕСТЬ
+                                        if (countSubgroup != 0)
+                                            database.delete(DBHelper.TABLE_GROUPS, "name_group LIKE '%" + mainNumb_gr + "/%' AND grline_id = ?", new String[] {String.valueOf(idLine)});
+
+                                        //МЕНЯЕМ НАЗВАНИЯ
+                                        Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID, DBHelper.GR_NAME, DBHelper.GR_LINE_ID}, "_id > ? and grline_id = ?", new String[] {String.valueOf(groupId), String.valueOf(idLine)}, null, null, null);
+                                        if (cursor.moveToFirst()) {
+                                            int namechangeIndex = cursor.getColumnIndex(DBHelper.GR_NAME);
+                                            int groupidIndex = cursor.getColumnIndex(DBHelper.GR_ID);
+                                            String nameCurrent;
+                                            do {
+                                                nameCurrent = cursor.getString(namechangeIndex);
                                                 ContentValues uppnameGroup = new ContentValues();
-                                                uppnameGroup.put(DBHelper.GR_NAME, "Гр " + String.valueOf(Integer.parseInt(cursor.getString(namechangeIndex).substring(3)) - 1));
+                                                if (!nameCurrent.contains("/"))
+                                                    uppnameGroup.put(DBHelper.GR_NAME, "Гр " + String.valueOf(Integer.parseInt(nameCurrent.substring(3)) - 1));
+                                                else
+                                                    uppnameGroup.put(DBHelper.GR_NAME, "Гр " + String.valueOf(Integer.parseInt(nameCurrent.substring(3, nameCurrent.indexOf('/'))) - 1) + "/" + nameCurrent.substring(nameCurrent.indexOf('/') + 1));
                                                 database.update(DBHelper.TABLE_GROUPS,
                                                         uppnameGroup,
                                                         "_id = ?",
                                                         new String[]{cursor.getString(groupidIndex)});
-                                            }
-                                        } while (cursor.moveToNext());
+                                            } while (cursor.moveToNext());
+                                        }
+                                        cursor.close();
                                     }
-                                    cursor.close();
+                                    else {
+                                        //МЕНЯЕМ НАЗВАНИЯ У НУЖНЫХ ПОДГРУПП
+                                        String mainNumb_gr = ((TextView) view).getText().toString().substring(3, ((TextView) view).getText().toString().indexOf('/'));
+                                        Cursor cursor3 = database.rawQuery("SELECT _id, name_group FROM " + DBHelper.TABLE_GROUPS +
+                                                " WHERE " + DBHelper.GR_LINE_ID + " = " + String.valueOf(idLine) + " AND _id > " + String.valueOf(groupId) + " AND " + DBHelper.GR_NAME + " LIKE '%" + mainNumb_gr + "/%'", null);
+                                        if (cursor3.moveToFirst()) {
+                                            int _idIndex = cursor3.getColumnIndex(DBHelper.GR_ID);
+                                            int nameCurrentIndex = cursor3.getColumnIndex(DBHelper.GR_NAME);
+                                            String _id, nameCurrent;
+                                            do {
+                                                _id = cursor3.getString(_idIndex);
+                                                nameCurrent = cursor3.getString(nameCurrentIndex);
+                                                ContentValues uppnameGroup = new ContentValues();
+                                                uppnameGroup.put(DBHelper.GR_NAME, "Гр " + nameCurrent.substring(3, nameCurrent.indexOf('/')) + "/" + String.valueOf(Integer.parseInt(nameCurrent.substring(nameCurrent.indexOf('/') + 1)) - 1));
+                                                database.update(DBHelper.TABLE_GROUPS,
+                                                        uppnameGroup,
+                                                        "_id = ?",
+                                                        new String[]{_id});
+                                            } while (cursor3.moveToNext());
+                                        }
+                                        cursor3.close();
+                                    }
+
                                     //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ГРУПП
                                     addSpisokGroups(database, groups, idLine);
                                     Toast toast2 = Toast.makeText(getApplicationContext(),
@@ -343,8 +482,23 @@ public class InsulationActivity3 extends AppCompatActivity {
         return String.valueOf(random);
     }
 
+    public void pushArray(String[] arr, String num) {
+        int i, count = 0;
+        for (i = 0; i < arr.length; i++) {
+            arr[i] = getRandomNumber(num);
+        }
+        for (i = 0; i < arr.length; i++) {
+            if (arr[i].equals(num))
+                count++;
+        }
+        if (count == arr.length && Integer.parseInt(num) >= 300)
+            pushArray(arr, num);
+    }
+
     //РЕКУРСИВНАЯ ИЗМЕНА ФАЗЫ
-    void changePhase(final ListView groups, final SQLiteDatabase database, final int idLine, final String nameGroup, final String numberWorkU, final String nameMark, final String numberVein, final String numberSection, final String numberU, final String numberR, final int position) {
+    void changePhase(final ListView groups, final SQLiteDatabase database, final int idLine, final String nameGroup,
+                     final String numberWorkU, final String nameMark, final String numberVein, final String numberSection,
+                     final String numberU, final String numberR, final int position, final int countSubGroup) {
         AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity3.this);
         final View myView = getLayoutInflater().inflate(R.layout.dialog_for_repeat_group,null);
         alert.setCancelable(false);
@@ -372,7 +526,7 @@ public class InsulationActivity3 extends AppCompatActivity {
                     alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             changePhase(groups, database, idLine, nameGroup,
-                                    numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position);
+                                    numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position, countSubGroup);
                         }
                     });
                     alert.show();
@@ -385,7 +539,7 @@ public class InsulationActivity3 extends AppCompatActivity {
                         alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 changePhase(groups, database, idLine, nameGroup,
-                                        numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position);
+                                        numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position, countSubGroup);
                             }
                         });
                         alert.show();
@@ -448,6 +602,8 @@ public class InsulationActivity3 extends AppCompatActivity {
                         }
                         //3 ЖИЛЫ
                         if (numberVein.equals("3")) {
+                            String[] arrayRand = new String[2];
+                            pushArray(arrayRand, numb);
                             contentValues.put(DBHelper.GR_A_B, "-");
                             contentValues.put(DBHelper.GR_B_C, "-");
                             contentValues.put(DBHelper.GR_C_A, "-");
@@ -455,19 +611,19 @@ public class InsulationActivity3 extends AppCompatActivity {
                                 contentValues.put(DBHelper.GR_A_N, numb);
                                 contentValues.put(DBHelper.GR_B_N, "-");
                                 contentValues.put(DBHelper.GR_C_N, "-");
-                                contentValues.put(DBHelper.GR_A_PE, getRandomNumber(numb));
+                                contentValues.put(DBHelper.GR_A_PE, arrayRand[0]);
                                 contentValues.put(DBHelper.GR_B_PE, "-");
                                 contentValues.put(DBHelper.GR_C_PE, "-");
-                                contentValues.put(DBHelper.GR_N_PE, getRandomNumber(numb));
+                                contentValues.put(DBHelper.GR_N_PE, arrayRand[1]);
                             }
                             if (namePhase.equals("B")) {
                                 contentValues.put(DBHelper.GR_A_N, "-");
                                 contentValues.put(DBHelper.GR_B_N, numb);
                                 contentValues.put(DBHelper.GR_C_N, "-");
                                 contentValues.put(DBHelper.GR_A_PE, "-");
-                                contentValues.put(DBHelper.GR_B_PE, getRandomNumber(numb));
+                                contentValues.put(DBHelper.GR_B_PE, arrayRand[0]);
                                 contentValues.put(DBHelper.GR_C_PE, "-");
-                                contentValues.put(DBHelper.GR_N_PE, getRandomNumber(numb));
+                                contentValues.put(DBHelper.GR_N_PE, arrayRand[1]);
                             }
                             if (namePhase.equals("C")) {
                                 contentValues.put(DBHelper.GR_A_N, "-");
@@ -475,18 +631,20 @@ public class InsulationActivity3 extends AppCompatActivity {
                                 contentValues.put(DBHelper.GR_C_N, numb);
                                 contentValues.put(DBHelper.GR_A_PE, "-");
                                 contentValues.put(DBHelper.GR_B_PE, "-");
-                                contentValues.put(DBHelper.GR_C_PE, getRandomNumber(numb));
-                                contentValues.put(DBHelper.GR_N_PE, getRandomNumber(numb));
+                                contentValues.put(DBHelper.GR_C_PE, arrayRand[0]);
+                                contentValues.put(DBHelper.GR_N_PE, arrayRand[1]);
                             }
                         }
                         //4 ЖИЛЫ
                         if (numberVein.equals("4")) {
+                            String[] arrayRand = new String[5];
+                            pushArray(arrayRand, numb);
                             contentValues.put(DBHelper.GR_A_B, numb);
-                            contentValues.put(DBHelper.GR_B_C, getRandomNumber(numb));
-                            contentValues.put(DBHelper.GR_C_A, getRandomNumber(numb));
-                            contentValues.put(DBHelper.GR_A_N, getRandomNumber(numb));
-                            contentValues.put(DBHelper.GR_B_N, getRandomNumber(numb));
-                            contentValues.put(DBHelper.GR_C_N, getRandomNumber(numb));
+                            contentValues.put(DBHelper.GR_B_C, arrayRand[0]);
+                            contentValues.put(DBHelper.GR_C_A, arrayRand[1]);
+                            contentValues.put(DBHelper.GR_A_N, arrayRand[2]);
+                            contentValues.put(DBHelper.GR_B_N, arrayRand[3]);
+                            contentValues.put(DBHelper.GR_C_N, arrayRand[4]);
                             contentValues.put(DBHelper.GR_A_PE, "-");
                             contentValues.put(DBHelper.GR_B_PE, "-");
                             contentValues.put(DBHelper.GR_C_PE, "-");
@@ -494,19 +652,24 @@ public class InsulationActivity3 extends AppCompatActivity {
                         }
                         //5 ЖИЛ
                         if (numberVein.equals("5")) {
+                            String[] arrayRand = new String[9];
+                            pushArray(arrayRand, numb);
                             contentValues.put(DBHelper.GR_A_B, numb);
-                            contentValues.put(DBHelper.GR_B_C, getRandomNumber(numb));
-                            contentValues.put(DBHelper.GR_C_A, getRandomNumber(numb));
-                            contentValues.put(DBHelper.GR_A_N, getRandomNumber(numb));
-                            contentValues.put(DBHelper.GR_B_N, getRandomNumber(numb));
-                            contentValues.put(DBHelper.GR_C_N, getRandomNumber(numb));
-                            contentValues.put(DBHelper.GR_A_PE, getRandomNumber(numb));
-                            contentValues.put(DBHelper.GR_B_PE, getRandomNumber(numb));
-                            contentValues.put(DBHelper.GR_C_PE, getRandomNumber(numb));
-                            contentValues.put(DBHelper.GR_N_PE, getRandomNumber(numb));
+                            contentValues.put(DBHelper.GR_B_C, arrayRand[0]);
+                            contentValues.put(DBHelper.GR_C_A, arrayRand[1]);
+                            contentValues.put(DBHelper.GR_A_N, arrayRand[2]);
+                            contentValues.put(DBHelper.GR_B_N, arrayRand[3]);
+                            contentValues.put(DBHelper.GR_C_N, arrayRand[4]);
+                            contentValues.put(DBHelper.GR_A_PE, arrayRand[5]);
+                            contentValues.put(DBHelper.GR_B_PE, arrayRand[6]);
+                            contentValues.put(DBHelper.GR_C_PE, arrayRand[7]);
+                            contentValues.put(DBHelper.GR_N_PE, arrayRand[8]);
                         }
                         database.insert(DBHelper.TABLE_GROUPS, null, contentValues);
-                        swapGroups(position + 1, groups.getAdapter().getCount() + 1, idLine, database);
+                        if (!nameGroup.contains("/"))
+                            swapGroups((groups.getAdapter().getCount() - position) + countSubGroup, groups.getAdapter().getCount() + 1, idLine, database);
+                        else
+                            swapGroups(groups.getAdapter().getCount() - position, groups.getAdapter().getCount() + 1, idLine, database);
                         addSpisokGroups(database, groups, idLine);
                         Toast toast2 = Toast.makeText(getApplicationContext(),
                                 "Группа добавлена", Toast.LENGTH_SHORT);
@@ -530,31 +693,56 @@ public class InsulationActivity3 extends AppCompatActivity {
     public void swapGroups(int positionStop, int positionCurrent, int idLine, SQLiteDatabase database) {
         if (positionCurrent - positionStop == 1)
             return;
-        int idCurrent, idUp, groupIndex;
+        int idCurrent, idUp, groupIndex, groupNameIndex;
+        String nameCurrent, nameUp;
+        ContentValues values;
 
-        //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID И НАЗВАНИЯ ТЕКУЩЕЙ ГРУППЫ
-        Cursor cursor4 = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
+        //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID
+        Cursor cursor4 = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID, DBHelper.GR_NAME}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
         cursor4.moveToPosition(positionCurrent - 1);
         groupIndex = cursor4.getColumnIndex(DBHelper.GR_ID);
+        groupNameIndex = cursor4.getColumnIndex(DBHelper.GR_NAME);
         idCurrent = cursor4.getInt(groupIndex);
+        nameCurrent = cursor4.getString(groupNameIndex);
         cursor4.close();
 
         while (positionCurrent - positionStop != 1) {
 
             //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID И НАЗВАНИЯ ГРУППЫ ПОВЫШЕ
-            Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
+            Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID, DBHelper.GR_NAME}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
             cursor.moveToPosition(positionCurrent - 2);
             groupIndex = cursor.getColumnIndex(DBHelper.GR_ID);
+            groupNameIndex = cursor4.getColumnIndex(DBHelper.GR_NAME);
             idUp = cursor.getInt(groupIndex);
+            nameUp = cursor.getString(groupNameIndex);
             cursor.close();
 
             //МЕНЯЕМ НАЗВАНИЕ
-            ContentValues values = new ContentValues();
-            values.put(DBHelper.GR_NAME, "Гр " + Integer.toString(positionCurrent - 1));
-            database.update(DBHelper.TABLE_GROUPS, values,"_id = ?", new String[]{Integer.toString(idCurrent)});
-            values = new ContentValues();
-            values.put(DBHelper.GR_NAME, "Гр " + Integer.toString(positionCurrent));
-            database.update(DBHelper.TABLE_GROUPS, values,"_id = ?", new String[]{Integer.toString(idUp)});
+            if (!nameCurrent.contains("/"))
+                if (nameUp.contains("/")) {
+                    values = new ContentValues();
+                    values.put(DBHelper.GR_NAME, "Гр " + nameCurrent.substring(3) + "/" + nameUp.substring(nameUp.indexOf('/') + 1));
+                    database.update(DBHelper.TABLE_GROUPS, values, "_id = ?", new String[]{Integer.toString(idUp)});
+                }
+                else {
+                    values = new ContentValues();
+                    values.put(DBHelper.GR_NAME, "Гр " + nameUp.substring(3));
+                    database.update(DBHelper.TABLE_GROUPS, values, "_id = ?", new String[]{Integer.toString(idCurrent)});
+                    values = new ContentValues();
+                    values.put(DBHelper.GR_NAME, "Гр " + nameCurrent.substring(3));
+                    database.update(DBHelper.TABLE_GROUPS, values, "_id = ?", new String[]{Integer.toString(idUp)});
+                    nameCurrent = "Гр " + nameUp.substring(3);
+                }
+            else
+                if (nameUp.contains("/") && nameCurrent.substring(3, nameCurrent.indexOf('/')).equals(nameUp.substring(3, nameUp.indexOf('/')))) {
+                    values = new ContentValues();
+                    values.put(DBHelper.GR_NAME, "Гр " + nameCurrent.substring(3, nameCurrent.indexOf('/')) + "/" + nameUp.substring(nameUp.indexOf('/') + 1));
+                    database.update(DBHelper.TABLE_GROUPS, values, "_id = ?", new String[]{Integer.toString(idCurrent)});
+                    values = new ContentValues();
+                    values.put(DBHelper.GR_NAME, "Гр " + nameUp.substring(3, nameUp.indexOf('/')) + "/" + nameCurrent.substring(nameCurrent.indexOf('/') + 1));
+                    database.update(DBHelper.TABLE_GROUPS, values, "_id = ?", new String[]{Integer.toString(idUp)});
+                    nameCurrent = "Гр " + nameCurrent.substring(3, nameCurrent.indexOf('/')) + "/" + nameUp.substring(nameUp.indexOf('/') + 1);
+                }
 
             //МЕНЯЕМ ID
             values = new ContentValues();
@@ -570,14 +758,13 @@ public class InsulationActivity3 extends AppCompatActivity {
             idCurrent = idUp;
             positionCurrent--;
         }
-
     }
 
     //ОБНОВЛЕНИЕ СПИСКА
     public void addSpisokGroups(SQLiteDatabase database, ListView groups, int idLine) {
         final ArrayList<String> spisokGroups = new ArrayList <String>();
         Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_NAME, DBHelper.GR_MARK,
-                DBHelper.GR_VEIN, DBHelper.GR_SECTION, DBHelper.GR_PHASE}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
+                DBHelper.GR_VEIN, DBHelper.GR_SECTION, DBHelper.GR_PHASE}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, "_id DESC");
         if (cursor.moveToFirst()) {
             int nameIndex = cursor.getColumnIndex(DBHelper.GR_NAME);
             int markIndex = cursor.getColumnIndex(DBHelper.GR_MARK);

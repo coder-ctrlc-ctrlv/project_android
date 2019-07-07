@@ -60,6 +60,10 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
         final EditText rEditTEXT = findViewById(R.id.editText5);
         final EditText distanceActiveTEXT = findViewById(R.id.editText6);
 
+        final EditText temperature = findViewById(R.id.editText7);
+        final EditText humidity = findViewById(R.id.editText8);
+        final EditText pressure = findViewById(R.id.editText9);
+
         Button save = findViewById(R.id.button35);
 
         final int device_id = getIntent().getIntExtra("device_id", -1);
@@ -84,7 +88,8 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
             Cursor cursor1 = database.query(DBHelper.TABLE_GD, new String[] {DBHelper.GD_DEVICE_ID, DBHelper.GD_GROUND,
                     DBHelper.GD_CHARACTER_GROUND, DBHelper.GD_U, DBHelper.GD_R, DBHelper.GD_PURPOSE, DBHelper.GD_PLACE,
                     DBHelper.GD_DISTANCE, DBHelper.GD_R1, DBHelper.GD_05L,
-                    DBHelper.GD_NOTE}, "_id = ?", new String[] {String.valueOf(device_id)}, null, null, null);
+                    DBHelper.GD_NOTE, DBHelper.GD_TEMPERATURE,
+                    DBHelper.GD_HUMIDITY, DBHelper.GD_PRESSURE}, "_id = ?", new String[] {String.valueOf(device_id)}, null, null, null);
             if (cursor1.moveToFirst()) {
                 int uIndex = cursor1.getColumnIndex(DBHelper.GD_U);
                 int characterIndex = cursor1.getColumnIndex(DBHelper.GD_CHARACTER_GROUND);
@@ -96,6 +101,9 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                 int purposeIndex = cursor1.getColumnIndex(DBHelper.GD_PURPOSE);
                 int rIndex = cursor1.getColumnIndex(DBHelper.GD_R);
                 int l5Index = cursor1.getColumnIndex(DBHelper.GD_05L);
+                int temperatureIndex = cursor1.getColumnIndex(DBHelper.GD_TEMPERATURE);
+                int humidityIndex = cursor1.getColumnIndex(DBHelper.GD_HUMIDITY);
+                int pressureIndex = cursor1.getColumnIndex(DBHelper.GD_PRESSURE);
                 do {
                     uTEXT.setText(cursor1.getString(uIndex));
                     characterTEXT.setText(cursor1.getString(characterIndex));
@@ -107,6 +115,9 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                     purposeTEXT.setText(cursor1.getString(purposeIndex));
                     rEditTEXT.setText(cursor1.getString(rIndex));
                     distanceActiveTEXT.setText(cursor1.getString(l5Index));
+                    temperature.setText(cursor1.getString(temperatureIndex));
+                    humidity.setText(cursor1.getString(humidityIndex));
+                    pressure.setText(cursor1.getString(pressureIndex));
                 } while (cursor1.moveToNext());
             }
             cursor1.close();
@@ -381,7 +392,8 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (placeTEXT.getText().toString().equals("Не выбрано") || rTEXT.getText().toString().equals("Не выбрано") ||
-                        rEditTEXT.getText().toString().equals("") || distanceActiveTEXT.getText().toString().equals("")) {
+                        rEditTEXT.getText().toString().equals("") || distanceActiveTEXT.getText().toString().equals("") ||
+                        temperature.getText().toString().equals("") || humidity.getText().toString().equals("") || pressure.getText().toString().equals("")) {
                     AlertDialog.Builder alert = new AlertDialog.Builder(GroundingDevicesActivity2.this);
                     alert.setCancelable(false);
                     alert.setMessage("Заполните все поля!");
@@ -428,6 +440,9 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                     contentValues.put(DBHelper.GD_R3, "-");
                     contentValues.put(DBHelper.GD_CONCLUSION, "соответствует");
                     contentValues.put(DBHelper.GD_NOTE, noteTEXT.getText().toString());
+                    contentValues.put(DBHelper.GD_TEMPERATURE, temperature.getText().toString());
+                    contentValues.put(DBHelper.GD_HUMIDITY, humidity.getText().toString());
+                    contentValues.put(DBHelper.GD_PRESSURE, pressure.getText().toString());
                     database.insert(DBHelper.TABLE_GD, null, contentValues);
                     Toast toast = Toast.makeText(getApplicationContext(),
                             "Изменения сохранены", Toast.LENGTH_SHORT);

@@ -197,10 +197,10 @@
                 android:id="@+id/button24"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:padding="10dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="30dp"
                 android:background="@drawable/another_buttons"
+                android:padding="10dp"
                 android:text="Удаление данных"
                 android:textColor="@color/fon" />
         </LinearLayout>

@@ -8,5 +8,7 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="action_main">На главную</string>
-    <string name="libraries">Библиотеки</string>>
+    <string name="libraries">Библиотеки</string>
+    <string name="loadBD">Загрузить БД</string>
+    <string name="saveBD">Сохранить БД</string>
 </resources>

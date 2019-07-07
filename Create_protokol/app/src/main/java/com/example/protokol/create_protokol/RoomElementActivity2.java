@@ -33,6 +33,8 @@ public class RoomElementActivity2 extends AppCompatActivity {
 
     DBHelper dbHelper;
     private String[] soprot = {"0,02","0,03","0,04"} ;
+    String nameFloor;
+    int idFloor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +45,12 @@ public class RoomElementActivity2 extends AppCompatActivity {
         dbHelper = new DBHelper(this);
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
 
-        TextView room = findViewById(R.id.textView6);
+        TextView floor = findViewById(R.id.textView6);
+        TextView room = findViewById(R.id.textView7);
         final ListView listElements = findViewById(R.id.elements);
         Button addElement = findViewById(R.id.button9);
+        nameFloor = getIntent().getStringExtra("nameFloor");
+        idFloor = getIntent().getIntExtra("idFloor", 0);
         final String nameRoom = getIntent().getStringExtra("nameRoom");
         final int idRoom = getIntent().getIntExtra("idRoom", 0);
 
@@ -54,7 +59,8 @@ public class RoomElementActivity2 extends AppCompatActivity {
         getSupportActionBar().setTitle("Металлосвязь");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //ВЫВОД КОМНАТЫ
+        //ВЫВОД ЭТАЖА И КОМНАТЫ
+        floor.setText("Этаж: " + nameFloor);
         room.setText("Комната: " + nameRoom);
 
         //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
@@ -80,7 +86,7 @@ public class RoomElementActivity2 extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID НУЖНОГО ЭЛЕМЕНТА
-                        Cursor cursor4 = database.query(DBHelper.TABLE_ELEMENTS, new String[] {DBHelper.EL_ID}, "room_id = ?", new String[] {String.valueOf(idRoom)}, null, null, null);
+                        Cursor cursor4 = database.query(DBHelper.TABLE_ELEMENTS, new String[] {DBHelper.EL_ID}, "room_id = ?", new String[] {String.valueOf(idRoom)}, null, null, "_id DESC");
                         cursor4.moveToPosition(position);
                         int elementIndex = cursor4.getColumnIndex(DBHelper.EL_ID);
                         final int elementId = cursor4.getInt(elementIndex);
@@ -166,6 +172,8 @@ public class RoomElementActivity2 extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 Intent intent = new Intent("android.intent.action.RoomElement");
+                intent.putExtra("nameFloor", nameFloor);
+                intent.putExtra("idFloor", idFloor);
                 startActivity(intent);
                 return true;
             case R.id.action_main:
@@ -261,6 +269,12 @@ public class RoomElementActivity2 extends AppCompatActivity {
                     newEL.put(DBHelper.EL_CONCLUSION, conclusion);
                     database.insert(DBHelper.TABLE_ELEMENTS, null, newEL);
                     addSpisokElements(database, listElements, idRoom);
+                    //Если новое название элемента, то вносим его в базу
+                    if (!Arrays.asList(getNamesEl(database)).contains(el)){
+                        ContentValues newName = new ContentValues();
+                        newName.put(DBHelper.NAME_EL, el);
+                        database.insert(DBHelper.TABLE_NAMES_EL, null, newName);
+                    }
                     Toast toast = Toast.makeText(getApplicationContext(),
                             "Данные сохранены", Toast.LENGTH_SHORT);
                     toast.show();
@@ -368,7 +382,7 @@ public class RoomElementActivity2 extends AppCompatActivity {
     public void addSpisokElements(SQLiteDatabase database, ListView elements, int idRoom) {
         final ArrayList<String> spisokElements = new ArrayList <String>();
         String r = "";
-        Cursor cursor = database.query(DBHelper.TABLE_ELEMENTS, new String[] {DBHelper.EL_NAME, DBHelper.EL_NUMBER, DBHelper.ROOM_ID, DBHelper.EL_SOPR}, "room_id = ?", new String[] {String.valueOf(idRoom)}, null, null, null);
+        Cursor cursor = database.query(DBHelper.TABLE_ELEMENTS, new String[] {DBHelper.EL_NAME, DBHelper.EL_NUMBER, DBHelper.ROOM_ID, DBHelper.EL_SOPR}, "room_id = ?", new String[] {String.valueOf(idRoom)}, null, null, "_id DESC");
         if (cursor.moveToFirst()) {
             int nameIndex = cursor.getColumnIndex(DBHelper.EL_NAME);
             int numberIndex = cursor.getColumnIndex(DBHelper.EL_NUMBER);

@@ -28,16 +28,17 @@ public class GroundingDevicesActivity extends AppCompatActivity {
     DBHelper dbHelper;
     private TemplatePDF templatePDF;
 
-    private String date = "Дата проведения проверки «__» ___________ _______г. ";
-    private String zag = "Климатические условия при проведении проверки";
-    private String uslovia = "Температура воздуха __С. Влажность воздуха __%. Атмосферное давление ___ мм.рт.ст.(бар).";
-    private String zag2 = "Нормативные и технические документы, на соответствие требованиям которых проведена проверка:";
-    private String line1 = "                                                                                                        ";
-    private String line2 = "ПУЭ 1.8.39 п.5; ПТЭЭП Приложение 3";
-    private String proverka = "               Испытания провели:                  _____________________                    ___________                   _____________" + "\n" +
-            "                                                                         (Должность)                                   (Подпись)                         (Ф.И.О.)" + "\n" + "\n" +
-            "               Проверил:                                _____________________                    ___________                   _____________" + "\n" +
-            "                                                                         (Должность)                                   (Подпись)                         (Ф.И.О.)";
+    String[] date = {"Дата проведения проверки «", "   ", "» ", "           ", " ", "       ", " г."};
+    String[] months = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
+    String zag = "Климатические условия при проведении проверки";
+    String[] uslovia = {"Температура воздуха ", "UNDER", "\u00b0C. Влажность воздуха ", "UNDER", "%. Атмосферное давление ", "UNDER", " мм.рт.ст.(бар)."};
+    String zag2 = "Нормативные и технические документы, на соответствие требованиям которых проведена проверка:";
+    String line1 = "                                                                                                        ";
+    String line2 = "ПУЭ 1.8.39 п.5; ПТЭЭП Приложение 3";
+    String[] sign = {"Испытание провели:", "", "", "", "", "",
+            "", "( Должность )", "", "( подпись )", "", "( Ф.И.О. )",
+            "Проверил:", "", "", "", "", "",
+            "", "( Должность )", "", "( подпись )", "", "( Ф.И.О. )"};
     String[] header = {"№\nп/п", "Назначение\nзаземлителя,\nзаземляющего\nустройства", "Место\nизмерения", "Расстояние до\nтокового\nэлектрода L, м",
             "Сопротивление заземлителей (заземляющих устройств), Ом", "Допустимое,\nОм", "Измеренное при положениях потенциального электрода\n(расстояние L, м)",
             "0,1 L", "0,2 L", "0,3 L", "0,4 L", "0,5 L", "0,6 L", "0,7 L", "0,8 L", "0,9 L", "Дополнитель-\nные расчеты,\nграфики",
@@ -93,14 +94,15 @@ public class GroundingDevicesActivity extends AppCompatActivity {
 
                         //ПОСМОТРЕТЬ
                         if (which == 0) {
-                            String info[] = {"","","","","","", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""};
+                            String info[] = {"","","","","","", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""};
                             //ПОЛУЧЕНИЕ ИНФОРМАЦИИ ОБ ЭЛЕМЕНТЕ
                             Cursor cursor1 = database.query(DBHelper.TABLE_GD, new String[] {DBHelper.GD_DEVICE_ID, DBHelper.GD_RESULT_VIEW,
                                     DBHelper.GD_GROUND, DBHelper.GD_CHARACTER_GROUND, DBHelper.GD_U, DBHelper.GD_MODE_NEUTRAL, DBHelper.GD_R, DBHelper.GD_PURPOSE,
                                     DBHelper.GD_PLACE, DBHelper.GD_DISTANCE, DBHelper.GD_R1, DBHelper.GD_01L, DBHelper.GD_02L, DBHelper.GD_03L,
                                     DBHelper.GD_04L, DBHelper.GD_05L, DBHelper.GD_06L, DBHelper.GD_07L, DBHelper.GD_08L, DBHelper.GD_09L,
                                     DBHelper.GD_GRAPHICS, DBHelper.GD_R2, DBHelper.GD_K, DBHelper.GD_R3,
-                                    DBHelper.GD_CONCLUSION, DBHelper.GD_NOTE}, "_id = ?", new String[] {String.valueOf(device_id)}, null, null, null);
+                                    DBHelper.GD_CONCLUSION, DBHelper.GD_NOTE, DBHelper.GD_TEMPERATURE,
+                                    DBHelper.GD_HUMIDITY, DBHelper.GD_PRESSURE}, "_id = ?", new String[] {String.valueOf(device_id)}, null, null, null);
                             if (cursor1.moveToFirst()) {
                                 int resultViewIndex = cursor1.getColumnIndex(DBHelper.GD_RESULT_VIEW);
                                 int groundIndex = cursor1.getColumnIndex(DBHelper.GD_GROUND);
@@ -127,6 +129,9 @@ public class GroundingDevicesActivity extends AppCompatActivity {
                                 int r3Index = cursor1.getColumnIndex(DBHelper.GD_R3);
                                 int resultIndex = cursor1.getColumnIndex(DBHelper.GD_CONCLUSION);
                                 int noteIndex = cursor1.getColumnIndex(DBHelper.GD_NOTE);
+                                int temperatureIndex = cursor1.getColumnIndex(DBHelper.GD_TEMPERATURE);
+                                int humidityIndex = cursor1.getColumnIndex(DBHelper.GD_HUMIDITY);
+                                int pressureIndex = cursor1.getColumnIndex(DBHelper.GD_PRESSURE);
                                 do {
                                     info[0] = cursor1.getString(resultViewIndex);
                                     info[1] = cursor1.getString(groundIndex);
@@ -153,6 +158,9 @@ public class GroundingDevicesActivity extends AppCompatActivity {
                                     info[22] = cursor1.getString(r3Index);
                                     info[23] = cursor1.getString(resultIndex);
                                     info[24] = cursor1.getString(noteIndex);
+                                    info[25] = cursor1.getString(temperatureIndex);
+                                    info[26] = cursor1.getString(humidityIndex);
+                                    info[27] = cursor1.getString(pressureIndex);
                                 } while (cursor1.moveToNext());
                             }
                             cursor1.close();
@@ -172,7 +180,8 @@ public class GroundingDevicesActivity extends AppCompatActivity {
                                     "<b>0,6 L: </b>" + info[15] + "<br>" + "<b>0,7 L: </b>" + info[16] + "<br>" + "<b>0,8 L: </b>" + info[17] + "<br>" +
                                     "<b>0,9 L: </b>" + info[18] + "<br>" + "<b>Доп. расчеты, графики: </b>" + info[19] + "<br>" + "<b>Принятое R: </b>" + info[20] + "<br>" +
                                     "<b>Коэффициент поправочн.: </b>" + info[21] + "<br>" + "<b>Приведенное R c учетом коэффициента: </b>" + info[22] + "<br>" +
-                                    "<b>Вывод: </b>" + info[23] + "<br>" + "<b>Примечание: </b>" + info[24] + "<br>"));
+                                    "<b>Вывод: </b>" + info[23] + "<br>" + "<b>Примечание: </b>" + info[24] + "<br>" + "<b>Температура: </b>" + info[25] + "<br>" +
+                                    "<b>Влажность: </b>" + info[26] + "<br>" + "<b>Атм.давление: </b>" + info[27] + "<br>"));
                             builder4.setTitle(((TextView) view).getText());
                             AlertDialog dialog4 = builder4.create();
                             dialog4.show();
@@ -289,18 +298,32 @@ public class GroundingDevicesActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void start(String namefile) {
+    public void start(String namefile, SQLiteDatabase database) {
+        getDate(database);
         templatePDF = new TemplatePDF(getApplicationContext());
         templatePDF.openDocument(namefile, true);
         templatePDF.addMetaData("Protokol", "Item", "Company");
         templatePDF.addTitles("РЕЗУЛЬТАТЫ", "проверки сопротивлений заземлителей и заземляющих устройств", 12);
-        templatePDF.addParagraph_Normal(date, 10,5,5);
+        templatePDF.addDate(date, 10);
         templatePDF.addCenter_BD(zag, 12, 0, 5);
-        templatePDF.addCenter_Nomal(uslovia, 10,7,5);
+        templatePDF.addClimate(uslovia, 10);
         templatePDF.addCenter_BD(zag2, 12, 7, 5);
         templatePDF.addCenter_Under(line1 + line2 + line1, 10,0,5);
         templatePDF.addParagraph_Ground_BeforeTable(textBeforeTable);
         templatePDF.createTableGround(header);
+    }
+
+    public void getDate(SQLiteDatabase database) {
+        String dateString;
+        Cursor cursor1 = database.query(DBHelper.TABLE_TITLE, new String[] {DBHelper.TITLE_DATE}, null, null, null, null, null);
+        if (cursor1.moveToFirst()) {
+            int dateIndex = cursor1.getColumnIndex(DBHelper.TITLE_DATE);
+            dateString = cursor1.getString(dateIndex);
+            date[1] = " " + Integer.parseInt(dateString.substring(0,2)) + " ";
+            date[3] = " " + months[Integer.parseInt(dateString.substring(4,6)) - 1] + " ";
+            date[5] = dateString.substring(8,12);
+        }
+        cursor1.close();
     }
 
     public void opPFD(SQLiteDatabase database, String namefile) {
@@ -312,7 +335,8 @@ public class GroundingDevicesActivity extends AppCompatActivity {
                 DBHelper.GD_PLACE, DBHelper.GD_DISTANCE, DBHelper.GD_R1, DBHelper.GD_01L, DBHelper.GD_02L, DBHelper.GD_03L,
                 DBHelper.GD_04L, DBHelper.GD_05L, DBHelper.GD_06L, DBHelper.GD_07L, DBHelper.GD_08L, DBHelper.GD_09L,
                 DBHelper.GD_GRAPHICS, DBHelper.GD_R2, DBHelper.GD_K, DBHelper.GD_R3,
-                DBHelper.GD_CONCLUSION, DBHelper.GD_NOTE}, null, null, null, null, null);
+                DBHelper.GD_CONCLUSION, DBHelper.GD_NOTE, DBHelper.GD_TEMPERATURE,
+                DBHelper.GD_HUMIDITY, DBHelper.GD_PRESSURE}, null, null, null, null, null);
         if (cursor1.moveToFirst()) {
             int resultViewIndex = cursor1.getColumnIndex(DBHelper.GD_RESULT_VIEW);
             int groundIndex = cursor1.getColumnIndex(DBHelper.GD_GROUND);
@@ -339,6 +363,9 @@ public class GroundingDevicesActivity extends AppCompatActivity {
             int r3Index = cursor1.getColumnIndex(DBHelper.GD_R3);
             int resultIndex = cursor1.getColumnIndex(DBHelper.GD_CONCLUSION);
             int noteIndex = cursor1.getColumnIndex(DBHelper.GD_NOTE);
+            int temperatureIndex = cursor1.getColumnIndex(DBHelper.GD_TEMPERATURE);
+            int humidityIndex = cursor1.getColumnIndex(DBHelper.GD_HUMIDITY);
+            int pressureIndex = cursor1.getColumnIndex(DBHelper.GD_PRESSURE);
             textBeforeTable[1] = "               " + cursor1.getString(resultViewIndex);
             textBeforeTable[3] = "                                              " + cursor1.getString(groundIndex);
             textBeforeTable[5] = "                                    " + cursor1.getString(characterIndex);
@@ -363,13 +390,15 @@ public class GroundingDevicesActivity extends AppCompatActivity {
             StrTable[16] = cursor1.getString(kIndex);
             StrTable[17] = cursor1.getString(r3Index);
             StrTable[18] = cursor1.getString(resultIndex);
+            uslovia[1] = " " + cursor1.getString(temperatureIndex) + " ";
+            uslovia[3] = " " + cursor1.getString(humidityIndex) + " ";
+            uslovia[5] = " " + cursor1.getString(pressureIndex) + " ";
             textForEnd[1] = "   " + cursor1.getString(noteIndex);
         }
         cursor1.close();
-        start(namefile);
+        start(namefile, database);
         templatePDF.addElemGround(StrTable);
-        templatePDF.addParagraph_Ground_end(textForEnd);
-        templatePDF.addParagraph_Normal(proverka, 10,10,5);
+        templatePDF.addParagraphEnd_Ground(textForEnd, sign);
         templatePDF.closeDocument();
         templatePDF.appViewPDF(GroundingDevicesActivity.this);
     }

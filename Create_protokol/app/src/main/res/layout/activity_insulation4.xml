@@ -35,19 +35,28 @@
                 android:textColor="@color/text"
                 android:textSize="22sp" />
 
-            <Switch
-                android:id="@+id/switch3"
-                android:switchMinWidth="60dp"
-                android:switchPadding="20dp"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
                 android:layout_marginTop="20dp"
-                android:text="Резерв"
-                android:scaleY="1.5"
-                android:scaleX="1.5"
-                android:textColor="@color/text"
-                android:textSize="15sp" />
+                android:background="@drawable/rezerv"
+                android:paddingTop="20dp"
+                android:paddingBottom="20dp"
+                android:orientation="vertical">
+
+                <Switch
+                    android:id="@+id/switch3"
+                    android:switchMinWidth="60dp"
+                    android:switchPadding="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Резерв"
+                    android:scaleY="1.5"
+                    android:scaleX="1.5"
+                    android:textColor="@color/text"
+                    android:textSize="15sp" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

@@ -52,8 +52,14 @@ public class LibraryActivity extends AppCompatActivity {
         //ОПРЕДЕЛЯЕМ ТИП БИБЛИОТЕКИ
         if (lib.equals("namesEl"))
             getSupportActionBar().setSubtitle("Названия элементов");
-        else
+        if (lib.equals("marks"))
             getSupportActionBar().setSubtitle("Марки");
+        if (lib.equals("rooms"))
+            getSupportActionBar().setSubtitle("Комнаты");
+        if (lib.equals("lines"))
+            getSupportActionBar().setSubtitle("Щиты");
+        if (lib.equals("floors"))
+            getSupportActionBar().setSubtitle("Этажи");
 
         //ЗАПОЛЯНЕМ LISTVIEW ИЗНАЧАЛЬНО
         getLibraryItems(database, lib);
@@ -74,7 +80,7 @@ public class LibraryActivity extends AppCompatActivity {
                     else {
                         AlertDialog.Builder alert = new AlertDialog.Builder(LibraryActivity.this);
                         alert.setCancelable(false);
-                        alert.setMessage("Вы можете вводить только буквы русского или английского алфавита. " +
+                        alert.setMessage("Вы можете вводить только буквы русского или английского алфавитов. " +
                                 "При других символах поиск работать не будет.");
                         alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
@@ -109,6 +115,7 @@ public class LibraryActivity extends AppCompatActivity {
                             alert1.setCancelable(false);
                             alert1.setTitle("Введите новое название:");
                             final EditText input = myView.findViewById(R.id.editText);
+                            input.setText(((TextView) view).getText().toString());
                             //ОТКРЫВАЕМ КЛАВИАТУРУ
                             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
@@ -123,11 +130,32 @@ public class LibraryActivity extends AppCompatActivity {
                                                 "name_el = ?",
                                                 new String[]{String.valueOf(((TextView) view).getText())});
                                     }
-                                    else {
+                                    if (lib.equals("marks")) {
                                         uppname.put(DBHelper.MARK, name);
                                         database.update(DBHelper.TABLE_MARKS,
                                                 uppname,
                                                 "mark = ?",
+                                                new String[]{String.valueOf(((TextView) view).getText())});
+                                    }
+                                    if (lib.equals("rooms")) {
+                                        uppname.put(DBHelper.LIB_ROOM_NAME, name);
+                                        database.update(DBHelper.TABLE_LIBRARY_ROOMS,
+                                                uppname,
+                                                "room_name = ?",
+                                                new String[]{String.valueOf(((TextView) view).getText())});
+                                    }
+                                    if (lib.equals("lines")) {
+                                        uppname.put(DBHelper.LIB_LINE_NAME, name);
+                                        database.update(DBHelper.TABLE_LIBRARY_LINES,
+                                                uppname,
+                                                "line_name = ?",
+                                                new String[]{String.valueOf(((TextView) view).getText())});
+                                    }
+                                    if (lib.equals("floors")) {
+                                        uppname.put(DBHelper.LIB_FLOOR_NAME, name);
+                                        database.update(DBHelper.TABLE_LIBRARY_FLOORS,
+                                                uppname,
+                                                "floor_name = ?",
                                                 new String[]{String.valueOf(((TextView) view).getText())});
                                     }
                                     //СКРЫВАЕМ КЛАВИАТУРУ
@@ -161,8 +189,14 @@ public class LibraryActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     if (lib.equals("namesEl"))
                                         database.delete(DBHelper.TABLE_NAMES_EL, "name_el = ?", new String[] {String.valueOf(((TextView) view).getText())});
-                                    else
+                                    if (lib.equals("marks"))
                                         database.delete(DBHelper.TABLE_MARKS, "mark = ?", new String[] {String.valueOf(((TextView) view).getText())});
+                                    if (lib.equals("rooms"))
+                                        database.delete(DBHelper.TABLE_LIBRARY_ROOMS, "room_name = ?", new String[] {String.valueOf(((TextView) view).getText())});
+                                    if (lib.equals("lines"))
+                                        database.delete(DBHelper.TABLE_LIBRARY_LINES, "line_name = ?", new String[] {String.valueOf(((TextView) view).getText())});
+                                    if (lib.equals("floors"))
+                                        database.delete(DBHelper.TABLE_LIBRARY_FLOORS, "floor_name = ?", new String[] {String.valueOf(((TextView) view).getText())});
                                     getLibraryItems(database, lib);
                                     filter.setText("");
                                     Toast toast2 = Toast.makeText(getApplicationContext(),
@@ -211,11 +245,44 @@ public class LibraryActivity extends AppCompatActivity {
             }
             cursor.close();
         }
-        else {
+        if (lib.equals("marks")) {
             Cursor cursor1 = db.rawQuery("SELECT " + DBHelper.MARK + " FROM " + DBHelper.TABLE_MARKS +
                     " WHERE " + DBHelper.MARK + " LIKE '%" + text + "%' ORDER BY lower(" + DBHelper.MARK + ");", null);
             if (cursor1.moveToFirst()) {
                 int nameIndex = cursor1.getColumnIndex(DBHelper.MARK);
+                do {
+                    listItems.add(cursor1.getString(nameIndex));
+                } while (cursor1.moveToNext());
+            }
+            cursor1.close();
+        }
+        if (lib.equals("rooms")) {
+            Cursor cursor1 = db.rawQuery("SELECT " + DBHelper.LIB_ROOM_NAME + " FROM " + DBHelper.TABLE_LIBRARY_ROOMS +
+                    " WHERE " + DBHelper.LIB_ROOM_NAME + " LIKE '%" + text + "%' ORDER BY lower(" + DBHelper.LIB_ROOM_NAME + ");", null);
+            if (cursor1.moveToFirst()) {
+                int nameIndex = cursor1.getColumnIndex(DBHelper.LIB_ROOM_NAME);
+                do {
+                    listItems.add(cursor1.getString(nameIndex));
+                } while (cursor1.moveToNext());
+            }
+            cursor1.close();
+        }
+        if (lib.equals("lines")) {
+            Cursor cursor1 = db.rawQuery("SELECT " + DBHelper.LIB_LINE_NAME + " FROM " + DBHelper.TABLE_LIBRARY_LINES +
+                    " WHERE " + DBHelper.LIB_LINE_NAME + " LIKE '%" + text + "%' ORDER BY lower(" + DBHelper.LIB_LINE_NAME + ");", null);
+            if (cursor1.moveToFirst()) {
+                int nameIndex = cursor1.getColumnIndex(DBHelper.LIB_LINE_NAME);
+                do {
+                    listItems.add(cursor1.getString(nameIndex));
+                } while (cursor1.moveToNext());
+            }
+            cursor1.close();
+        }
+        if (lib.equals("floors")) {
+            Cursor cursor1 = db.rawQuery("SELECT " + DBHelper.LIB_FLOOR_NAME + " FROM " + DBHelper.TABLE_LIBRARY_FLOORS +
+                    " WHERE " + DBHelper.LIB_FLOOR_NAME + " LIKE '%" + text + "%' ORDER BY lower(" + DBHelper.LIB_FLOOR_NAME + ");", null);
+            if (cursor1.moveToFirst()) {
+                int nameIndex = cursor1.getColumnIndex(DBHelper.LIB_FLOOR_NAME);
                 do {
                     listItems.add(cursor1.getString(nameIndex));
                 } while (cursor1.moveToNext());
@@ -237,9 +304,8 @@ public class LibraryActivity extends AppCompatActivity {
             }
             cursor.close();
         }
-        else {
+        if (lib.equals("marks")) {
             Cursor cursor1 = db.rawQuery("SELECT " + DBHelper.MARK +" FROM " + DBHelper.TABLE_MARKS + " ORDER BY lower("+ DBHelper.MARK +");", null);
-            //Cursor cursor1 = db.query(DBHelper.TABLE_MARKS, new String[] {DBHelper.MARK}, null, null, null, null, DBHelper.MARK);
             if (cursor1.moveToFirst()) {
                 int nameIndex = cursor1.getColumnIndex(DBHelper.MARK);
                 do {
@@ -248,11 +314,37 @@ public class LibraryActivity extends AppCompatActivity {
             }
             cursor1.close();
         }
+        if (lib.equals("rooms")) {
+            Cursor cursor1 = db.rawQuery("SELECT " + DBHelper.LIB_ROOM_NAME +" FROM " + DBHelper.TABLE_LIBRARY_ROOMS + " ORDER BY lower("+ DBHelper.LIB_ROOM_NAME +");", null);
+            if (cursor1.moveToFirst()) {
+                int nameIndex = cursor1.getColumnIndex(DBHelper.LIB_ROOM_NAME);
+                do {
+                    listItems.add(cursor1.getString(nameIndex));
+                } while (cursor1.moveToNext());
+            }
+            cursor1.close();
+        }
+        if (lib.equals("lines")) {
+            Cursor cursor1 = db.rawQuery("SELECT " + DBHelper.LIB_LINE_NAME +" FROM " + DBHelper.TABLE_LIBRARY_LINES + " ORDER BY lower("+ DBHelper.LIB_LINE_NAME +");", null);
+            if (cursor1.moveToFirst()) {
+                int nameIndex = cursor1.getColumnIndex(DBHelper.LIB_LINE_NAME);
+                do {
+                    listItems.add(cursor1.getString(nameIndex));
+                } while (cursor1.moveToNext());
+            }
+            cursor1.close();
+        }
+        if (lib.equals("floors")) {
+            Cursor cursor1 = db.rawQuery("SELECT " + DBHelper.LIB_FLOOR_NAME +" FROM " + DBHelper.TABLE_LIBRARY_FLOORS + " ORDER BY lower("+ DBHelper.LIB_FLOOR_NAME +");", null);
+            if (cursor1.moveToFirst()) {
+                int nameIndex = cursor1.getColumnIndex(DBHelper.LIB_FLOOR_NAME);
+                do {
+                    listItems.add(cursor1.getString(nameIndex));
+                } while (cursor1.moveToNext());
+            }
+            cursor1.close();
+        }
         adapter = new ArrayAdapter<String>(this, R.layout.list_item, listItems);
         library_items.setAdapter(adapter);
-    }
-
-    public String[] getArrayItems(ArrayList<String> list){
-        return list.toArray(new String[list.size()]);
     }
 }

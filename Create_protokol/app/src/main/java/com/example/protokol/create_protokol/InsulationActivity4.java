@@ -64,6 +64,8 @@ public class InsulationActivity4 extends AppCompatActivity {
         idLine = getIntent().getIntExtra("idLine", 0);
         String nameGroup = getIntent().getStringExtra("nameGroup");
         final int idGroup = getIntent().getIntExtra("idGroup", -1);
+        final int currentIndexSwap = getIntent().getIntExtra("currentIndexSwap", -1);
+        final int stopIndexSwap = getIntent().getIntExtra("stopIndexSwap", -1);
 
         //НАСТРАИВАЕМ ACTIONBAR
         getSupportActionBar().setTitle("Изоляция");
@@ -73,11 +75,17 @@ public class InsulationActivity4 extends AppCompatActivity {
         final boolean change;
         if (idGroup != -1) {
             change = true;
-            getSupportActionBar().setSubtitle("Редактирование группы");
+            if (currentIndexSwap == -1 && stopIndexSwap == -1)
+                getSupportActionBar().setSubtitle("Редактирование группы");
+            else
+                getSupportActionBar().setSubtitle("Редактирование подгруппы");
         }
         else {
             change = false;
-            getSupportActionBar().setSubtitle("Добавление группы");
+            if (currentIndexSwap == -1 && stopIndexSwap == -1)
+                getSupportActionBar().setSubtitle("Добавление группы");
+            else
+                getSupportActionBar().setSubtitle("Добавление подгруппы");
         }
 
         //ДЕЛАЕМ ПЕРЕКЛЮЧАТЕЛЬ ВЫКЛЮЧЕННЫМ ПО УМОЛЧАНИЮ
@@ -224,7 +232,7 @@ public class InsulationActivity4 extends AppCompatActivity {
                             if (change)
                                 contentValues.put(DBHelper.GR_ID, idGroup);
                             contentValues.put(DBHelper.GR_LINE_ID, idLine);
-                            contentValues.put(DBHelper.GR_NAME, "Гр " + Integer.parseInt(textName.substring(8)));
+                            contentValues.put(DBHelper.GR_NAME, "Гр " + textName.substring(8));
                             contentValues.put(DBHelper.GR_U1, "-");
                             contentValues.put(DBHelper.GR_MARK, "резерв");
                             contentValues.put(DBHelper.GR_VEIN, "-");
@@ -253,7 +261,7 @@ public class InsulationActivity4 extends AppCompatActivity {
                             if (change)
                                 contentValues.put(DBHelper.GR_ID, idGroup);
                             contentValues.put(DBHelper.GR_LINE_ID, idLine);
-                            contentValues.put(DBHelper.GR_NAME, "Гр " + Integer.parseInt(textName.substring(8)));
+                            contentValues.put(DBHelper.GR_NAME, "Гр " + textName.substring(8));
                             contentValues.put(DBHelper.GR_U1, textWorkU.substring(17));
                             contentValues.put(DBHelper.GR_MARK, textMark.substring(7));
                             contentValues.put(DBHelper.GR_VEIN, numberVein);
@@ -292,6 +300,8 @@ public class InsulationActivity4 extends AppCompatActivity {
                             }
                             //3 ЖИЛЫ
                             if (numberVein.equals("3")) {
+                                String[] arrayRand = new String[2];
+                                pushArray(arrayRand, numb);
                                 contentValues.put(DBHelper.GR_A_B, "-");
                                 contentValues.put(DBHelper.GR_B_C, "-");
                                 contentValues.put(DBHelper.GR_C_A, "-");
@@ -299,19 +309,19 @@ public class InsulationActivity4 extends AppCompatActivity {
                                     contentValues.put(DBHelper.GR_A_N, numb);
                                     contentValues.put(DBHelper.GR_B_N, "-");
                                     contentValues.put(DBHelper.GR_C_N, "-");
-                                    contentValues.put(DBHelper.GR_A_PE, getRandomNumber(numb));
+                                    contentValues.put(DBHelper.GR_A_PE, arrayRand[0]);
                                     contentValues.put(DBHelper.GR_B_PE, "-");
                                     contentValues.put(DBHelper.GR_C_PE, "-");
-                                    contentValues.put(DBHelper.GR_N_PE, getRandomNumber(numb));
+                                    contentValues.put(DBHelper.GR_N_PE, arrayRand[1]);
                                 }
                                 if (namePhase.equals("B")) {
                                     contentValues.put(DBHelper.GR_A_N, "-");
                                     contentValues.put(DBHelper.GR_B_N, numb);
                                     contentValues.put(DBHelper.GR_C_N, "-");
                                     contentValues.put(DBHelper.GR_A_PE, "-");
-                                    contentValues.put(DBHelper.GR_B_PE, getRandomNumber(numb));
+                                    contentValues.put(DBHelper.GR_B_PE, arrayRand[0]);
                                     contentValues.put(DBHelper.GR_C_PE, "-");
-                                    contentValues.put(DBHelper.GR_N_PE, getRandomNumber(numb));
+                                    contentValues.put(DBHelper.GR_N_PE, arrayRand[1]);
                                 }
                                 if (namePhase.equals("C")) {
                                     contentValues.put(DBHelper.GR_A_N, "-");
@@ -319,18 +329,20 @@ public class InsulationActivity4 extends AppCompatActivity {
                                     contentValues.put(DBHelper.GR_C_N, numb);
                                     contentValues.put(DBHelper.GR_A_PE, "-");
                                     contentValues.put(DBHelper.GR_B_PE, "-");
-                                    contentValues.put(DBHelper.GR_C_PE, getRandomNumber(numb));
-                                    contentValues.put(DBHelper.GR_N_PE, getRandomNumber(numb));
+                                    contentValues.put(DBHelper.GR_C_PE, arrayRand[0]);
+                                    contentValues.put(DBHelper.GR_N_PE, arrayRand[1]);
                                 }
                             }
                             //4 ЖИЛЫ
                             if (numberVein.equals("4")) {
+                                String[] arrayRand = new String[5];
+                                pushArray(arrayRand, numb);
                                 contentValues.put(DBHelper.GR_A_B, numb);
-                                contentValues.put(DBHelper.GR_B_C, getRandomNumber(numb));
-                                contentValues.put(DBHelper.GR_C_A, getRandomNumber(numb));
-                                contentValues.put(DBHelper.GR_A_N, getRandomNumber(numb));
-                                contentValues.put(DBHelper.GR_B_N, getRandomNumber(numb));
-                                contentValues.put(DBHelper.GR_C_N, getRandomNumber(numb));
+                                contentValues.put(DBHelper.GR_B_C, arrayRand[0]);
+                                contentValues.put(DBHelper.GR_C_A, arrayRand[1]);
+                                contentValues.put(DBHelper.GR_A_N, arrayRand[2]);
+                                contentValues.put(DBHelper.GR_B_N, arrayRand[3]);
+                                contentValues.put(DBHelper.GR_C_N, arrayRand[4]);
                                 contentValues.put(DBHelper.GR_A_PE, "-");
                                 contentValues.put(DBHelper.GR_B_PE, "-");
                                 contentValues.put(DBHelper.GR_C_PE, "-");
@@ -338,19 +350,23 @@ public class InsulationActivity4 extends AppCompatActivity {
                             }
                             //5 ЖИЛ
                             if (numberVein.equals("5")) {
+                                String[] arrayRand = new String[9];
+                                pushArray(arrayRand, numb);
                                 contentValues.put(DBHelper.GR_A_B, numb);
-                                contentValues.put(DBHelper.GR_B_C, getRandomNumber(numb));
-                                contentValues.put(DBHelper.GR_C_A, getRandomNumber(numb));
-                                contentValues.put(DBHelper.GR_A_N, getRandomNumber(numb));
-                                contentValues.put(DBHelper.GR_B_N, getRandomNumber(numb));
-                                contentValues.put(DBHelper.GR_C_N, getRandomNumber(numb));
-                                contentValues.put(DBHelper.GR_A_PE, getRandomNumber(numb));
-                                contentValues.put(DBHelper.GR_B_PE, getRandomNumber(numb));
-                                contentValues.put(DBHelper.GR_C_PE, getRandomNumber(numb));
-                                contentValues.put(DBHelper.GR_N_PE, getRandomNumber(numb));
+                                contentValues.put(DBHelper.GR_B_C, arrayRand[0]);
+                                contentValues.put(DBHelper.GR_C_A, arrayRand[1]);
+                                contentValues.put(DBHelper.GR_A_N, arrayRand[2]);
+                                contentValues.put(DBHelper.GR_B_N, arrayRand[3]);
+                                contentValues.put(DBHelper.GR_C_N, arrayRand[4]);
+                                contentValues.put(DBHelper.GR_A_PE, arrayRand[5]);
+                                contentValues.put(DBHelper.GR_B_PE, arrayRand[6]);
+                                contentValues.put(DBHelper.GR_C_PE, arrayRand[7]);
+                                contentValues.put(DBHelper.GR_N_PE, arrayRand[8]);
                             }
                             database.insert(DBHelper.TABLE_GROUPS, null, contentValues);
                         }
+                        if (stopIndexSwap != -1 && currentIndexSwap != -1)
+                            swapGroups(stopIndexSwap, currentIndexSwap);
                         Toast toast2 = Toast.makeText(getApplicationContext(),
                                 "Данные сохранены", Toast.LENGTH_SHORT);
                         toast2.show();
@@ -392,6 +408,66 @@ public class InsulationActivity4 extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void swapGroups(int positionStop, int positionCurrent) {
+        if (positionCurrent - positionStop == 1)
+            return;
+        int idCurrent, idUp, groupIndex, groupNameIndex;
+        String nameCurrent, nameUp;
+        ContentValues values;
+
+        //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID
+        Cursor cursor4 = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID, DBHelper.GR_NAME}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
+        cursor4.moveToPosition(positionCurrent - 1);
+        groupIndex = cursor4.getColumnIndex(DBHelper.GR_ID);
+        groupNameIndex = cursor4.getColumnIndex(DBHelper.GR_NAME);
+        idCurrent = cursor4.getInt(groupIndex);
+        nameCurrent = cursor4.getString(groupNameIndex);
+        cursor4.close();
+
+        while (positionCurrent - positionStop != 1) {
+
+            //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID И НАЗВАНИЯ ГРУППЫ ПОВЫШЕ
+            Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID, DBHelper.GR_NAME}, "grline_id = ?", new String[] {String.valueOf(idLine)}, null, null, null);
+            cursor.moveToPosition(positionCurrent - 2);
+            groupIndex = cursor.getColumnIndex(DBHelper.GR_ID);
+            groupNameIndex = cursor4.getColumnIndex(DBHelper.GR_NAME);
+            idUp = cursor.getInt(groupIndex);
+            nameUp = cursor.getString(groupNameIndex);
+            cursor.close();
+
+            //МЕНЯЕМ НАЗВАНИЕ
+            if (!nameCurrent.contains("/"))
+                if (nameUp.contains("/")) {
+                    values = new ContentValues();
+                    values.put(DBHelper.GR_NAME, "Гр " + nameCurrent.substring(3) + "/" + nameUp.substring(nameUp.indexOf('/') + 1));
+                    database.update(DBHelper.TABLE_GROUPS, values, "_id = ?", new String[]{Integer.toString(idUp)});
+                }
+                else {
+                    values = new ContentValues();
+                    values.put(DBHelper.GR_NAME, "Гр " + nameUp.substring(3));
+                    database.update(DBHelper.TABLE_GROUPS, values, "_id = ?", new String[]{Integer.toString(idCurrent)});
+                    values = new ContentValues();
+                    values.put(DBHelper.GR_NAME, "Гр " + nameCurrent.substring(3));
+                    database.update(DBHelper.TABLE_GROUPS, values, "_id = ?", new String[]{Integer.toString(idUp)});
+                    nameCurrent = "Гр " + nameUp.substring(3);
+                }
+
+            //МЕНЯЕМ ID
+            values = new ContentValues();
+            values.put(DBHelper.GR_ID, "-1");
+            database.update(DBHelper.TABLE_GROUPS, values,"_id = ?", new String[]{Integer.toString(idUp)});
+            values = new ContentValues();
+            values.put(DBHelper.GR_ID, Integer.toString(idUp));
+            database.update(DBHelper.TABLE_GROUPS, values,"_id = ?", new String[]{Integer.toString(idCurrent)});
+            values = new ContentValues();
+            values.put(DBHelper.GR_ID, Integer.toString(idCurrent));
+            database.update(DBHelper.TABLE_GROUPS, values,"_id = ?", new String[]{"-1"});
+
+            idCurrent = idUp;
+            positionCurrent--;
+        }
     }
 
     //ВЫБОР МАРКИ
@@ -466,9 +542,22 @@ public class InsulationActivity4 extends AppCompatActivity {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
                     String numberVein = input.getText().toString();
-                    vein.setText("Кол-во жил: " + numberVein);
-                    if (numberVein.equals("4") || numberVein.equals("5"))
-                        phase.setText("Фаза: -");
+                    if (Integer.parseInt(numberVein) > 5 || Integer.parseInt(numberVein) < 2){
+                        AlertDialog.Builder alert5 = new AlertDialog.Builder(InsulationActivity4.this);
+                        alert5.setCancelable(false);
+                        alert5.setMessage("Количество жил может быть от 2 до 5");
+                        alert5.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                            }
+                        });
+                        alert5.show();
+                    }
+                    else {
+                        vein.setText("Кол-во жил: " + numberVein);
+                        if (numberVein.equals("4") || numberVein.equals("5"))
+                            phase.setText("Фаза: -");
+                    }
                 }
             });
             alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
@@ -706,6 +795,19 @@ public class InsulationActivity4 extends AppCompatActivity {
         if (3000 <= oldNumb)
             random = (generator.nextInt(11) - 5) * 200 + oldNumb;
         return String.valueOf(random);
+    }
+
+    public void pushArray(String[] arr, String num) {
+        int i, count = 0;
+        for (i = 0; i < arr.length; i++) {
+            arr[i] = getRandomNumber(num);
+        }
+        for (i = 0; i < arr.length; i++) {
+            if (arr[i].equals(num))
+                count++;
+        }
+        if (count == arr.length && Integer.parseInt(num) >= 300)
+            pushArray(arr, num);
     }
 
     //ПОЛУЧЕНИЕ МАРОК

@@ -27,6 +27,13 @@ public class TitlePageActivity extends AppCompatActivity {
     Calendar calendar;
     DatePickerDialog datePickerDialog;
     boolean isNew = true;
+    TemplatePDF templatePDF;
+    String[] months = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
+    String[] certificate = {"Свидетельство о регистрации лаборатории\n№  ", "А-11-18-0429", "\nВыдано ",
+            "«Приокское Управление  Ростехнадзора»", "\nСрок действия от  ", "« 19 » апреля 2018 г.",
+            " до ", "« 19 » апреля  2021 г.", "\nАдрес ЭИЛ: ", "г. Тула, ул. Кирова, 22", "\nТелефон: ",
+            " 8(4872) 710062", " Факс: ", " 8(4872) 710062", "\nЕ-mail: ", "info@smpcentr.ru"};
+    String[] info = {"NUMBER", "DATE", "NAME", "ADDRESS", "TARGET"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +53,9 @@ public class TitlePageActivity extends AppCompatActivity {
         final TextView numberPrTEXT = findViewById(R.id.textView39);
         Button dateBTN = findViewById(R.id.button41);
         final TextView dateTEXT = findViewById(R.id.textView41);
+        final EditText temperature = findViewById(R.id.editText7);
+        final EditText humidity = findViewById(R.id.editText8);
+        final EditText pressure = findViewById(R.id.editText9);
         Button save = findViewById(R.id.button43);
         Button openPDF = findViewById(R.id.button42);
 
@@ -55,20 +65,27 @@ public class TitlePageActivity extends AppCompatActivity {
 
         //ЗАПОЛНЯЕМ ДАННЫЕ, ЕСЛИ ОНИ ЕСТЬ
         Cursor cursor = database.query(DBHelper.TABLE_TITLE, new String[] {DBHelper.TITLE_NAME_ELECTRO, DBHelper.TITLE_TARGET,
-                DBHelper.TITLE_ADDRESS, DBHelper.TITLE_NUMBER_OF_PROTOKOL, DBHelper.TITLE_DATE}, null, null, null, null, null);
+                DBHelper.TITLE_ADDRESS, DBHelper.TITLE_NUMBER_OF_PROTOKOL, DBHelper.TITLE_DATE,
+                DBHelper.TITLE_TEMPERATURE, DBHelper.TITLE_HUMIDITY, DBHelper.TITLE_PRESSURE}, null, null, null, null, null);
         if (cursor.moveToFirst()) {
             isNew = false;
             int nameElectroIndex = cursor.getColumnIndex(DBHelper.TITLE_NAME_ELECTRO);
-            int targetIndex = cursor. getColumnIndex(DBHelper.TITLE_TARGET);
-            int addressIndex = cursor. getColumnIndex(DBHelper.TITLE_ADDRESS);
-            int numberPrIndex = cursor. getColumnIndex(DBHelper.TITLE_NUMBER_OF_PROTOKOL);
-            int dateIndex = cursor. getColumnIndex(DBHelper.TITLE_DATE);
+            int targetIndex = cursor.getColumnIndex(DBHelper.TITLE_TARGET);
+            int addressIndex = cursor.getColumnIndex(DBHelper.TITLE_ADDRESS);
+            int numberPrIndex = cursor.getColumnIndex(DBHelper.TITLE_NUMBER_OF_PROTOKOL);
+            int dateIndex = cursor.getColumnIndex(DBHelper.TITLE_DATE);
+            int temperatureIndex = cursor.getColumnIndex(DBHelper.TITLE_TEMPERATURE);
+            int humidityIndex = cursor.getColumnIndex(DBHelper.TITLE_HUMIDITY);
+            int pressureIndex = cursor.getColumnIndex(DBHelper.TITLE_PRESSURE);
             do {
                 nameElectroTEXT.setText(cursor.getString(nameElectroIndex));
                 targetTEXT.setText(cursor.getString(targetIndex));
                 addressTEXT.setText(cursor.getString(addressIndex));
                 numberPrTEXT.setText(cursor.getString(numberPrIndex));
                 dateTEXT.setText(cursor.getString(dateIndex));
+                temperature.setText(cursor.getString(temperatureIndex));
+                humidity.setText(cursor.getString(humidityIndex));
+                pressure.setText(cursor.getString(pressureIndex));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -82,6 +99,8 @@ public class TitlePageActivity extends AppCompatActivity {
                 alert1.setCancelable(false);
                 alert1.setTitle("Введите наименование элктроустановки:");
                 final EditText input = myView.findViewById(R.id.editText);
+                if (!nameElectroTEXT.getText().toString().equals("Нет"))
+                    input.setText(nameElectroTEXT.getText().toString());
                 //ОТКРЫВАЕМ КЛАВИАТУРУ
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
@@ -138,6 +157,8 @@ public class TitlePageActivity extends AppCompatActivity {
                 alert1.setCancelable(false);
                 alert1.setTitle("Введите адрес:");
                 final EditText input = myView.findViewById(R.id.editText);
+                if (!addressTEXT.getText().toString().equals("Нет"))
+                    input.setText(addressTEXT.getText().toString());
                 //ОТКРЫВАЕМ КЛАВИАТУРУ
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
@@ -227,7 +248,8 @@ public class TitlePageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (nameElectroTEXT.getText().toString().equals("Нет") || addressTEXT.getText().toString().equals("Нет") || targetTEXT.getText().toString().equals("Нет") ||
-                        numberPrTEXT.getText().toString().equals("Нет") || dateTEXT.getText().toString().equals("Нет")) {
+                        numberPrTEXT.getText().toString().equals("Нет") || dateTEXT.getText().toString().equals("Нет") || temperature.getText().toString().equals("") ||
+                        humidity.getText().toString().equals("") || pressure.getText().toString().equals("")) {
                     AlertDialog.Builder alert = new AlertDialog.Builder(TitlePageActivity.this);
                     alert.setCancelable(false);
                     alert.setMessage("Заполните все поля!");
@@ -252,6 +274,9 @@ public class TitlePageActivity extends AppCompatActivity {
                             contentValues.put(DBHelper.TITLE_NAME_ELECTRO, nameElectroTEXT.getText().toString());
                             contentValues.put(DBHelper.TITLE_NUMBER_OF_PROTOKOL, numberPrTEXT.getText().toString());
                             contentValues.put(DBHelper.TITLE_DATE, dateTEXT.getText().toString());
+                            contentValues.put(DBHelper.TITLE_TEMPERATURE, temperature.getText().toString());
+                            contentValues.put(DBHelper.TITLE_HUMIDITY, humidity.getText().toString());
+                            contentValues.put(DBHelper.TITLE_PRESSURE, pressure.getText().toString());
                             database.insert(DBHelper.TABLE_TITLE, null, contentValues);
                             Toast toast = Toast.makeText(getApplicationContext(),
                                     "Изменения сохранены", Toast.LENGTH_SHORT);
@@ -273,10 +298,106 @@ public class TitlePageActivity extends AppCompatActivity {
         openPDF.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                //ПРОСТО ОТКРЫТЬ ИЛИ С СОХРАНЕНИЕМ?
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(TitlePageActivity.this);
+                builder1.setPositiveButton("Посмотреть", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //ПРОСТО ПОСМОТРЕТЬ
+                        opPFD(database, null);
+                    }
+                });
+                builder1.setNegativeButton("Сохранить", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //ЗАПРАШИВАЕМ НАЗВАНИЕ ФАЙЛА
+                        AlertDialog.Builder alert = new AlertDialog.Builder(TitlePageActivity.this);
+                        final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
+                        alert.setCancelable(false);
+                        alert.setTitle("Введите название сохраняемого файла:");
+                        final EditText input = myView.findViewById(R.id.editText);
+                        //ОТКРЫВАЕМ КЛАВИАТУРУ
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                        alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                //СКРЫВАЕМ КЛАВИАТУРУ
+                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                                String namefile = input.getText().toString();
+                                if (namefile.equals(""))
+                                    namefile = null;
+                                opPFD(database, namefile);
+                            }
+                        });
+                        alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                //СКРЫВАЕМ КЛАВИАТУРУ
+                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                            }
+                        });
+                        alert.setView(myView);
+                        alert.show();
+                    }
+                });
+                builder1.setMessage("Хотите просто посмотреть файл или же открыть с дальнейшим сохранением?");
+                AlertDialog dialog1 = builder1.create();
+                dialog1.show();
             }
         });
 
+    }
+
+    public void opPFD(SQLiteDatabase database, String namefile) {
+        if (namefile == null)
+            namefile = "TepmlatePDF";
+        String title_p = "1.  Листов всего:\n" +
+                "2.  Протокол  испытаний распространяется только на электроустановку здания, подвергаемого\n" +
+                "     испытаниям.\n" +
+                "3.  Протокол испытаний не может быть частично или полностью перепечатан без разрешения\n" +
+                "     Заказчика или электроизмерительной лаборатории.\n" +
+                "4.  На каждом листе протокола ставится печать электроизмерительной лаборатории или\n" +
+                "     организации";
+        String dateStr = "                       «  __  » _________  ______ г.";
+        templatePDF = new TemplatePDF(getApplicationContext());
+        templatePDF.openDocument(namefile, false);
+        templatePDF.addMetaData("Protokol", "Item", "Company");
+        templatePDF.addCenter_BD("ЭЛЕКТРОИЗМЕРИТЕЛЬНАЯ ЛАБОРАТОРИЯ", 12, 0, 0);
+        templatePDF.addCenter_Nomal("Общество с ограниченной ответственностью «СМП ЦЕНТР»", 12, 0,0);
+        templatePDF.addCenter_BD("( ЭЛ ООО « СМП ЦЕНТР »)", 12, 0, 5);
+        templatePDF.addParagraphUp_Title(certificate, 12);
+        Cursor cursor = database.query(DBHelper.TABLE_TITLE, new String[] {DBHelper.TITLE_NAME_ELECTRO, DBHelper.TITLE_TARGET,
+                DBHelper.TITLE_ADDRESS, DBHelper.TITLE_NUMBER_OF_PROTOKOL, DBHelper.TITLE_DATE}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int nameElectroIndex = cursor.getColumnIndex(DBHelper.TITLE_NAME_ELECTRO);
+            int targetIndex = cursor.getColumnIndex(DBHelper.TITLE_TARGET);
+            int addressIndex = cursor.getColumnIndex(DBHelper.TITLE_ADDRESS);
+            int numberPrIndex = cursor.getColumnIndex(DBHelper.TITLE_NUMBER_OF_PROTOKOL);
+            int dateIndex = cursor.getColumnIndex(DBHelper.TITLE_DATE);
+            do {
+                info[0] = (cursor.getString(numberPrIndex));
+                info[1] = (cursor.getString(dateIndex));
+                info[2] = (cursor.getString(nameElectroIndex));
+                info[3] = (cursor.getString(addressIndex));
+                info[4] = (cursor.getString(targetIndex));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        templatePDF.addCenter_BD("ПРОТОКОЛ № " + info[0] + " от " + info[1], 16, 50, 5);
+        templatePDF.addCenter_BD("проверки (испытаний) электроустановки", 13, 0, 35);
+        templatePDF.addCenter_UnderAndBD("      " + info[2] + "      ", 12, 0,0);
+        templatePDF.addCenter_Nomal("наименование электроустановки", 8, 0, 28);
+        templatePDF.createTableTitle(info[3], info[4]);
+        templatePDF.addCenter_Nomal("приёмо-сдаточные, периодические, контрольные", 8, 0, 45);
+        templatePDF.addParagraph_Normal(title_p, 12, 0, 30);
+        templatePDF.addParagraph_Normal("            Главный  инженер  ООО «СМП ЦЕНТР» ", 12, 0, 15);
+        templatePDF.addParagraph_Normal("       м п           ____________________      / С.П. Филин /", 12, 0, 5);
+        if (!info[1].equals("DATE"))
+            dateStr = "                       «  " + Integer.parseInt(info[1].substring(0,2)) + "  » " +
+                    months[Integer.parseInt(info[1].substring(4,6)) - 1] + "  " + info[1].substring(8,12) + " г.";
+        templatePDF.addParagraph_Normal(dateStr, 12, 0,0);
+        templatePDF.drawRectangleTitle();
+        templatePDF.closeDocument();
+        templatePDF.appViewPDF(TitlePageActivity.this);
     }
 
     //НАЗАД
