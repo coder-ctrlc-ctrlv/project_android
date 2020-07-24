@@ -146,6 +146,7 @@
                     android:padding="10dp"
                     android:layout_marginRight="10sp"
                     android:layout_weight="1"
+                    android:onClick="automatics"
                     android:background="@drawable/buttons"
                     android:text="Автоматические выключатели"
                     android:textColor="@color/fon" />
@@ -157,6 +158,7 @@
                     android:padding="10dp"
                     android:layout_marginLeft="10sp"
                     android:layout_weight="1"
+                    android:onClick="dif_automatics"
                     android:background="@drawable/buttons"
                     android:text="Дифференциальные автоматы"
                     android:textColor="@color/fon" />

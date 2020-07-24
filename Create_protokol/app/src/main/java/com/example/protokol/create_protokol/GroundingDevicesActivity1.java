@@ -20,10 +20,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 
-public class GroundingDevicesActivity extends AppCompatActivity {
+public class GroundingDevicesActivity1 extends AppCompatActivity {
 
     DBHelper dbHelper;
     private TemplatePDF templatePDF;
@@ -57,7 +56,7 @@ public class GroundingDevicesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_grounding_devices);
+        setContentView(R.layout.activity_grounding_devices1);
 
         dbHelper = new DBHelper(this);
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
@@ -78,7 +77,7 @@ public class GroundingDevicesActivity extends AppCompatActivity {
         devices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view, final int position, final long id) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(GroundingDevicesActivity.this);
+                AlertDialog.Builder alert = new AlertDialog.Builder(GroundingDevicesActivity1.this);
                 alert.setTitle(((TextView) view).getText());
                 String arrayMenu[] = {"\nПосмотреть\n", "\nРедактировать\n", "\nУдалить заземлитель\n"};
                 alert.setItems(arrayMenu, new DialogInterface.OnClickListener() {
@@ -164,7 +163,7 @@ public class GroundingDevicesActivity extends AppCompatActivity {
                                 } while (cursor1.moveToNext());
                             }
                             cursor1.close();
-                            AlertDialog.Builder builder4 = new AlertDialog.Builder(GroundingDevicesActivity.this);
+                            AlertDialog.Builder builder4 = new AlertDialog.Builder(GroundingDevicesActivity1.this);
                             builder4.setCancelable(false);
                             builder4.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
@@ -198,7 +197,7 @@ public class GroundingDevicesActivity extends AppCompatActivity {
                         if (which == 2) {
 
                             //ПОДТВЕРЖДЕНИЕ
-                            AlertDialog.Builder builder4 = new AlertDialog.Builder(GroundingDevicesActivity.this);
+                            AlertDialog.Builder builder4 = new AlertDialog.Builder(GroundingDevicesActivity1.this);
                             builder4.setCancelable(false);
                             builder4.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
@@ -239,7 +238,7 @@ public class GroundingDevicesActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //ПРОСТО ОТКРЫТЬ ИЛИ С СОХРАНЕНИЕМ?
-                AlertDialog.Builder builder1 = new AlertDialog.Builder(GroundingDevicesActivity.this);
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(GroundingDevicesActivity1.this);
                 builder1.setPositiveButton("Посмотреть", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         //ПРОСТО ПОСМОТРЕТЬ
@@ -249,19 +248,15 @@ public class GroundingDevicesActivity extends AppCompatActivity {
                 builder1.setNegativeButton("Сохранить", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         //ЗАПРАШИВАЕМ НАЗВАНИЕ ФАЙЛА
-                        AlertDialog.Builder alert = new AlertDialog.Builder(GroundingDevicesActivity.this);
+                        AlertDialog.Builder alert = new AlertDialog.Builder(GroundingDevicesActivity1.this);
                         final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
                         alert.setCancelable(false);
                         alert.setTitle("Введите название сохраняемого файла:");
                         final EditText input = myView.findViewById(R.id.editText);
-                        //ОТКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                        openKeyboard();
                         alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                //СКРЫВАЕМ КЛАВИАТУРУ
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                                closeKeyboard(myView);
                                 String namefile = input.getText().toString();
                                 if (namefile.equals(""))
                                     namefile = null;
@@ -270,9 +265,7 @@ public class GroundingDevicesActivity extends AppCompatActivity {
                         });
                         alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                //СКРЫВАЕМ КЛАВИАТУРУ
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                                closeKeyboard(myView);
                             }
                         });
                         alert.setView(myView);
@@ -291,7 +284,7 @@ public class GroundingDevicesActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent(GroundingDevicesActivity.this, MainActivity.class);
+                Intent intent = new Intent(GroundingDevicesActivity1.this, MainActivity.class);
                 startActivity(intent);
                 return true;
         }
@@ -396,11 +389,13 @@ public class GroundingDevicesActivity extends AppCompatActivity {
             textForEnd[1] = "   " + cursor1.getString(noteIndex);
         }
         cursor1.close();
+        if (StrTable[18].equals("не соответств"))
+            textForEnd[3] = "   Заземляющее устройство не соответствует требованию ПУЭ 1.8.39 п.5; ПТЭЭП Приложение 3";
         start(namefile, database);
         templatePDF.addElemGround(StrTable);
         templatePDF.addParagraphEnd_Ground(textForEnd, sign);
         templatePDF.closeDocument();
-        templatePDF.appViewPDF(GroundingDevicesActivity.this);
+        templatePDF.appViewPDF(GroundingDevicesActivity1.this);
     }
 
     public void addSpisokDevices(SQLiteDatabase database, ListView devices) {
@@ -420,5 +415,15 @@ public class GroundingDevicesActivity extends AppCompatActivity {
         cursor.close();
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.list_item, spisokDevices);
         devices.setAdapter(adapter);
+    }
+
+    void openKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+    }
+
+    void closeKeyboard(View myView) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
     }
 }

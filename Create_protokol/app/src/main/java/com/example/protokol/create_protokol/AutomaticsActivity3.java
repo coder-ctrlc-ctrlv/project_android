@@ -25,7 +25,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class InsulationActivity3 extends AppCompatActivity {
+public class AutomaticsActivity3 extends AppCompatActivity {
 
     DBHelper dbHelper;
     String nameFloor;
@@ -34,14 +34,14 @@ public class InsulationActivity3 extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_insulation3);
+        setContentView(R.layout.activity_automatics3);
 
         dbHelper = new DBHelper(this);
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
 
         TextView floor = findViewById(R.id.textView6);
         TextView room = findViewById(R.id.textView7);
-        final ListView lines = findViewById(R.id.lines);
+        final ListView listLines = findViewById(R.id.lines);
         Button addLine = findViewById(R.id.button9);
         nameFloor = getIntent().getStringExtra("nameFloor");
         idFloor = getIntent().getIntExtra("idFloor", 0);
@@ -50,7 +50,7 @@ public class InsulationActivity3 extends AppCompatActivity {
 
         //НАСТРАИВАЕМ ACTIONBAR
         getSupportActionBar().setSubtitle("Щиты");
-        getSupportActionBar().setTitle("Изоляция");
+        getSupportActionBar().setTitle("Автомат. выключатели");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //ВЫВОД ЭТАЖА И КОМНАТЫ
@@ -58,20 +58,20 @@ public class InsulationActivity3 extends AppCompatActivity {
         room.setText("Комната: " + nameRoom);
 
         //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
-        addSpisokLines(database, lines, idRoom);
+        addSpisokLines(database, listLines, idRoom);
 
         //ДОБАВИТЬ ЩИТ
         addLine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity3.this);
+                AlertDialog.Builder alert = new AlertDialog.Builder(AutomaticsActivity3.this);
                 final View myView = getLayoutInflater().inflate(R.layout.dialog_for_marks,null);
                 alert.setCancelable(false);
                 alert.setTitle("Введите название щита:");
                 final AutoCompleteTextView input = myView.findViewById(R.id.autoCompleteTextView3);
                 ImageView arrow = myView.findViewById(R.id.imageView4);
                 //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
-                ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(InsulationActivity3.this, android.R.layout.simple_dropdown_item_1line, getLines(database));
+                ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(AutomaticsActivity3.this, android.R.layout.simple_dropdown_item_1line, getLines(database));
                 input.setAdapter(adapter1);
                 openKeyboard();
                 arrow.setOnClickListener(new View.OnClickListener() {
@@ -86,11 +86,11 @@ public class InsulationActivity3 extends AppCompatActivity {
                         closeKeyboard(myView);
                         final String nameLine = input.getText().toString();
                         ContentValues contentValues = new ContentValues();
-                        contentValues.put(DBHelper.LN_NAME, nameLine);
-                        contentValues.put(DBHelper.LN_ID_ROOM, idRoom);
-                        database.insert(DBHelper.TABLE_LINES, null, contentValues);
+                        contentValues.put(DBHelper.AU_LINE_NAME, nameLine);
+                        contentValues.put(DBHelper.AU_ID_LROOM, idRoom);
+                        database.insert(DBHelper.TABLE_AU_LINES, null, contentValues);
                         //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
-                        addSpisokLines(database, lines, idRoom);
+                        addSpisokLines(database, listLines, idRoom);
                         //Если новое название щита, то вносим его в базу
                         if (!Arrays.asList(getLines(database)).contains(nameLine)){
                             ContentValues newName = new ContentValues();
@@ -113,26 +113,26 @@ public class InsulationActivity3 extends AppCompatActivity {
         });
 
         //ПЕРЕХОД К ГРУППАМ И РЕДАКТОР ЩИТА
-        lines.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listLines.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view, final int position, final long id) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity3.this);
+                AlertDialog.Builder alert = new AlertDialog.Builder(AutomaticsActivity3.this);
                 alert.setTitle(((TextView) view).getText());
-                String arrayMenu[] = {"\nПерейти к группам\n", "\nИзменить название\n", "\nУдалить щит\n"};
+                String arrayMenu[] = {"\nПерейти к аппаратам\n", "\nИзменить название\n", "\nУдалить щит\n"};
                 alert.setItems(arrayMenu, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
                         //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ НУЖНОЙ ЛИНИИ
-                        Cursor cursor = database.query(DBHelper.TABLE_LINES, new String[] {DBHelper.LN_ID}, "lnr_id = ?", new String[] {String.valueOf(idRoom)}, null, null, "_id DESC");
+                        Cursor cursor = database.query(DBHelper.TABLE_AU_LINES, new String[] {DBHelper.AU_LINE_ID}, "au_lroom_id = ?", new String[] {String.valueOf(idRoom)}, null, null, "_id DESC");
                         cursor.moveToPosition(position);
-                        int lineIndex = cursor.getColumnIndex(DBHelper.LN_ID);
+                        int lineIndex = cursor.getColumnIndex(DBHelper.AU_LINE_ID);
                         final int lineId = cursor.getInt(lineIndex);
                         cursor.close();
 
-                        //ПЕРЕЙТИ К ГРУППАМ
+                        //ПЕРЕЙТИ К АППАРАТАМ
                         if (which == 0) {
-                            Intent intent = new Intent("android.intent.action.Insulation4");
+                            Intent intent = new Intent("android.intent.action.Automatics4");
                             intent.putExtra("nameFloor", nameFloor);
                             intent.putExtra("idFloor", idFloor);
                             intent.putExtra("nameRoom", nameRoom);
@@ -144,7 +144,7 @@ public class InsulationActivity3 extends AppCompatActivity {
 
                         //ИЗМЕНИТЬ НАЗВАНИЕ
                         if (which == 1) {
-                            AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity3.this);
+                            AlertDialog.Builder alert1 = new AlertDialog.Builder(AutomaticsActivity3.this);
                             final View myView = getLayoutInflater().inflate(R.layout.dialog_for_marks,null);
                             alert1.setCancelable(false);
                             alert1.setTitle("Введите новое название щита:");
@@ -152,7 +152,7 @@ public class InsulationActivity3 extends AppCompatActivity {
                             ImageView arrow = myView.findViewById(R.id.imageView4);
                             input.setText(((TextView) view).getText().toString());
                             //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
-                            ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(InsulationActivity3.this, android.R.layout.simple_dropdown_item_1line, getLines(database));
+                            ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(AutomaticsActivity3.this, android.R.layout.simple_dropdown_item_1line, getLines(database));
                             input.setAdapter(adapter1);
                             openKeyboard();
                             arrow.setOnClickListener(new View.OnClickListener() {
@@ -167,13 +167,13 @@ public class InsulationActivity3 extends AppCompatActivity {
                                     closeKeyboard(myView);
                                     String namel = input.getText().toString();
                                     ContentValues uppname = new ContentValues();
-                                    uppname.put(DBHelper.LN_NAME, namel);
-                                    database.update(DBHelper.TABLE_LINES,
+                                    uppname.put(DBHelper.AU_LINE_NAME, namel);
+                                    database.update(DBHelper.TABLE_AU_LINES,
                                             uppname,
                                             "_id = ?",
                                             new String[] {String.valueOf(lineId)});
                                     //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
-                                    addSpisokLines(database, lines, idRoom);
+                                    addSpisokLines(database, listLines, idRoom);
                                     //Если новое название щита, то вносим его в базу
                                     if (!Arrays.asList(getLines(database)).contains(namel)){
                                         ContentValues newName = new ContentValues();
@@ -194,18 +194,18 @@ public class InsulationActivity3 extends AppCompatActivity {
                             alert1.show();
                         }
 
-                        //УДАЛИТЬ КОМНАТУ
+                        //УДАЛИТЬ ЩИТ
                         if (which == 2) {
 
                             //ПОДТВЕРЖДЕНИЕ
-                            AlertDialog.Builder builder4 = new AlertDialog.Builder(InsulationActivity3.this);
+                            AlertDialog.Builder builder4 = new AlertDialog.Builder(AutomaticsActivity3.this);
                             builder4.setCancelable(false);
                             builder4.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
-                                    database.delete(DBHelper.TABLE_GROUPS, "grline_id = ?", new String[] {String.valueOf(lineId)});
-                                    database.delete(DBHelper.TABLE_LINES, "_id = ?", new String[] {String.valueOf(lineId)});
+                                    database.delete(DBHelper.TABLE_AUTOMATICS, "auline_id = ?", new String[] {String.valueOf(lineId)});
+                                    database.delete(DBHelper.TABLE_AU_LINES, "_id = ?", new String[] {String.valueOf(lineId)});
                                     //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
-                                    addSpisokLines(database, lines, idRoom);
+                                    addSpisokLines(database, listLines, idRoom);
                                     Toast toast2 = Toast.makeText(getApplicationContext(),
                                             "Щит <" + ((TextView) view).getText() + "> удален", Toast.LENGTH_SHORT);
                                     toast2.show();
@@ -239,13 +239,13 @@ public class InsulationActivity3 extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent("android.intent.action.Insulation2");
+                Intent intent = new Intent("android.intent.action.Automatics2");
                 intent.putExtra("nameFloor", nameFloor);
                 intent.putExtra("idFloor", idFloor);
                 startActivity(intent);
                 return true;
             case R.id.action_main:
-                Intent intent1 = new Intent(InsulationActivity3.this, MainActivity.class);
+                Intent intent1 = new Intent(AutomaticsActivity3.this, MainActivity.class);
                 startActivity(intent1);
                 return true;
         }
@@ -254,9 +254,9 @@ public class InsulationActivity3 extends AppCompatActivity {
 
     public void addSpisokLines(SQLiteDatabase database, ListView lines, int idRoom) {
         final ArrayList<String> spisokLines = new ArrayList <String>();
-        Cursor cursor = database.query(DBHelper.TABLE_LINES, new String[] {DBHelper.LN_NAME}, "lnr_id = ?", new String[] {String.valueOf(idRoom)}, null, null, "_id DESC");
+        Cursor cursor = database.query(DBHelper.TABLE_AU_LINES, new String[] {DBHelper.AU_LINE_NAME}, "au_lroom_id = ?", new String[] {String.valueOf(idRoom)}, null, null, "_id DESC");
         if (cursor.moveToFirst()) {
-            int nameIndex = cursor.getColumnIndex(DBHelper.LN_NAME);
+            int nameIndex = cursor.getColumnIndex(DBHelper.AU_LINE_NAME);
             do {
                 spisokLines.add(cursor.getString(nameIndex));
             } while (cursor.moveToNext());

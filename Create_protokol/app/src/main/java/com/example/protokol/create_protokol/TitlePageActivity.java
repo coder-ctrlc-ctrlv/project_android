@@ -16,6 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +35,7 @@ public class TitlePageActivity extends AppCompatActivity {
             " до ", "« 19 » апреля  2021 г.", "\nАдрес ЭИЛ: ", "г. Тула, ул. Кирова, 22", "\nТелефон: ",
             " 8(4872) 710062", " Факс: ", " 8(4872) 710062", "\nЕ-mail: ", "info@smpcentr.ru"};
     String[] info = {"NUMBER", "DATE", "NAME", "ADDRESS", "TARGET"};
+    EditText temperature, humidity, pressure;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,13 @@ public class TitlePageActivity extends AppCompatActivity {
 
         dbHelper = new DBHelper(this);
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
+
+        final LinearLayout termsLayout = findViewById(R.id.termsLayout);
+        final LinearLayout nameElectroLayout = findViewById(R.id.nameElectroLayout);
+        final LinearLayout addressLayout = findViewById(R.id.addressLayout);
+        final LinearLayout numberPrLayout = findViewById(R.id.numberPrLayout);
+        final LinearLayout dateLayout = findViewById(R.id.dateLayout);
+        final LinearLayout targetLayout = findViewById(R.id.targetLayout);
 
         final Button nameElectroBTN = findViewById(R.id.button37);
         final TextView nameElectroTEXT = findViewById(R.id.textView33);
@@ -53,9 +62,9 @@ public class TitlePageActivity extends AppCompatActivity {
         final TextView numberPrTEXT = findViewById(R.id.textView39);
         Button dateBTN = findViewById(R.id.button41);
         final TextView dateTEXT = findViewById(R.id.textView41);
-        final EditText temperature = findViewById(R.id.editText7);
-        final EditText humidity = findViewById(R.id.editText8);
-        final EditText pressure = findViewById(R.id.editText9);
+        temperature = findViewById(R.id.editText7);
+        humidity = findViewById(R.id.editText8);
+        pressure = findViewById(R.id.editText9);
         Button save = findViewById(R.id.button43);
         Button openPDF = findViewById(R.id.button42);
 
@@ -101,14 +110,10 @@ public class TitlePageActivity extends AppCompatActivity {
                 final EditText input = myView.findViewById(R.id.editText);
                 if (!nameElectroTEXT.getText().toString().equals("Нет"))
                     input.setText(nameElectroTEXT.getText().toString());
-                //ОТКРЫВАЕМ КЛАВИАТУРУ
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                openKeyboard();
                 alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        //СКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        closeKeyboard(myView);
                         String nameElectro = input.getText().toString();
                         nameElectroTEXT.setText(nameElectro);
                     }
@@ -122,6 +127,7 @@ public class TitlePageActivity extends AppCompatActivity {
                 });
                 alert1.setView(myView);
                 alert1.show();
+                clearFocus();
             }
         });
 
@@ -145,6 +151,7 @@ public class TitlePageActivity extends AppCompatActivity {
                     }
                 });
                 alert.show();
+                clearFocus();
             }
         });
 
@@ -159,14 +166,10 @@ public class TitlePageActivity extends AppCompatActivity {
                 final EditText input = myView.findViewById(R.id.editText);
                 if (!addressTEXT.getText().toString().equals("Нет"))
                     input.setText(addressTEXT.getText().toString());
-                //ОТКРЫВАЕМ КЛАВИАТУРУ
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                openKeyboard();
                 alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        //СКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        closeKeyboard(myView);
                         String address = input.getText().toString();
                         addressTEXT.setText(address);
                     }
@@ -180,6 +183,7 @@ public class TitlePageActivity extends AppCompatActivity {
                 });
                 alert1.setView(myView);
                 alert1.show();
+                clearFocus();
             }
         });
 
@@ -192,14 +196,10 @@ public class TitlePageActivity extends AppCompatActivity {
                 alert1.setCancelable(false);
                 alert1.setTitle("Введите номер протокола:");
                 final EditText input = myView.findViewById(R.id.editText2);
-                //ОТКРЫВАЕМ КЛАВИАТУРУ
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                openKeyboard();
                 alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        //СКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        closeKeyboard(myView);
                         String numberPr = input.getText().toString();
                         numberPrTEXT.setText(numberPr);
                     }
@@ -213,6 +213,7 @@ public class TitlePageActivity extends AppCompatActivity {
                 });
                 alert1.setView(myView);
                 alert1.show();
+                clearFocus();
             }
         });
 
@@ -240,6 +241,7 @@ public class TitlePageActivity extends AppCompatActivity {
                     }
                 }, year, month, dayOfMonth);
                 datePickerDialog.show();
+                clearFocus();
             }
         });
 
@@ -247,9 +249,14 @@ public class TitlePageActivity extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (nameElectroTEXT.getText().toString().equals("Нет") || addressTEXT.getText().toString().equals("Нет") || targetTEXT.getText().toString().equals("Нет") ||
-                        numberPrTEXT.getText().toString().equals("Нет") || dateTEXT.getText().toString().equals("Нет") || temperature.getText().toString().equals("") ||
-                        humidity.getText().toString().equals("") || pressure.getText().toString().equals("")) {
+                if (isIncorrectInput(nameElectroTEXT.getText().toString(), nameElectroLayout) |
+                        isIncorrectInput(addressTEXT.getText().toString(), addressLayout) |
+                        isIncorrectInput(numberPrTEXT.getText().toString(), numberPrLayout) |
+                        isIncorrectInput(dateTEXT.getText().toString(), dateLayout) |
+                        isIncorrectInput(targetTEXT.getText().toString(), targetLayout) | (
+                        isIncorrectInput(temperature.getText().toString(), termsLayout)||
+                        isIncorrectInput(humidity.getText().toString(), termsLayout)||
+                        isIncorrectInput(pressure.getText().toString(), termsLayout))) {
                     AlertDialog.Builder alert = new AlertDialog.Builder(TitlePageActivity.this);
                     alert.setCancelable(false);
                     alert.setMessage("Заполните все поля!");
@@ -314,14 +321,10 @@ public class TitlePageActivity extends AppCompatActivity {
                         alert.setCancelable(false);
                         alert.setTitle("Введите название сохраняемого файла:");
                         final EditText input = myView.findViewById(R.id.editText);
-                        //ОТКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                        openKeyboard();
                         alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                //СКРЫВАЕМ КЛАВИАТУРУ
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                                closeKeyboard(myView);
                                 String namefile = input.getText().toString();
                                 if (namefile.equals(""))
                                     namefile = null;
@@ -330,9 +333,7 @@ public class TitlePageActivity extends AppCompatActivity {
                         });
                         alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                //СКРЫВАЕМ КЛАВИАТУРУ
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                                closeKeyboard(myView);
                             }
                         });
                         alert.setView(myView);
@@ -410,5 +411,30 @@ public class TitlePageActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    boolean isIncorrectInput(String data, LinearLayout layout) {
+        if (data.equals("") || data.equals("Нет")) {
+            layout.setBackgroundResource(R.drawable.incorrect_input);
+            return true;
+        }
+        layout.setBackgroundResource(R.drawable.listview);
+        return false;
+    }
+
+    void clearFocus() {
+        temperature.clearFocus();
+        humidity.clearFocus();
+        pressure.clearFocus();
+    }
+
+    void openKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+    }
+
+    void closeKeyboard(View myView) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
     }
 }

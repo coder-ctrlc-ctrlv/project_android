@@ -17,7 +17,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -27,7 +26,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class RoomElementActivity0 extends AppCompatActivity {
+public class RoomElementActivity1 extends AppCompatActivity {
 
     DBHelper dbHelper;
     private TemplatePDF templatePDF;
@@ -49,7 +48,7 @@ public class RoomElementActivity0 extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_room_element0);
+        setContentView(R.layout.activity_room_element1);
 
         dbHelper = new DBHelper(this);
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
@@ -71,26 +70,26 @@ public class RoomElementActivity0 extends AppCompatActivity {
         addFloor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(RoomElementActivity0.this);
+                AlertDialog.Builder alert = new AlertDialog.Builder(RoomElementActivity1.this);
                 final View myView = getLayoutInflater().inflate(R.layout.dialog_for_marks,null);
                 alert.setCancelable(false);
                 alert.setTitle("Введите название этажа:");
                 final AutoCompleteTextView input = myView.findViewById(R.id.autoCompleteTextView3);
                 ImageView arrow = myView.findViewById(R.id.imageView4);
                 //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
-                ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(RoomElementActivity0.this, android.R.layout.simple_dropdown_item_1line, getFloors(database));
+                ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(RoomElementActivity1.this, android.R.layout.simple_dropdown_item_1line, getFloors(database));
                 input.setAdapter(adapter1);
+                openKeyboard();
                 arrow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        //СКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        closeKeyboard(myView);
                         input.showDropDown();
                     }
                 });
                 alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
+                        closeKeyboard(myView);
                         final String nameFloor = input.getText().toString();
                         ContentValues contentValues = new ContentValues();
                         contentValues.put(DBHelper.FL_NAME, nameFloor);
@@ -110,9 +109,7 @@ public class RoomElementActivity0 extends AppCompatActivity {
                 });
                 alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        //СКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        closeKeyboard(myView);
                     }
                 });
                 alert.setView(myView);
@@ -124,119 +121,135 @@ public class RoomElementActivity0 extends AppCompatActivity {
         floors.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view, final int position, final long id) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(RoomElementActivity0.this);
-                alert.setTitle(((TextView) view).getText());
-                String arrayMenu[] = {"\nПерейти к комнатам\n", "\nИзменить название\n", "\nУдалить этаж\n"};
-                alert.setItems(arrayMenu, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
 
-                        //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID НУЖНОГО ЭТАЖА
-                        Cursor cursor4 = database.query(DBHelper.TABLE_FLOORS, new String[] {DBHelper.FL_ID}, null, null, null, null, "_id DESC");
-                        cursor4.moveToPosition(position);
-                        int idFloorIndex = cursor4.getColumnIndex(DBHelper.FL_ID);
-                        final int idFloor = cursor4.getInt(idFloorIndex);
-                        cursor4.close();
+                //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID НУЖНОГО ЭТАЖА
+                Cursor cursor4 = database.query(DBHelper.TABLE_FLOORS, new String[] {DBHelper.FL_ID}, null, null, null, null, "_id DESC");
+                cursor4.moveToPosition(position);
+                int idFloorIndex = cursor4.getColumnIndex(DBHelper.FL_ID);
+                final int idFloor = cursor4.getInt(idFloorIndex);
+                cursor4.close();
 
-                        //ПЕРЕЙТИ К КОМНАТАМ
-                        if (which == 0) {
-                            Intent intent = new Intent("android.intent.action.RoomElement");
-                            intent.putExtra("nameFloor", ((TextView) view).getText().toString());
-                            intent.putExtra("idFloor", idFloor);
-                            startActivity(intent);
-                        }
+                if (((TextView) view).getText().toString().equals("БЕЗ ЭТАЖА")) {
+                    Intent intent = new Intent("android.intent.action.RoomElement2");
+                    intent.putExtra("nameFloor", ((TextView) view).getText().toString());
+                    intent.putExtra("idFloor", idFloor);
+                    startActivity(intent);
+                }
+                else {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(RoomElementActivity1.this);
+                    alert.setTitle(((TextView) view).getText());
+                    String arrayMenu[] = {"\nПерейти к комнатам\n", "\nИзменить название\n", "\nУдалить этаж\n"};
+                    alert.setItems(arrayMenu, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-                        //ИЗМЕНИТЬ НАЗВАНИЕ
-                        if (which == 1) {
-                            AlertDialog.Builder alert1 = new AlertDialog.Builder(RoomElementActivity0.this);
-                            final View myView = getLayoutInflater().inflate(R.layout.dialog_for_marks,null);
-                            alert1.setCancelable(false);
-                            alert1.setTitle("Введите новое название этажа:");
-                            final AutoCompleteTextView input = myView.findViewById(R.id.autoCompleteTextView3);
-                            ImageView arrow = myView.findViewById(R.id.imageView4);
-                            input.setText(((TextView) view).getText().toString());
-                            //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
-                            ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(RoomElementActivity0.this, android.R.layout.simple_dropdown_item_1line, getFloors(database));
-                            input.setAdapter(adapter1);
-                            arrow.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    //СКРЫВАЕМ КЛАВИАТУРУ
-                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                    imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
-                                    input.showDropDown();
-                                }
-                            });
-                            alert1.setPositiveButton("Изменить", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    String namefl = input.getText().toString();
-                                    ContentValues uppname = new ContentValues();
-                                    uppname.put(DBHelper.FL_NAME, namefl);
-                                    database.update(DBHelper.TABLE_FLOORS,
-                                            uppname,
-                                            "_id = ?",
-                                            new String[] {String.valueOf(idFloor)});
-                                    //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА КОМНАТ
-                                    addSpisokFloors(database, floors);
-                                    //Если новое название комнаты, то вносим его в базу
-                                    if (!Arrays.asList(getFloors(database)).contains(namefl)){
-                                        ContentValues newName = new ContentValues();
-                                        newName.put(DBHelper.LIB_FLOOR_NAME, namefl);
-                                        database.insert(DBHelper.TABLE_LIBRARY_FLOORS, null, newName);
+                            //ПЕРЕЙТИ К КОМНАТАМ
+                            if (which == 0) {
+                                Intent intent = new Intent("android.intent.action.RoomElement2");
+                                intent.putExtra("nameFloor", ((TextView) view).getText().toString());
+                                intent.putExtra("idFloor", idFloor);
+                                startActivity(intent);
+                            }
+
+                            //ИЗМЕНИТЬ НАЗВАНИЕ
+                            if (which == 1) {
+                                AlertDialog.Builder alert1 = new AlertDialog.Builder(RoomElementActivity1.this);
+                                final View myView = getLayoutInflater().inflate(R.layout.dialog_for_marks, null);
+                                alert1.setCancelable(false);
+                                alert1.setTitle("Введите новое название этажа:");
+                                final AutoCompleteTextView input = myView.findViewById(R.id.autoCompleteTextView3);
+                                ImageView arrow = myView.findViewById(R.id.imageView4);
+                                input.setText(((TextView) view).getText().toString());
+                                //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
+                                ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(RoomElementActivity1.this, android.R.layout.simple_dropdown_item_1line, getFloors(database));
+                                input.setAdapter(adapter1);
+                                openKeyboard();
+                                arrow.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        closeKeyboard(myView);
+                                        input.showDropDown();
                                     }
-                                    Toast toast1 = Toast.makeText(getApplicationContext(),
-                                            "Название изменено: " + namefl, Toast.LENGTH_SHORT);
-                                    toast1.show();
-                                }
-                            });
-                            alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    //СКРЫВАЕМ КЛАВИАТУРУ
-                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                    imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
-                                }
-                            });
-                            alert1.setView(myView);
-                            alert1.show();
-                        }
-
-                        //УДАЛИТЬ КОМНАТУ
-                        if (which == 2) {
-
-                            //ПОДТВЕРЖДЕНИЕ
-                            AlertDialog.Builder builder4 = new AlertDialog.Builder(RoomElementActivity0.this);
-                            builder4.setCancelable(false);
-                            builder4.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    Cursor cursor = database.query(DBHelper.TABLE_ROOMS, new String[] {DBHelper.KEY_ID, DBHelper.KEY_ID_FLOOR}, "rfl_id = ?", new String[] {String.valueOf(idFloor)}, null, null, null);
-                                    if (cursor.moveToFirst()) {
-                                        int room_IdIndex = cursor.getColumnIndex(DBHelper.KEY_ID);
-                                        do {
-                                            database.delete(DBHelper.TABLE_ELEMENTS, "room_id = ?", new String[] {cursor.getString(room_IdIndex)});
-                                        } while (cursor.moveToNext());
+                                });
+                                alert1.setPositiveButton("Изменить", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        closeKeyboard(myView);
+                                        String namefl = input.getText().toString();
+                                        ContentValues uppname = new ContentValues();
+                                        uppname.put(DBHelper.FL_NAME, namefl);
+                                        database.update(DBHelper.TABLE_FLOORS,
+                                                uppname,
+                                                "_id = ?",
+                                                new String[]{String.valueOf(idFloor)});
+                                        //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА КОМНАТ
+                                        addSpisokFloors(database, floors);
+                                        //Если новое название комнаты, то вносим его в базу
+                                        if (!Arrays.asList(getFloors(database)).contains(namefl)) {
+                                            ContentValues newName = new ContentValues();
+                                            newName.put(DBHelper.LIB_FLOOR_NAME, namefl);
+                                            database.insert(DBHelper.TABLE_LIBRARY_FLOORS, null, newName);
+                                        }
+                                        Toast toast1 = Toast.makeText(getApplicationContext(),
+                                                "Название изменено: " + namefl, Toast.LENGTH_SHORT);
+                                        toast1.show();
                                     }
-                                    cursor.close();
-                                    database.delete(DBHelper.TABLE_ROOMS, "rfl_id = ?", new String[] {String.valueOf(idFloor)});
-                                    database.delete(DBHelper.TABLE_FLOORS, "_id = ?", new String[] {String.valueOf(idFloor)});
-                                    //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА КОМНАТ
-                                    addSpisokFloors(database, floors);
-                                    Toast toast2 = Toast.makeText(getApplicationContext(),
-                                            "Этаж <" + ((TextView) view).getText() + "> удален", Toast.LENGTH_SHORT);
-                                    toast2.show();
-                                }
-                            });
-                            builder4.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
+                                });
+                                alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        closeKeyboard(myView);
+                                    }
+                                });
+                                alert1.setView(myView);
+                                alert1.show();
+                            }
 
-                                }
-                            });
-                            builder4.setMessage("Вы точно хотите удалить этаж <" + ((TextView) view).getText() + ">?");
-                            AlertDialog dialog4 = builder4.create();
-                            dialog4.show();
+                            //УДАЛИТЬ ЭТАЖ
+                            if (which == 2) {
+
+                                //ПОДТВЕРЖДЕНИЕ
+                                AlertDialog.Builder builder4 = new AlertDialog.Builder(RoomElementActivity1.this);
+                                builder4.setCancelable(false);
+                                builder4.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        Cursor cursor1;
+                                        Cursor cursor = database.query(DBHelper.TABLE_ROOMS, new String[]{DBHelper.KEY_ID, DBHelper.KEY_ID_FLOOR}, "rfl_id = ?", new String[]{String.valueOf(idFloor)}, null, null, null);
+                                        if (cursor.moveToFirst()) {
+                                            int room_IdIndex = cursor.getColumnIndex(DBHelper.KEY_ID);
+                                            do {
+                                                cursor1 = database.query(DBHelper.TABLE_ELEMENTS, new String[]{DBHelper.EL_ID}, "room_id = ?", new String[]{cursor.getString(room_IdIndex)}, null, null, null);
+                                                if (cursor1.moveToFirst()) {
+                                                    int el_idIndex = cursor1.getColumnIndex(DBHelper.EL_ID);
+                                                    do {
+                                                        database.delete(DBHelper.TABLE_ELEMENTS_PZ, "el_id = ?", new String[]{cursor1.getString(el_idIndex)});
+                                                    } while (cursor1.moveToNext());
+                                                }
+                                                cursor1.close();
+                                                database.delete(DBHelper.TABLE_ELEMENTS, "room_id = ?", new String[]{cursor.getString(room_IdIndex)});
+                                            } while (cursor.moveToNext());
+                                        }
+                                        cursor.close();
+                                        database.delete(DBHelper.TABLE_ROOMS, "rfl_id = ?", new String[]{String.valueOf(idFloor)});
+                                        database.delete(DBHelper.TABLE_FLOORS, "_id = ?", new String[]{String.valueOf(idFloor)});
+                                        //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА КОМНАТ
+                                        addSpisokFloors(database, floors);
+                                        Toast toast2 = Toast.makeText(getApplicationContext(),
+                                                "Этаж <" + ((TextView) view).getText() + "> удален", Toast.LENGTH_SHORT);
+                                        toast2.show();
+                                    }
+                                });
+                                builder4.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                                    }
+                                });
+                                builder4.setMessage("Вы точно хотите удалить этаж <" + ((TextView) view).getText() + ">?");
+                                AlertDialog dialog4 = builder4.create();
+                                dialog4.show();
+                            }
                         }
-                    }
-                });
-                alert.show();
+                    });
+                    alert.show();
+                }
             }
         });
 
@@ -246,7 +259,7 @@ public class RoomElementActivity0 extends AppCompatActivity {
             public void onClick(View view) {
 
                 //ПРОСТО ОТКРЫТЬ ИЛИ С СОХРАНЕНИЕМ?
-                AlertDialog.Builder builder1 = new AlertDialog.Builder(RoomElementActivity0.this);
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(RoomElementActivity1.this);
                 builder1.setPositiveButton("Посмотреть", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         //ПРОСТО ПОСМОТРЕТЬ
@@ -256,19 +269,15 @@ public class RoomElementActivity0 extends AppCompatActivity {
                 builder1.setNegativeButton("Сохранить", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         //ЗАПРАШИВАЕМ НАЗВАНИЕ ФАЙЛА
-                        AlertDialog.Builder alert = new AlertDialog.Builder(RoomElementActivity0.this);
+                        AlertDialog.Builder alert = new AlertDialog.Builder(RoomElementActivity1.this);
                         final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
                         alert.setCancelable(false);
                         alert.setTitle("Введите название сохраняемого файла:");
                         final EditText input = myView.findViewById(R.id.editText);
-                        //ОТКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                        openKeyboard();
                         alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                //СКРЫВАЕМ КЛАВИАТУРУ
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                                closeKeyboard(myView);
                                 String namefile = input.getText().toString();
                                 if (namefile.equals(""))
                                     namefile = null;
@@ -277,9 +286,7 @@ public class RoomElementActivity0 extends AppCompatActivity {
                         });
                         alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                //СКРЫВАЕМ КЛАВИАТУРУ
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                                closeKeyboard(myView);
                             }
                         });
                         alert.setView(myView);
@@ -306,7 +313,7 @@ public class RoomElementActivity0 extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent(RoomElementActivity0.this, MainActivity.class);
+                Intent intent = new Intent(RoomElementActivity1.this, MainActivity.class);
                 startActivity(intent);
                 return true;
         }
@@ -335,6 +342,12 @@ public class RoomElementActivity0 extends AppCompatActivity {
             do {
                 spisokFloors.add(cursor.getString(nameIndex));
             } while (cursor.moveToNext());
+        }
+        else {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(DBHelper.FL_NAME, "БЕЗ ЭТАЖА");
+            database.insert(DBHelper.TABLE_FLOORS, null, contentValues);
+            spisokFloors.add("БЕЗ ЭТАЖА");
         }
         cursor.close();
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.list_item, spisokFloors);
@@ -378,7 +391,7 @@ public class RoomElementActivity0 extends AppCompatActivity {
 
     //НАСТРОЙКА ПДФ С РЕКУРСИЕЙ
 //    public void options(final SQLiteDatabase database) {
-//        AlertDialog.Builder alert = new AlertDialog.Builder(RoomElementActivity0.this);
+//        AlertDialog.Builder alert = new AlertDialog.Builder(RoomElementActivity1.this);
 //        alert.setCancelable(false);
 //        alert.setTitle("Выберете комнату:");
 //        alert.setAdapter(addSpisokRoomsPDF(database), new DialogInterface.OnClickListener() {
@@ -398,7 +411,7 @@ public class RoomElementActivity0 extends AppCompatActivity {
 //                String nameRoom = cursor4.getString(roomNameIndex);
 //                cursor4.close();
 //
-//                AlertDialog.Builder alert1 = new AlertDialog.Builder(RoomElementActivity0.this);
+//                AlertDialog.Builder alert1 = new AlertDialog.Builder(RoomElementActivity1.this);
 //                final View myView = getLayoutInflater().inflate(R.layout.dialog_for_options_pdf, null);
 //                alert1.setCancelable(false);
 //                alert1.setTitle(nameRoom);
@@ -514,7 +527,7 @@ public class RoomElementActivity0 extends AppCompatActivity {
         final ArrayList<String> NZ = new ArrayList<>();
 
         //ЗАПРОС НА СПИСОК ЭТАЖЕЙ И КОЛ-ВО КОМНАТ
-        Cursor cursor = database.rawQuery("SELECT floor, count(*) AS count_rooms FROM floors AS f JOIN rooms AS r ON f._id = r.rfl_id GROUP BY f._id ORDER BY f._id", new String[] { });
+        Cursor cursor = database.rawQuery("SELECT floor, count(*) AS count_rooms FROM floors AS f JOIN rooms AS r ON f._id = r.rfl_id GROUP BY f._id ORDER BY f._id, r._id", new String[] { });
         if (cursor.moveToFirst()) {
             int nameFloorIndex = cursor.getColumnIndex(DBHelper.FL_NAME);
             int countRoomIndex = cursor.getColumnIndex("count_rooms");
@@ -526,7 +539,7 @@ public class RoomElementActivity0 extends AppCompatActivity {
         cursor.close();
 
         //ЗАПРОС НА СПИСОК КОМНАТ И КОЛ-ВО ЭЛЕМЕНТОВ
-        Cursor cursor1 = database.rawQuery("SELECT room, count(*) AS count_elements FROM rooms AS r JOIN elements AS e ON r._id = e.room_id GROUP BY r._id ORDER BY r.rfl_id", new String[] { });
+        Cursor cursor1 = database.rawQuery("SELECT room, count(*) AS count_elements FROM rooms AS r JOIN elements AS e ON r._id = e.room_id GROUP BY r._id ORDER BY r.rfl_id, r._id, e._id", new String[] { });
         if (cursor1.moveToFirst()) {
             int nameRoomIndex = cursor1.getColumnIndex(DBHelper.KEY_NAME);
             int countElementIndex = cursor1.getColumnIndex("count_elements");
@@ -538,16 +551,18 @@ public class RoomElementActivity0 extends AppCompatActivity {
         cursor1.close();
 
         //ЗАПРОС НА СПИСОК ЭЛЕМЕНТОВ
-        Cursor cursor2 = database.rawQuery("SELECT element, number, sopr, conclusion FROM elements AS e JOIN rooms AS r ON e.room_id = r._id ORDER BY r.rfl_id, r._id", new String[] { });
+        Cursor cursor2 = database.rawQuery("SELECT element, unit, number, sopr, conclusion FROM elements AS e JOIN rooms AS r ON e.room_id = r._id ORDER BY r.rfl_id, r._id, e._id", new String[] { });
         if (cursor2.moveToFirst()) {
             int elnameIndex = cursor2.getColumnIndex(DBHelper.EL_NAME);
+            int elunitIndex = cursor2.getColumnIndex(DBHelper.EL_UNIT);
             int elnumberIndex = cursor2.getColumnIndex(DBHelper.EL_NUMBER);
             int elsoprIndex = cursor2.getColumnIndex(DBHelper.EL_SOPR);
             int conclusionIndex = cursor2.getColumnIndex(DBHelper.EL_CONCLUSION);
-            String conclusion;
+            String conclusion, unit;
             int currentElement, i, sum = 0;
             do {
                 conclusion = cursor2.getString(conclusionIndex);
+                unit =  cursor2.getString(elunitIndex);
                 //ОПРЕДЕЛЯЕМ НЗ
                 if (conclusion.equals("не соответствует")) {
                     //1.Узнаем общий номер элемента
@@ -565,7 +580,11 @@ public class RoomElementActivity0 extends AppCompatActivity {
                     NZ.add(String.valueOf(i + 1) + "." + String.valueOf(currentElement - (sum - countElements.get(i))));
                     sum = 0;
                 }
-                element.add(cursor2.getString(elnameIndex));
+                //УКАЗЫВАЕМ ШТ И ГН РЯДОМ С ИМЕНЕМ
+                if (unit.equals("пусто"))
+                    element.add(cursor2.getString(elnameIndex));
+                else
+                    element.add(cursor2.getString(elnameIndex) + "    " + cursor2.getString(elnumberIndex) + " " + unit);
                 element.add(cursor2.getString(elnumberIndex));
                 element.add("0,05");
                 element.add(cursor2.getString(elsoprIndex));
@@ -586,9 +605,19 @@ public class RoomElementActivity0 extends AppCompatActivity {
                 "b) Сопротивление переходных контактов выше нормы, указаны в п/п ", "                                   нет",
                 "c) Не заземлено оборудование, указанное в п/п ", "                          " + joinedNZ,
                 "d) Величина измеренного переходного сопротивления прочих контактов заземляющих и нулевых проводников," +
-                        "\n     элементов электрооборудования соответствует (не соответствует) нормам ПУЭ и ПТЭЭП"};
+                        "\n     элементов электрооборудования соответствует (", "не соответствует", ") нормам ПУЭ и ПТЭЭП"};
         templatePDF.addParagraphEnd_RE(end, sign);
         templatePDF.closeDocument();
-        templatePDF.appViewPDF(RoomElementActivity0.this);
+        templatePDF.appViewPDF(RoomElementActivity1.this);
+    }
+
+    void openKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+    }
+
+    void closeKeyboard(View myView) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
     }
 }

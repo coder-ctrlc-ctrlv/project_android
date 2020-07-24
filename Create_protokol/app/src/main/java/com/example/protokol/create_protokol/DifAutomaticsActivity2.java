@@ -25,53 +25,47 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class InsulationActivity3 extends AppCompatActivity {
+public class DifAutomaticsActivity2 extends AppCompatActivity {
 
     DBHelper dbHelper;
-    String nameFloor;
-    int idFloor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_insulation3);
+        setContentView(R.layout.activity_dif_automatics2);
 
         dbHelper = new DBHelper(this);
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
 
         TextView floor = findViewById(R.id.textView6);
-        TextView room = findViewById(R.id.textView7);
-        final ListView lines = findViewById(R.id.lines);
-        Button addLine = findViewById(R.id.button9);
-        nameFloor = getIntent().getStringExtra("nameFloor");
-        idFloor = getIntent().getIntExtra("idFloor", 0);
-        final String nameRoom = getIntent().getStringExtra("nameRoom");
-        final int idRoom = getIntent().getIntExtra("idRoom", 0);
+        final ListView rooms = findViewById(R.id.rooms);
+        Button addRoom = findViewById(R.id.button9);
+        final String nameFloor = getIntent().getStringExtra("nameFloor");
+        final int idFloor = getIntent().getIntExtra("idFloor", 0);
 
         //НАСТРАИВАЕМ ACTIONBAR
-        getSupportActionBar().setSubtitle("Щиты");
-        getSupportActionBar().setTitle("Изоляция");
+        getSupportActionBar().setSubtitle("Комнаты");
+        getSupportActionBar().setTitle("Диф. автоматы");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //ВЫВОД ЭТАЖА И КОМНАТЫ
+        //ВЫВОД ЭТАЖА
         floor.setText("Этаж: " + nameFloor);
-        room.setText("Комната: " + nameRoom);
 
-        //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
-        addSpisokLines(database, lines, idRoom);
+        //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА КОМНАТ
+        addSpisokRooms(database, rooms, idFloor);
 
-        //ДОБАВИТЬ ЩИТ
-        addLine.setOnClickListener(new View.OnClickListener() {
+        //ДОБАВИТЬ КОМНАТУ
+        addRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity3.this);
+                AlertDialog.Builder alert = new AlertDialog.Builder(DifAutomaticsActivity2.this);
                 final View myView = getLayoutInflater().inflate(R.layout.dialog_for_marks,null);
                 alert.setCancelable(false);
-                alert.setTitle("Введите название щита:");
+                alert.setTitle("Введите название комнаты:");
                 final AutoCompleteTextView input = myView.findViewById(R.id.autoCompleteTextView3);
                 ImageView arrow = myView.findViewById(R.id.imageView4);
                 //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
-                ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(InsulationActivity3.this, android.R.layout.simple_dropdown_item_1line, getLines(database));
+                ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(DifAutomaticsActivity2.this, android.R.layout.simple_dropdown_item_1line, getRooms(database));
                 input.setAdapter(adapter1);
                 openKeyboard();
                 arrow.setOnClickListener(new View.OnClickListener() {
@@ -84,21 +78,21 @@ public class InsulationActivity3 extends AppCompatActivity {
                 alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         closeKeyboard(myView);
-                        final String nameLine = input.getText().toString();
+                        final String nameRoom = input.getText().toString();
                         ContentValues contentValues = new ContentValues();
-                        contentValues.put(DBHelper.LN_NAME, nameLine);
-                        contentValues.put(DBHelper.LN_ID_ROOM, idRoom);
-                        database.insert(DBHelper.TABLE_LINES, null, contentValues);
-                        //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
-                        addSpisokLines(database, lines, idRoom);
-                        //Если новое название щита, то вносим его в базу
-                        if (!Arrays.asList(getLines(database)).contains(nameLine)){
+                        contentValues.put(DBHelper.DIF_AU_ROOM_NAME, nameRoom);
+                        contentValues.put(DBHelper.DIF_AU_ID_RFLOOR, idFloor);
+                        database.insert(DBHelper.TABLE_DIF_AU_ROOMS, null, contentValues);
+                        //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА КОМНАТ
+                        addSpisokRooms(database, rooms, idFloor);
+                        //Если новое название комнаты, то вносим его в базу
+                        if (!Arrays.asList(getRooms(database)).contains(nameRoom)){
                             ContentValues newName = new ContentValues();
-                            newName.put(DBHelper.LIB_LINE_NAME, nameLine);
-                            database.insert(DBHelper.TABLE_LIBRARY_LINES, null, newName);
+                            newName.put(DBHelper.LIB_ROOM_NAME, nameRoom);
+                            database.insert(DBHelper.TABLE_LIBRARY_ROOMS, null, newName);
                         }
                         Toast toast = Toast.makeText(getApplicationContext(),
-                                "Щит <" + nameLine + "> добавлен", Toast.LENGTH_SHORT);
+                                "Комната <" + nameRoom + "> добавлена", Toast.LENGTH_SHORT);
                         toast.show();
                     }
                 });
@@ -112,47 +106,45 @@ public class InsulationActivity3 extends AppCompatActivity {
             }
         });
 
-        //ПЕРЕХОД К ГРУППАМ И РЕДАКТОР ЩИТА
-        lines.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        //ПЕРЕХОД К ЩИТАМ И РЕДАКТОР КОМНАТЫ
+        rooms.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view, final int position, final long id) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity3.this);
+                AlertDialog.Builder alert = new AlertDialog.Builder(DifAutomaticsActivity2.this);
                 alert.setTitle(((TextView) view).getText());
-                String arrayMenu[] = {"\nПерейти к группам\n", "\nИзменить название\n", "\nУдалить щит\n"};
+                String arrayMenu[] = {"\nПерейти к щитам\n", "\nИзменить название\n", "\nУдалить комнату\n"};
                 alert.setItems(arrayMenu, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ НУЖНОЙ ЛИНИИ
-                        Cursor cursor = database.query(DBHelper.TABLE_LINES, new String[] {DBHelper.LN_ID}, "lnr_id = ?", new String[] {String.valueOf(idRoom)}, null, null, "_id DESC");
-                        cursor.moveToPosition(position);
-                        int lineIndex = cursor.getColumnIndex(DBHelper.LN_ID);
-                        final int lineId = cursor.getInt(lineIndex);
-                        cursor.close();
+                        //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID НУЖНОЙ КОМНАТЫ
+                        Cursor cursor4 = database.query(DBHelper.TABLE_DIF_AU_ROOMS, new String[] {DBHelper.DIF_AU_ROOM_ID}, "dif_au_rfl_id = ?", new String[] {String.valueOf(idFloor)}, null, null, "_id DESC");
+                        cursor4.moveToPosition(position);
+                        int idRoomIndex = cursor4.getColumnIndex(DBHelper.DIF_AU_ROOM_ID);
+                        final int idRoom = cursor4.getInt(idRoomIndex);
+                        cursor4.close();
 
-                        //ПЕРЕЙТИ К ГРУППАМ
+                        //ПЕРЕЙТИ К ЩИТАМ
                         if (which == 0) {
-                            Intent intent = new Intent("android.intent.action.Insulation4");
+                            Intent intent = new Intent("android.intent.action.DifAutomatics3");
                             intent.putExtra("nameFloor", nameFloor);
                             intent.putExtra("idFloor", idFloor);
-                            intent.putExtra("nameRoom", nameRoom);
+                            intent.putExtra("nameRoom", ((TextView) view).getText().toString());
                             intent.putExtra("idRoom", idRoom);
-                            intent.putExtra("nameLine", ((TextView) view).getText().toString());
-                            intent.putExtra("idLine", lineId);
                             startActivity(intent);
                         }
 
                         //ИЗМЕНИТЬ НАЗВАНИЕ
                         if (which == 1) {
-                            AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity3.this);
+                            AlertDialog.Builder alert1 = new AlertDialog.Builder(DifAutomaticsActivity2.this);
                             final View myView = getLayoutInflater().inflate(R.layout.dialog_for_marks,null);
                             alert1.setCancelable(false);
-                            alert1.setTitle("Введите новое название щита:");
+                            alert1.setTitle("Введите новое название комнаты:");
                             final AutoCompleteTextView input = myView.findViewById(R.id.autoCompleteTextView3);
                             ImageView arrow = myView.findViewById(R.id.imageView4);
                             input.setText(((TextView) view).getText().toString());
                             //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
-                            ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(InsulationActivity3.this, android.R.layout.simple_dropdown_item_1line, getLines(database));
+                            ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(DifAutomaticsActivity2.this, android.R.layout.simple_dropdown_item_1line, getRooms(database));
                             input.setAdapter(adapter1);
                             openKeyboard();
                             arrow.setOnClickListener(new View.OnClickListener() {
@@ -165,23 +157,23 @@ public class InsulationActivity3 extends AppCompatActivity {
                             alert1.setPositiveButton("Изменить", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     closeKeyboard(myView);
-                                    String namel = input.getText().toString();
+                                    String namer = input.getText().toString();
                                     ContentValues uppname = new ContentValues();
-                                    uppname.put(DBHelper.LN_NAME, namel);
-                                    database.update(DBHelper.TABLE_LINES,
+                                    uppname.put(DBHelper.DIF_AU_ROOM_NAME, namer);
+                                    database.update(DBHelper.TABLE_DIF_AU_ROOMS,
                                             uppname,
                                             "_id = ?",
-                                            new String[] {String.valueOf(lineId)});
-                                    //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
-                                    addSpisokLines(database, lines, idRoom);
-                                    //Если новое название щита, то вносим его в базу
-                                    if (!Arrays.asList(getLines(database)).contains(namel)){
+                                            new String[] {String.valueOf(idRoom)});
+                                    //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА КОМНАТ
+                                    addSpisokRooms(database, rooms, idFloor);
+                                    //Если новое название комнаты, то вносим его в базу
+                                    if (!Arrays.asList(getRooms(database)).contains(namer)){
                                         ContentValues newName = new ContentValues();
-                                        newName.put(DBHelper.LIB_LINE_NAME, namel);
-                                        database.insert(DBHelper.TABLE_LIBRARY_LINES, null, newName);
+                                        newName.put(DBHelper.LIB_ROOM_NAME, namer);
+                                        database.insert(DBHelper.TABLE_LIBRARY_ROOMS, null, newName);
                                     }
                                     Toast toast1 = Toast.makeText(getApplicationContext(),
-                                            "Название изменено: " + namel, Toast.LENGTH_SHORT);
+                                            "Название изменено: " + namer, Toast.LENGTH_SHORT);
                                     toast1.show();
                                 }
                             });
@@ -196,18 +188,25 @@ public class InsulationActivity3 extends AppCompatActivity {
 
                         //УДАЛИТЬ КОМНАТУ
                         if (which == 2) {
-
                             //ПОДТВЕРЖДЕНИЕ
-                            AlertDialog.Builder builder4 = new AlertDialog.Builder(InsulationActivity3.this);
+                            AlertDialog.Builder builder4 = new AlertDialog.Builder(DifAutomaticsActivity2.this);
                             builder4.setCancelable(false);
                             builder4.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
-                                    database.delete(DBHelper.TABLE_GROUPS, "grline_id = ?", new String[] {String.valueOf(lineId)});
-                                    database.delete(DBHelper.TABLE_LINES, "_id = ?", new String[] {String.valueOf(lineId)});
-                                    //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
-                                    addSpisokLines(database, lines, idRoom);
+                                    Cursor cursor = database.query(DBHelper.TABLE_DIF_AU_LINES, new String[] {DBHelper.DIF_AU_LINE_ID, DBHelper.DIF_AU_ID_LROOM}, "dif_au_lroom_id = ?", new String[] {String.valueOf(idRoom)}, null, null, null);
+                                    if (cursor.moveToFirst()) {
+                                        int line_IdIndex = cursor.getColumnIndex(DBHelper.DIF_AU_LINE_ID);
+                                        do {
+                                            database.delete(DBHelper.TABLE_DIF_AUTOMATICS, "dif_auline_id = ?", new String[] {cursor.getString(line_IdIndex)});
+                                        } while (cursor.moveToNext());
+                                    }
+                                    cursor.close();
+                                    database.delete(DBHelper.TABLE_DIF_AU_LINES, "dif_au_lroom_id = ?", new String[] {String.valueOf(idRoom)});
+                                    database.delete(DBHelper.TABLE_DIF_AU_ROOMS, "_id = ?", new String[] {String.valueOf(idRoom)});
+                                    //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА КОМНАТ
+                                    addSpisokRooms(database, rooms, idFloor);
                                     Toast toast2 = Toast.makeText(getApplicationContext(),
-                                            "Щит <" + ((TextView) view).getText() + "> удален", Toast.LENGTH_SHORT);
+                                            "Комната <" + ((TextView) view).getText() + "> удалена", Toast.LENGTH_SHORT);
                                     toast2.show();
                                 }
                             });
@@ -216,7 +215,7 @@ public class InsulationActivity3 extends AppCompatActivity {
 
                                 }
                             });
-                            builder4.setMessage("Вы точно хотите удалить щит <" + ((TextView) view).getText() + ">?");
+                            builder4.setMessage("Вы точно хотите удалить комнату <" + ((TextView) view).getText() + ">?");
                             AlertDialog dialog4 = builder4.create();
                             dialog4.show();
                         }
@@ -239,45 +238,43 @@ public class InsulationActivity3 extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent("android.intent.action.Insulation2");
-                intent.putExtra("nameFloor", nameFloor);
-                intent.putExtra("idFloor", idFloor);
+                Intent intent = new Intent("android.intent.action.DifAutomatics1");
                 startActivity(intent);
                 return true;
             case R.id.action_main:
-                Intent intent1 = new Intent(InsulationActivity3.this, MainActivity.class);
+                Intent intent1 = new Intent(DifAutomaticsActivity2.this, MainActivity.class);
                 startActivity(intent1);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public void addSpisokLines(SQLiteDatabase database, ListView lines, int idRoom) {
-        final ArrayList<String> spisokLines = new ArrayList <String>();
-        Cursor cursor = database.query(DBHelper.TABLE_LINES, new String[] {DBHelper.LN_NAME}, "lnr_id = ?", new String[] {String.valueOf(idRoom)}, null, null, "_id DESC");
+    public void addSpisokRooms(SQLiteDatabase database, ListView rooms, int idFloor) {
+        final ArrayList<String> spisokRooms = new ArrayList <String>();
+        Cursor cursor = database.query(DBHelper.TABLE_DIF_AU_ROOMS, new String[] {DBHelper.DIF_AU_ROOM_NAME}, "dif_au_rfl_id = ?", new String[] {String.valueOf(idFloor)}, null, null, "_id DESC");
         if (cursor.moveToFirst()) {
-            int nameIndex = cursor.getColumnIndex(DBHelper.LN_NAME);
+            int nameIndex = cursor.getColumnIndex(DBHelper.DIF_AU_ROOM_NAME);
             do {
-                spisokLines.add(cursor.getString(nameIndex));
+                spisokRooms.add(cursor.getString(nameIndex));
             } while (cursor.moveToNext());
         }
         cursor.close();
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.list_item, spisokLines);
-        lines.setAdapter(adapter);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.list_item, spisokRooms);
+        rooms.setAdapter(adapter);
     }
 
-    //ПОЛУЧЕНИЕ ЩИТОВ
-    public String[] getLines(SQLiteDatabase database) {
-        final ArrayList<String> linesDB = new ArrayList <String>();
-        Cursor cursor = database.query(DBHelper.TABLE_LIBRARY_LINES, new String[] {DBHelper.LIB_LINE_NAME}, null, null, null, null, null);
+    //ПОЛУЧЕНИЕ КОМНАТ
+    public String[] getRooms(SQLiteDatabase database) {
+        final ArrayList<String> roomsDB = new ArrayList <String>();
+        Cursor cursor = database.query(DBHelper.TABLE_LIBRARY_ROOMS, new String[] {DBHelper.LIB_ROOM_NAME}, null, null, null, null, null);
         if (cursor.moveToFirst()) {
-            int nameIndex = cursor.getColumnIndex(DBHelper.LIB_LINE_NAME);
+            int nameIndex = cursor.getColumnIndex(DBHelper.LIB_ROOM_NAME);
             do {
-                linesDB.add(cursor.getString(nameIndex));
+                roomsDB.add(cursor.getString(nameIndex));
             } while (cursor.moveToNext());
         }
         cursor.close();
-        return linesDB.toArray(new String[linesDB.size()]);
+        return roomsDB.toArray(new String[roomsDB.size()]);
     }
 
     void openKeyboard() {

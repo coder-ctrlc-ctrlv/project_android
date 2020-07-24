@@ -60,6 +60,8 @@ public class LibraryActivity extends AppCompatActivity {
             getSupportActionBar().setSubtitle("Щиты");
         if (lib.equals("floors"))
             getSupportActionBar().setSubtitle("Этажи");
+        if (lib.equals("automat"))
+            getSupportActionBar().setSubtitle("Автомат. выключатели");
 
         //ЗАПОЛЯНЕМ LISTVIEW ИЗНАЧАЛЬНО
         getLibraryItems(database, lib);
@@ -116,9 +118,7 @@ public class LibraryActivity extends AppCompatActivity {
                             alert1.setTitle("Введите новое название:");
                             final EditText input = myView.findViewById(R.id.editText);
                             input.setText(((TextView) view).getText().toString());
-                            //ОТКРЫВАЕМ КЛАВИАТУРУ
-                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                            openKeyboard();
                             alert1.setPositiveButton("Изменить", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     String name = input.getText().toString();
@@ -158,9 +158,14 @@ public class LibraryActivity extends AppCompatActivity {
                                                 "floor_name = ?",
                                                 new String[]{String.valueOf(((TextView) view).getText())});
                                     }
-                                    //СКРЫВАЕМ КЛАВИАТУРУ
-                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                    imm.hideSoftInputFromWindow(myView.getWindowToken(), 0);
+                                    if (lib.equals("automat")) {
+                                        uppname.put(DBHelper.LIB_AU_NAME, name);
+                                        database.update(DBHelper.TABLE_LIBRARY_AUTOMATICS,
+                                                uppname,
+                                                "au_name = ?",
+                                                new String[]{String.valueOf(((TextView) view).getText())});
+                                    }
+                                    closeKeyboard(myView);
                                     //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА КОМНАТ
                                     getLibraryItems(database, lib);
                                     filter.setText("");
@@ -171,9 +176,7 @@ public class LibraryActivity extends AppCompatActivity {
                             });
                             alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
-                                    //СКРЫВАЕМ КЛАВИАТУРУ
-                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                    imm.hideSoftInputFromWindow(myView.getWindowToken(), 0);
+                                    closeKeyboard(myView);
                                 }
                             });
                             alert1.setView(myView);
@@ -197,6 +200,8 @@ public class LibraryActivity extends AppCompatActivity {
                                         database.delete(DBHelper.TABLE_LIBRARY_LINES, "line_name = ?", new String[] {String.valueOf(((TextView) view).getText())});
                                     if (lib.equals("floors"))
                                         database.delete(DBHelper.TABLE_LIBRARY_FLOORS, "floor_name = ?", new String[] {String.valueOf(((TextView) view).getText())});
+                                    if (lib.equals("automat"))
+                                        database.delete(DBHelper.TABLE_LIBRARY_AUTOMATICS, "au_name = ?", new String[] {String.valueOf(((TextView) view).getText())});
                                     getLibraryItems(database, lib);
                                     filter.setText("");
                                     Toast toast2 = Toast.makeText(getApplicationContext(),
@@ -289,6 +294,17 @@ public class LibraryActivity extends AppCompatActivity {
             }
             cursor1.close();
         }
+        if (lib.equals("automat")) {
+            Cursor cursor1 = db.rawQuery("SELECT " + DBHelper.LIB_AU_NAME + " FROM " + DBHelper.TABLE_LIBRARY_AUTOMATICS +
+                    " WHERE " + DBHelper.LIB_AU_NAME + " LIKE '%" + text + "%' ORDER BY lower(" + DBHelper.LIB_AU_NAME + ");", null);
+            if (cursor1.moveToFirst()) {
+                int nameIndex = cursor1.getColumnIndex(DBHelper.LIB_AU_NAME);
+                do {
+                    listItems.add(cursor1.getString(nameIndex));
+                } while (cursor1.moveToNext());
+            }
+            cursor1.close();
+        }
         adapter.notifyDataSetChanged();
     }
 
@@ -344,7 +360,27 @@ public class LibraryActivity extends AppCompatActivity {
             }
             cursor1.close();
         }
+        if (lib.equals("automat")) {
+            Cursor cursor1 = db.rawQuery("SELECT " + DBHelper.LIB_AU_NAME +" FROM " + DBHelper.TABLE_LIBRARY_AUTOMATICS + " ORDER BY lower("+ DBHelper.LIB_AU_NAME +");", null);
+            if (cursor1.moveToFirst()) {
+                int nameIndex = cursor1.getColumnIndex(DBHelper.LIB_AU_NAME);
+                do {
+                    listItems.add(cursor1.getString(nameIndex));
+                } while (cursor1.moveToNext());
+            }
+            cursor1.close();
+        }
         adapter = new ArrayAdapter<String>(this, R.layout.list_item, listItems);
         library_items.setAdapter(adapter);
+    }
+
+    void openKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+    }
+
+    void closeKeyboard(View myView) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
     }
 }

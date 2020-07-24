@@ -22,6 +22,7 @@
             android:orientation="vertical">
 
             <LinearLayout
+                android:id="@+id/nameElectroLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
@@ -60,6 +61,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/addressLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
@@ -103,6 +105,7 @@
                 android:orientation="horizontal">
 
                 <LinearLayout
+                    android:id="@+id/numberPrLayout"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginRight="10dp"
@@ -148,6 +151,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/dateLayout"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="10dp"
@@ -194,6 +198,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/targetLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
@@ -231,6 +236,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/termsLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/listview"

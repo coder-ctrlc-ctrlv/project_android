@@ -5,53 +5,54 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fon"
-    tools:context=".RoomElementActivity2"
-    tools:layout_editor_absoluteY="25dp">
+    tools:context=".GroundingDevicesActivity1">
 
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="15dp"
-        android:text="Этаж"
-        android:textColor="@color/text"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/rooms"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
-        android:id="@+id/rooms"
+        android:id="@+id/Devices"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="15dp"
         android:layout_marginLeft="15dp"
+        android:layout_marginTop="15dp"
         android:layout_marginEnd="15dp"
         android:layout_marginRight="15dp"
         android:layout_marginBottom="15dp"
         android:background="@drawable/listview"
-        app:layout_constraintBottom_toTopOf="@+id/button9"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView6" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/button9"
-        android:layout_width="0dp"
-        android:layout_height="80dp"
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="170dp"
         android:layout_marginStart="15dp"
         android:layout_marginLeft="15dp"
         android:layout_marginEnd="15dp"
         android:layout_marginRight="15dp"
         android:layout_marginBottom="15dp"
-        android:background="@drawable/buttons2"
-        android:text="Добавить комнату"
-        android:textColor="@color/fon"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rooms" />
+        app:layout_constraintStart_toStartOf="parent">
 
+            <Button
+                android:id="@+id/button34"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:background="@drawable/buttons2"
+                android:text="Добавить заземлитель"
+                android:textColor="@color/fon" />
+
+        <Button
+            android:id="@+id/button32"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/fon"
+            android:background="@drawable/buttons2"
+            android:text="Создать PDF" />
+    </LinearLayout>
 </android.support.constraint.ConstraintLayout>

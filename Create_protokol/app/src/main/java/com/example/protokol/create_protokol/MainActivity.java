@@ -57,11 +57,22 @@ public class MainActivity extends AppCompatActivity {
                         database.delete(DBHelper.TABLE_FLOORS, null, null);
                         database.delete(DBHelper.TABLE_ROOMS, null, null);
                         database.delete(DBHelper.TABLE_ELEMENTS, null, null);
+                        database.delete(DBHelper.TABLE_ELEMENTS_PZ, null, null);
+                        database.delete(DBHelper.TABLE_INS_FLOORS, null, null);
                         database.delete(DBHelper.TABLE_LINE_ROOMS, null, null);
                         database.delete(DBHelper.TABLE_LINES, null, null);
                         database.delete(DBHelper.TABLE_GROUPS, null, null);
+                        database.delete(DBHelper.TABLE_INS_NOTES, null, null);
                         database.delete(DBHelper.TABLE_TITLE, null, null);
                         database.delete(DBHelper.TABLE_GD, null, null);
+                        database.delete(DBHelper.TABLE_AU_FLOORS, null, null);
+                        database.delete(DBHelper.TABLE_AU_LINES, null, null);
+                        database.delete(DBHelper.TABLE_AU_ROOMS, null, null);
+                        database.delete(DBHelper.TABLE_AUTOMATICS, null, null);
+                        database.delete(DBHelper.TABLE_DIF_AU_FLOORS, null, null);
+                        database.delete(DBHelper.TABLE_DIF_AU_LINES, null, null);
+                        database.delete(DBHelper.TABLE_DIF_AU_ROOMS, null, null);
+                        database.delete(DBHelper.TABLE_DIF_AUTOMATICS, null, null);
                         Toast toast = Toast.makeText(getApplicationContext(),
                                 "Данные были успешно удалены", Toast.LENGTH_SHORT);
                         toast.show();
@@ -86,17 +97,27 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void groundingDevices (View view) {
-        Intent intent = new Intent("android.intent.action.GroundingDevices");
+        Intent intent = new Intent("android.intent.action.GroundingDevices1");
         startActivity(intent);
     }
 
     public void roomElement (View view) {
-        Intent intent = new Intent("android.intent.action.RoomElement0");
+        Intent intent = new Intent("android.intent.action.RoomElement1");
         startActivity(intent);
     }
 
     public void insulation (View view) {
-        Intent intent = new Intent("android.intent.action.Insulation");
+        Intent intent = new Intent("android.intent.action.Insulation1");
+        startActivity(intent);
+    }
+
+    public void automatics (View view) {
+        Intent intent = new Intent("android.intent.action.Automatics1");
+        startActivity(intent);
+    }
+
+    public void dif_automatics (View view) {
+        Intent intent = new Intent("android.intent.action.DifAutomatics1");
         startActivity(intent);
     }
 
@@ -113,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
                 alert.setCancelable(false);
                 alert.setTitle("Выберите библиотеку:");
-                final String libararies[] = {"\nНазвания элементов\n", "\nМарки\n", "\nКомнаты\n", "\nЩиты\n", "\nЭтажи\n"};
+                final String libararies[] = {"\nНазвания элементов\n", "\nМарки\n", "\nКомнаты\n", "\nЩиты\n", "\nЭтажи\n", "\nАвтомат. выкл.\n"};
                 alert.setItems(libararies, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -140,6 +161,11 @@ public class MainActivity extends AppCompatActivity {
                         if (which == 4) {
                             Intent intent = new Intent("android.intent.action.Library");
                             intent.putExtra("lib", "floors");
+                            startActivity(intent);
+                        }
+                        if (which == 5) {
+                            Intent intent = new Intent("android.intent.action.Library");
+                            intent.putExtra("lib", "automat");
                             startActivity(intent);
                         }
                     }
@@ -234,14 +260,10 @@ public class MainActivity extends AppCompatActivity {
         alert.setCancelable(false);
         alert.setTitle("Введите название сохраняемого файла:");
         final EditText input = myView.findViewById(R.id.editText);
-        //ОТКРЫВАЕМ КЛАВИАТУРУ
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+        openKeyboard();
         alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //СКРЫВАЕМ КЛАВИАТУРУ
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                closeKeyboard(myView);
                 nameFile = input.getText().toString();
                 if (nameFile.equals("")) {
                     AlertDialog.Builder alert1 = new AlertDialog.Builder(MainActivity.this);
@@ -273,9 +295,7 @@ public class MainActivity extends AppCompatActivity {
         });
         alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //СКРЫВАЕМ КЛАВИАТУРУ
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                closeKeyboard(myView);
             }
         });
         alert.setView(myView);
@@ -317,5 +337,15 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("tag", e.getMessage());
         }
+    }
+
+    void openKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+    }
+
+    void closeKeyboard(View myView) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
     }
 }

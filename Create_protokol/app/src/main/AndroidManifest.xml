@@ -29,16 +29,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RoomElementActivity0">
+        <activity android:name=".RoomElementActivity1">
             <intent-filter>
-                <action android:name="android.intent.action.RoomElement0" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".RoomElementActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.RoomElement" />
+                <action android:name="android.intent.action.RoomElement1" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -50,9 +43,30 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".InsulationActivity">
+        <activity android:name=".RoomElementActivity3">
             <intent-filter>
-                <action android:name="android.intent.action.Insulation" />
+                <action android:name="android.intent.action.RoomElement3" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".RoomElementActivity4">
+            <intent-filter>
+                <action android:name="android.intent.action.RoomElement4" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".RoomElementPhaseZeroActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.RoomElementPZ" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".InsulationActivity1">
+            <intent-filter>
+                <action android:name="android.intent.action.Insulation1" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -71,18 +85,25 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".InsulationActivity4"
-            android:windowSoftInputMode="adjustPan">
+        <activity android:name=".InsulationActivity4">
             <intent-filter>
                 <action android:name="android.intent.action.Insulation4" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".GroundingDevicesActivity">
+        <activity
+            android:name=".InsulationActivity5"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
-                <action android:name="android.intent.action.GroundingDevices" />
+                <action android:name="android.intent.action.Insulation5" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".GroundingDevicesActivity1">
+            <intent-filter>
+                <action android:name="android.intent.action.GroundingDevices1" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -104,6 +125,76 @@
         <activity android:name=".LibraryActivity">
             <intent-filter>
                 <action android:name="android.intent.action.Library" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".AutomaticsActivity1">
+            <intent-filter>
+                <action android:name="android.intent.action.Automatics1" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".AutomaticsActivity2">
+            <intent-filter>
+                <action android:name="android.intent.action.Automatics2" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".AutomaticsActivity3">
+            <intent-filter>
+                <action android:name="android.intent.action.Automatics3" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".AutomaticsActivity4">
+            <intent-filter>
+                <action android:name="android.intent.action.Automatics4" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".AutomaticsActivity5">
+            <intent-filter>
+                <action android:name="android.intent.action.Automatics5" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".DifAutomaticsActivity1">
+            <intent-filter>
+                <action android:name="android.intent.action.DifAutomatics1" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".DifAutomaticsActivity2">
+            <intent-filter>
+                <action android:name="android.intent.action.DifAutomatics2" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".DifAutomaticsActivity3">
+            <intent-filter>
+                <action android:name="android.intent.action.DifAutomatics3" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".DifAutomaticsActivity4">
+            <intent-filter>
+                <action android:name="android.intent.action.DifAutomatics4" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".DifAutomaticsActivity5">
+            <intent-filter>
+                <action android:name="android.intent.action.DifAutomatics5" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

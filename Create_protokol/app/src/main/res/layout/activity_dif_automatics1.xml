@@ -5,11 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fon"
-    tools:context=".InsulationActivity"
-    tools:layout_editor_absoluteY="81dp">
+    tools:layout_editor_absoluteY="81dp"
+    tools:context=".DifAutomaticsActivity1">
 
     <ListView
-        android:id="@+id/rooms"
+        android:id="@+id/floors"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="15dp"
@@ -34,12 +34,12 @@
         android:layout_marginRight="15dp"
         android:layout_marginBottom="10dp"
         android:background="@drawable/buttons2"
-        android:text="Добавить комнату"
+        android:text="Добавить этаж"
         android:textColor="@color/fon"
         app:layout_constraintBottom_toTopOf="@+id/liner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rooms" />
+        app:layout_constraintTop_toBottomOf="@+id/floors" />
 
     <LinearLayout
         android:id="@+id/liner"
@@ -77,6 +77,4 @@
             android:textColor="@color/fon" />
 
     </LinearLayout>
-
-
 </android.support.constraint.ConstraintLayout>

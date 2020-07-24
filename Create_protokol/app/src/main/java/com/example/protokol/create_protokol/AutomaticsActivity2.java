@@ -9,9 +9,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.Spanned;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,8 +17,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -30,14 +25,14 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class RoomElementActivity extends AppCompatActivity {
+public class AutomaticsActivity2 extends AppCompatActivity {
 
     DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_room_element);
+        setContentView(R.layout.activity_automatics2);
 
         dbHelper = new DBHelper(this);
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
@@ -50,7 +45,7 @@ public class RoomElementActivity extends AppCompatActivity {
 
         //НАСТРАИВАЕМ ACTIONBAR
         getSupportActionBar().setSubtitle("Комнаты");
-        getSupportActionBar().setTitle("Металлосвязь");
+        getSupportActionBar().setTitle("Автомат. выключатели");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //ВЫВОД ЭТАЖА
@@ -63,31 +58,31 @@ public class RoomElementActivity extends AppCompatActivity {
         addRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(RoomElementActivity.this);
+                AlertDialog.Builder alert = new AlertDialog.Builder(AutomaticsActivity2.this);
                 final View myView = getLayoutInflater().inflate(R.layout.dialog_for_marks,null);
                 alert.setCancelable(false);
                 alert.setTitle("Введите название комнаты:");
                 final AutoCompleteTextView input = myView.findViewById(R.id.autoCompleteTextView3);
                 ImageView arrow = myView.findViewById(R.id.imageView4);
                 //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
-                ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(RoomElementActivity.this, android.R.layout.simple_dropdown_item_1line, getRooms(database));
+                ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(AutomaticsActivity2.this, android.R.layout.simple_dropdown_item_1line, getRooms(database));
                 input.setAdapter(adapter1);
+                openKeyboard();
                 arrow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        //СКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        closeKeyboard(myView);
                         input.showDropDown();
                     }
                 });
                 alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
+                        closeKeyboard(myView);
                         final String nameRoom = input.getText().toString();
                         ContentValues contentValues = new ContentValues();
-                        contentValues.put(DBHelper.KEY_NAME, nameRoom);
-                        contentValues.put(DBHelper.KEY_ID_FLOOR, idFloor);
-                        database.insert(DBHelper.TABLE_ROOMS, null, contentValues);
+                        contentValues.put(DBHelper.AU_ROOM_NAME, nameRoom);
+                        contentValues.put(DBHelper.AU_ID_RFLOOR, idFloor);
+                        database.insert(DBHelper.TABLE_AU_ROOMS, null, contentValues);
                         //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА КОМНАТ
                         addSpisokRooms(database, rooms, idFloor);
                         //Если новое название комнаты, то вносим его в базу
@@ -103,9 +98,7 @@ public class RoomElementActivity extends AppCompatActivity {
                 });
                 alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        //СКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        closeKeyboard(myView);
                     }
                 });
                 alert.setView(myView);
@@ -113,27 +106,27 @@ public class RoomElementActivity extends AppCompatActivity {
             }
         });
 
-        //ПЕРЕХОД К ЭЛЕМЕНТАМ И РЕДАКТОР КОМНАТЫ
+        //ПЕРЕХОД К ЩИТАМ И РЕДАКТОР КОМНАТЫ
         rooms.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view, final int position, final long id) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(RoomElementActivity.this);
+                AlertDialog.Builder alert = new AlertDialog.Builder(AutomaticsActivity2.this);
                 alert.setTitle(((TextView) view).getText());
-                String arrayMenu[] = {"\nПерейти к элементам\n", "\nИзменить название\n", "\nУдалить комнату\n"};
+                String arrayMenu[] = {"\nПерейти к щитам\n", "\nИзменить название\n", "\nУдалить комнату\n"};
                 alert.setItems(arrayMenu, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
                         //ЗАПРОС В БД ДЛЯ ПОЛУЧЕНИЯ ID НУЖНОЙ КОМНАТЫ
-                        Cursor cursor4 = database.query(DBHelper.TABLE_ROOMS, new String[] {DBHelper.KEY_ID}, "rfl_id = ?", new String[] {String.valueOf(idFloor)}, null, null, "_id DESC");
+                        Cursor cursor4 = database.query(DBHelper.TABLE_AU_ROOMS, new String[] {DBHelper.AU_ROOM_ID}, "au_rfl_id = ?", new String[] {String.valueOf(idFloor)}, null, null, "_id DESC");
                         cursor4.moveToPosition(position);
-                        int idRoomIndex = cursor4.getColumnIndex(DBHelper.KEY_ID);
+                        int idRoomIndex = cursor4.getColumnIndex(DBHelper.AU_ROOM_ID);
                         final int idRoom = cursor4.getInt(idRoomIndex);
                         cursor4.close();
 
-                        //ПЕРЕЙТИ К ЭЛЕМЕНТАМ
+                        //ПЕРЕЙТИ К ЩИТАМ
                         if (which == 0) {
-                            Intent intent = new Intent("android.intent.action.RoomElement2");
+                            Intent intent = new Intent("android.intent.action.Automatics3");
                             intent.putExtra("nameFloor", nameFloor);
                             intent.putExtra("idFloor", idFloor);
                             intent.putExtra("nameRoom", ((TextView) view).getText().toString());
@@ -143,7 +136,7 @@ public class RoomElementActivity extends AppCompatActivity {
 
                         //ИЗМЕНИТЬ НАЗВАНИЕ
                         if (which == 1) {
-                            AlertDialog.Builder alert1 = new AlertDialog.Builder(RoomElementActivity.this);
+                            AlertDialog.Builder alert1 = new AlertDialog.Builder(AutomaticsActivity2.this);
                             final View myView = getLayoutInflater().inflate(R.layout.dialog_for_marks,null);
                             alert1.setCancelable(false);
                             alert1.setTitle("Введите новое название комнаты:");
@@ -151,23 +144,23 @@ public class RoomElementActivity extends AppCompatActivity {
                             ImageView arrow = myView.findViewById(R.id.imageView4);
                             input.setText(((TextView) view).getText().toString());
                             //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
-                            ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(RoomElementActivity.this, android.R.layout.simple_dropdown_item_1line, getRooms(database));
+                            ArrayAdapter<String>adapter1 = new ArrayAdapter<String>(AutomaticsActivity2.this, android.R.layout.simple_dropdown_item_1line, getRooms(database));
                             input.setAdapter(adapter1);
+                            openKeyboard();
                             arrow.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    //СКРЫВАЕМ КЛАВИАТУРУ
-                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                    imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                                    closeKeyboard(myView);
                                     input.showDropDown();
                                 }
                             });
                             alert1.setPositiveButton("Изменить", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
+                                    closeKeyboard(myView);
                                     String namer = input.getText().toString();
                                     ContentValues uppname = new ContentValues();
-                                    uppname.put(DBHelper.KEY_NAME, namer);
-                                    database.update(DBHelper.TABLE_ROOMS,
+                                    uppname.put(DBHelper.AU_ROOM_NAME, namer);
+                                    database.update(DBHelper.TABLE_AU_ROOMS,
                                             uppname,
                                             "_id = ?",
                                             new String[] {String.valueOf(idRoom)});
@@ -186,9 +179,7 @@ public class RoomElementActivity extends AppCompatActivity {
                             });
                             alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
-                                    //СКРЫВАЕМ КЛАВИАТУРУ
-                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                    imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                                    closeKeyboard(myView);
                                 }
                             });
                             alert1.setView(myView);
@@ -198,12 +189,20 @@ public class RoomElementActivity extends AppCompatActivity {
                         //УДАЛИТЬ КОМНАТУ
                         if (which == 2) {
                             //ПОДТВЕРЖДЕНИЕ
-                            AlertDialog.Builder builder4 = new AlertDialog.Builder(RoomElementActivity.this);
+                            AlertDialog.Builder builder4 = new AlertDialog.Builder(AutomaticsActivity2.this);
                             builder4.setCancelable(false);
                             builder4.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
-                                    database.delete(DBHelper.TABLE_ELEMENTS, "room_id = ?", new String[] {String.valueOf(idRoom)});
-                                    database.delete(DBHelper.TABLE_ROOMS, "_id = ?", new String[] {String.valueOf(idRoom)});
+                                    Cursor cursor = database.query(DBHelper.TABLE_AU_LINES, new String[] {DBHelper.AU_LINE_ID, DBHelper.AU_ID_LROOM}, "au_lroom_id = ?", new String[] {String.valueOf(idRoom)}, null, null, null);
+                                    if (cursor.moveToFirst()) {
+                                        int line_IdIndex = cursor.getColumnIndex(DBHelper.AU_LINE_ID);
+                                        do {
+                                            database.delete(DBHelper.TABLE_AUTOMATICS, "auline_id = ?", new String[] {cursor.getString(line_IdIndex)});
+                                        } while (cursor.moveToNext());
+                                    }
+                                    cursor.close();
+                                    database.delete(DBHelper.TABLE_AU_LINES, "au_lroom_id = ?", new String[] {String.valueOf(idRoom)});
+                                    database.delete(DBHelper.TABLE_AU_ROOMS, "_id = ?", new String[] {String.valueOf(idRoom)});
                                     //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА КОМНАТ
                                     addSpisokRooms(database, rooms, idFloor);
                                     Toast toast2 = Toast.makeText(getApplicationContext(),
@@ -239,11 +238,11 @@ public class RoomElementActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent("android.intent.action.RoomElement0");
+                Intent intent = new Intent("android.intent.action.Automatics1");
                 startActivity(intent);
                 return true;
             case R.id.action_main:
-                Intent intent1 = new Intent(RoomElementActivity.this, MainActivity.class);
+                Intent intent1 = new Intent(AutomaticsActivity2.this, MainActivity.class);
                 startActivity(intent1);
                 return true;
         }
@@ -252,9 +251,9 @@ public class RoomElementActivity extends AppCompatActivity {
 
     public void addSpisokRooms(SQLiteDatabase database, ListView rooms, int idFloor) {
         final ArrayList<String> spisokRooms = new ArrayList <String>();
-        Cursor cursor = database.query(DBHelper.TABLE_ROOMS, new String[] {DBHelper.KEY_NAME}, "rfl_id = ?", new String[] {String.valueOf(idFloor)}, null, null, "_id DESC");
+        Cursor cursor = database.query(DBHelper.TABLE_AU_ROOMS, new String[] {DBHelper.AU_ROOM_NAME}, "au_rfl_id = ?", new String[] {String.valueOf(idFloor)}, null, null, "_id DESC");
         if (cursor.moveToFirst()) {
-            int nameIndex = cursor.getColumnIndex(DBHelper.KEY_NAME);
+            int nameIndex = cursor.getColumnIndex(DBHelper.AU_ROOM_NAME);
             do {
                 spisokRooms.add(cursor.getString(nameIndex));
             } while (cursor.moveToNext());
@@ -276,5 +275,15 @@ public class RoomElementActivity extends AppCompatActivity {
         }
         cursor.close();
         return roomsDB.toArray(new String[roomsDB.size()]);
+    }
+
+    void openKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+    }
+
+    void closeKeyboard(View myView) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
     }
 }

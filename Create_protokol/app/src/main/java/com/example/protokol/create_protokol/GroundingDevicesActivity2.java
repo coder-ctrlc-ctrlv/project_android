@@ -16,14 +16,18 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Random;
 
 public class GroundingDevicesActivity2 extends AppCompatActivity {
 
     DBHelper dbHelper;
+    EditText temperature, humidity, pressure, rEditTEXT, distanceActiveTEXT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,14 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
 
         dbHelper = new DBHelper(this);
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
+
+        final LinearLayout termsLayout = findViewById(R.id.termsLayout);
+        final LinearLayout groundLayout = findViewById(R.id.groundLayout);
+        final LinearLayout rLayout = findViewById(R.id.rLayout);
+        final LinearLayout distanceLayout = findViewById(R.id.distanceLayout);
+        final LinearLayout placeLayout = findViewById(R.id.placeLayout);
+        final LinearLayout rEditLayout = findViewById(R.id.rEditLayout);
+        final LinearLayout distanceActiveLayout = findViewById(R.id.distanceActiveLayout);
 
         Button uBTN = findViewById(R.id.button25);
         final TextView uTEXT = findViewById(R.id.textView9);
@@ -51,18 +63,18 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
         Button noteBTN = findViewById(R.id.button);
         final TextView noteTEXT = findViewById(R.id.textView43);
 
-        Button placeBTN = findViewById(R.id.button27);
+        final Button placeBTN = findViewById(R.id.button27);
         final TextView placeTEXT = findViewById(R.id.textView23);
 
         Button purposeBTN = findViewById(R.id.button28);
         final TextView purposeTEXT = findViewById(R.id.textView25);
 
-        final EditText rEditTEXT = findViewById(R.id.editText5);
-        final EditText distanceActiveTEXT = findViewById(R.id.editText6);
+        rEditTEXT = findViewById(R.id.editText5);
+        distanceActiveTEXT = findViewById(R.id.editText6);
 
-        final EditText temperature = findViewById(R.id.editText7);
-        final EditText humidity = findViewById(R.id.editText8);
-        final EditText pressure = findViewById(R.id.editText9);
+        temperature = findViewById(R.id.editText7);
+        humidity = findViewById(R.id.editText8);
+        pressure = findViewById(R.id.editText9);
 
         Button save = findViewById(R.id.button35);
 
@@ -143,6 +155,7 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                     }
                 });
                 alert.show();
+                clearFocus();
             }
         });
 
@@ -166,6 +179,7 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                     }
                 });
                 alert.show();
+                clearFocus();
             }
         });
 
@@ -190,23 +204,17 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                         alert1.setCancelable(false);
                         alert1.setTitle("Введите вид грунта:");
                         final EditText input = myView.findViewById(R.id.editText);
-                        //ОТКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                        openKeyboard();
                         alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                //СКРЫВАЕМ КЛАВИАТУРУ
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                                closeKeyboard(myView);
                                 String ground = input.getText().toString();
                                 groundTEXT.setText(ground);
                             }
                         });
                         alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                //СКРЫВАЕМ КЛАВИАТУРУ
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                                closeKeyboard(myView);
                             }
                         });
                         alert1.setView(myView);
@@ -219,6 +227,7 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                     }
                 });
                 alert.show();
+                clearFocus();
             }
         });
 
@@ -243,23 +252,17 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                         alert1.setCancelable(false);
                         alert1.setTitle("Введите допустимое сопротивление:");
                         final EditText input = myView.findViewById(R.id.editText2);
-                        //ОТКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                        openKeyboard();
                         alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                //СКРЫВАЕМ КЛАВИАТУРУ
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                                closeKeyboard(myView);
                                 String r = input.getText().toString();
                                 rTEXT.setText(r);
                             }
                         });
                         alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                //СКРЫВАЕМ КЛАВИАТУРУ
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                                closeKeyboard(myView);
                             }
                         });
                         alert1.setView(myView);
@@ -272,6 +275,7 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                     }
                 });
                 alert.show();
+                clearFocus();
             }
         });
 
@@ -284,27 +288,22 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                 alert1.setCancelable(false);
                 alert1.setTitle("Введите расстояние токового электрода:");
                 final EditText input = myView.findViewById(R.id.editText2);
-                //ОТКРЫВАЕМ КЛАВИАТУРУ
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                openKeyboard();
                 alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        //СКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        closeKeyboard(myView);
                         String distance = input.getText().toString();
                         distanceTEXT.setText(distance);
                     }
                 });
                 alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        //СКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        closeKeyboard(myView);
                     }
                 });
                 alert1.setView(myView);
                 alert1.show();
+                clearFocus();
             }
         });
 
@@ -328,6 +327,7 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                     }
                 });
                 alert.show();
+                clearFocus();
             }
         });
 
@@ -340,27 +340,22 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                 alert1.setCancelable(false);
                 alert1.setTitle("Введите место измерения:");
                 final EditText input = myView.findViewById(R.id.editText);
-                //ОТКРЫВАЕМ КЛАВИАТУРУ
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                openKeyboard();
                 alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        //СКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        closeKeyboard(myView);
                         String place = input.getText().toString();
                         placeTEXT.setText(place);
                     }
                 });
                 alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        //СКРЫВАЕМ КЛАВИАТУРУ
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                        closeKeyboard(myView);
                     }
                 });
                 alert1.setView(myView);
                 alert1.show();
+                clearFocus();
             }
         });
 
@@ -384,6 +379,7 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                     }
                 });
                 alert.show();
+                clearFocus();
             }
         });
 
@@ -391,9 +387,15 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (placeTEXT.getText().toString().equals("Не выбрано") || rTEXT.getText().toString().equals("Не выбрано") ||
-                        rEditTEXT.getText().toString().equals("") || distanceActiveTEXT.getText().toString().equals("") ||
-                        temperature.getText().toString().equals("") || humidity.getText().toString().equals("") || pressure.getText().toString().equals("")) {
+                if ((isIncorrectInput(temperature.getText().toString(), termsLayout)||
+                        isIncorrectInput(humidity.getText().toString(), termsLayout)||
+                        isIncorrectInput(pressure.getText().toString(), termsLayout))|
+                        isIncorrectInput(groundTEXT.getText().toString(), groundLayout)|
+                        isIncorrectInput(rTEXT.getText().toString(), rLayout)|
+                        isIncorrectInput(distanceTEXT.getText().toString(), distanceLayout)|
+                        isIncorrectInput(placeTEXT.getText().toString(), placeLayout)|
+                        isIncorrectInput(rEditTEXT.getText().toString(), rEditLayout)|
+                        isIncorrectInput(distanceActiveTEXT.getText().toString(), distanceActiveLayout)) {
                     AlertDialog.Builder alert = new AlertDialog.Builder(GroundingDevicesActivity2.this);
                     alert.setCancelable(false);
                     alert.setMessage("Заполните все поля!");
@@ -415,7 +417,7 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                     ContentValues contentValues = new ContentValues();
                     if (change)
                         contentValues.put(DBHelper.GD_DEVICE_ID, device_id);
-                    contentValues.put(DBHelper.GD_RESULT_VIEW, "см. результаты визуального осмотра");
+                    contentValues.put(DBHelper.GD_RESULT_VIEW, "соответствующее сечение и надежные контактные соединения");
                     contentValues.put(DBHelper.GD_GROUND, groundTEXT.getText().toString());
                     contentValues.put(DBHelper.GD_CHARACTER_GROUND, characterTEXT.getText().toString());
                     contentValues.put(DBHelper.GD_U, uTEXT.getText().toString());
@@ -438,17 +440,17 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                     contentValues.put(DBHelper.GD_R2, numbCentre);
                     contentValues.put(DBHelper.GD_K, "-");
                     contentValues.put(DBHelper.GD_R3, "-");
-                    contentValues.put(DBHelper.GD_CONCLUSION, "соответствует");
+                    contentValues.put(DBHelper.GD_CONCLUSION, getConclusion(rTEXT.getText().toString(), numbCentre));
                     contentValues.put(DBHelper.GD_NOTE, noteTEXT.getText().toString());
                     contentValues.put(DBHelper.GD_TEMPERATURE, temperature.getText().toString());
                     contentValues.put(DBHelper.GD_HUMIDITY, humidity.getText().toString());
                     contentValues.put(DBHelper.GD_PRESSURE, pressure.getText().toString());
                     database.insert(DBHelper.TABLE_GD, null, contentValues);
                     Toast toast = Toast.makeText(getApplicationContext(),
-                            "Изменения сохранены", Toast.LENGTH_SHORT);
+                            "Данные сохранены", Toast.LENGTH_SHORT);
                     toast.show();
                     //ВОЗВРАЩАЕМСЯ НАЗАД
-                    Intent intent = new Intent("android.intent.action.GroundingDevices");
+                    Intent intent = new Intent("android.intent.action.GroundingDevices1");
                     startActivity(intent);
                 }
             }
@@ -467,7 +469,7 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent("android.intent.action.GroundingDevices");
+                Intent intent = new Intent("android.intent.action.GroundingDevices1");
                 startActivity(intent);
                 return true;
             case R.id.action_main:
@@ -476,6 +478,15 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    boolean isIncorrectInput(String data, LinearLayout layout) {
+        if (data.equals("") || data.equals("Нет")) {
+            layout.setBackgroundResource(R.drawable.incorrect_input);
+            return true;
+        }
+        layout.setBackgroundResource(R.drawable.listview);
+        return false;
     }
 
     void getRandomArr(String[] arr, String centre) {
@@ -499,11 +510,36 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
             numbPr = Double.valueOf(pr.replace(",","."));
         else
             numbPr = Double.valueOf(pr);
-        rand = numbPr * ((generator.nextInt(51) + 50) / 10) / 100;
+        rand = numbPr * ((generator.nextInt(41) + 30) / 10) / 100.0;
         if (plus)
             rand = numbPr + rand;
         else
             rand = numbPr - rand;
-        return String.format("%.2g", rand);
+        BigDecimal new_rand = new BigDecimal(String.valueOf(rand));
+        return new_rand.setScale(2, RoundingMode.HALF_UP).toString().replace(".",",");
+    }
+
+    String getConclusion(String limit, String r_get) {
+        if (Double.parseDouble(r_get.replace(',', '.')) > Double.parseDouble(limit.replace(',', '.')))
+            return "не соответств";
+        return "соответсвует";
+    }
+
+    void clearFocus() {
+        temperature.clearFocus();
+        humidity.clearFocus();
+        pressure.clearFocus();
+        rEditTEXT.clearFocus();
+        distanceActiveTEXT.clearFocus();
+    }
+
+    void openKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+    }
+
+    void closeKeyboard(View myView) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
     }
 }
