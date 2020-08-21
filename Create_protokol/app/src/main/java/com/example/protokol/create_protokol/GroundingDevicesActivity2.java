@@ -473,7 +473,7 @@ public class GroundingDevicesActivity2 extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             case R.id.action_main:
-                Intent intent1 = new Intent(GroundingDevicesActivity2.this, MainActivity.class);
+                Intent intent1 = new Intent(GroundingDevicesActivity2.this, MenuItemsActivity.class);
                 startActivity(intent1);
                 return true;
         }

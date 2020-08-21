@@ -199,6 +199,20 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".ContentSelectionActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.ContentSelection" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".MenuItemsActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MenuItems" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

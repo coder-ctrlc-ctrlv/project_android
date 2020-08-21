@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/fon"
+    android:background="@drawable/start_menu_bg"
     tools:context=".RoomElementPhaseZeroActivity">
 
     <ScrollView
@@ -30,8 +30,8 @@
                 android:layout_marginBottom="20dp"
                 android:gravity="center"
                 android:text="Название элемента"
-                android:textColor="@color/text"
-                android:textSize="24sp" />
+                android:textColor="#fff"
+                android:textSize="22sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -368,7 +368,9 @@
                 android:layout_height="70dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="30dp"
-                android:background="@drawable/buttons"
+                android:background="@drawable/new_buttons"
+                android:textAllCaps="false"
+                android:textSize="17sp"
                 android:text="Сохранить"
                 android:textColor="@color/fon" />
 

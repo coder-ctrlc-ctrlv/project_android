@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/fon"
+    android:background="@drawable/start_menu_bg"
     tools:layout_editor_absoluteY="81dp"
     tools:context=".RoomElementActivity1">
 
@@ -33,7 +33,9 @@
         android:layout_marginEnd="15dp"
         android:layout_marginRight="15dp"
         android:layout_marginBottom="10dp"
-        android:background="@drawable/buttons2"
+        android:background="@drawable/new_buttons"
+        android:textAllCaps="false"
+        android:textSize="17sp"
         android:text="Добавить этаж"
         android:textColor="@color/fon"
         app:layout_constraintBottom_toTopOf="@+id/liner"
@@ -58,22 +60,12 @@
 
         <Button
             android:id="@+id/button8"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_marginRight="5dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/buttons2"
+            android:background="@drawable/new_buttons"
+            android:textAllCaps="false"
+            android:textSize="17sp"
             android:text="Создать PDF"
-            android:textColor="@color/fon" />
-
-        <Button
-            android:id="@+id/button10"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_marginLeft="5dp"
-            android:layout_height="match_parent"
-            android:background="@drawable/buttons2"
-            android:text="Настроить PDF"
             android:textColor="@color/fon" />
 
     </LinearLayout>

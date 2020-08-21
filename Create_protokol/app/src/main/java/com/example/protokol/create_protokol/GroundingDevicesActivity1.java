@@ -284,7 +284,7 @@ public class GroundingDevicesActivity1 extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent(GroundingDevicesActivity1.this, MainActivity.class);
+                Intent intent = new Intent(GroundingDevicesActivity1.this, MenuItemsActivity.class);
                 startActivity(intent);
                 return true;
         }

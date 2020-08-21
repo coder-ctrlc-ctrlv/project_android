@@ -62,7 +62,6 @@ public class DifAutomaticsActivity1 extends AppCompatActivity {
         final ListView floors = findViewById(R.id.floors);
         Button addFloor = findViewById(R.id.button9);
         Button pdf = findViewById(R.id.button8);
-        Button optionsPdf = findViewById(R.id.button10);
 
         //НАСТРАИВАЕМ ACTIONBAR
         getSupportActionBar().setSubtitle("Этажи");
@@ -303,14 +302,6 @@ public class DifAutomaticsActivity1 extends AppCompatActivity {
                 dialog1.show();
             }
         });
-
-        //НАСТРОЙКА PDF
-        optionsPdf.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
     }
 
     //НАЗАД
@@ -318,7 +309,7 @@ public class DifAutomaticsActivity1 extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent(DifAutomaticsActivity1.this, MainActivity.class);
+                Intent intent = new Intent(DifAutomaticsActivity1.this, MenuItemsActivity.class);
                 startActivity(intent);
                 return true;
         }

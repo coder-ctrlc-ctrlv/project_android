@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/fon"
+    android:background="@drawable/start_menu_bg"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true"
     tools:context=".DifAutomaticsActivity5">
@@ -59,7 +59,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
                     android:layout_gravity="bottom"
-                    android:background="@drawable/buttons"
+                    android:background="@drawable/new_buttons"
+                    android:textAllCaps="false"
+                    android:textSize="17sp"
                     android:text="Изменить"
                     android:textColor="@color/fon" />
 
@@ -109,7 +111,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="70dp"
                             android:layout_gravity="bottom"
-                            android:background="@drawable/buttons"
+                            android:background="@drawable/new_buttons"
+                            android:textAllCaps="false"
+                            android:textSize="17sp"
                             android:text="Изменить"
                             android:textColor="@color/fon" />
 
@@ -154,7 +158,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="70dp"
                             android:layout_gravity="bottom"
-                            android:background="@drawable/buttons"
+                            android:background="@drawable/new_buttons"
+                            android:textAllCaps="false"
+                            android:textSize="17sp"
                             android:text="Изменить"
                             android:textColor="@color/fon" />
 
@@ -207,7 +213,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="70dp"
                             android:layout_gravity="bottom"
-                            android:background="@drawable/buttons"
+                            android:background="@drawable/new_buttons"
+                            android:textAllCaps="false"
+                            android:textSize="17sp"
                             android:text="Изменить"
                             android:textColor="@color/fon" />
 
@@ -253,7 +261,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="70dp"
                             android:layout_gravity="bottom"
-                            android:background="@drawable/buttons"
+                            android:background="@drawable/new_buttons"
+                            android:textAllCaps="false"
+                            android:textSize="17sp"
                             android:text="Изменить"
                             android:textColor="@color/fon" />
 
@@ -306,7 +316,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="70dp"
                             android:layout_gravity="bottom"
-                            android:background="@drawable/buttons"
+                            android:background="@drawable/new_buttons"
+                            android:textAllCaps="false"
+                            android:textSize="17sp"
                             android:text="Изменить"
                             android:textColor="@color/fon" />
 
@@ -352,7 +364,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="70dp"
                             android:layout_gravity="bottom"
-                            android:background="@drawable/buttons"
+                            android:background="@drawable/new_buttons"
+                            android:textAllCaps="false"
+                            android:textSize="17sp"
                             android:text="Изменить"
                             android:textColor="@color/fon" />
 
@@ -366,6 +380,8 @@
                 android:layout_height="70dp"
                 android:layout_marginBottom="20dp"
                 android:background="@drawable/extra_button"
+                android:textAllCaps="false"
+                android:textSize="17sp"
                 android:text="Показать дополнительные данные"
                 android:textColor="@color/fon" />
 
@@ -421,7 +437,9 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="70dp"
                                 android:layout_gravity="bottom"
-                                android:background="@drawable/buttons"
+                                android:background="@drawable/new_buttons"
+                                android:textAllCaps="false"
+                                android:textSize="17sp"
                                 android:text="Изменить"
                                 android:textColor="@color/fon" />
 
@@ -467,7 +485,9 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="70dp"
                                 android:layout_gravity="bottom"
-                                android:background="@drawable/buttons"
+                                android:background="@drawable/new_buttons"
+                                android:textAllCaps="false"
+                                android:textSize="17sp"
                                 android:text="Изменить"
                                 android:textColor="@color/fon" />
 
@@ -509,7 +529,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="70dp"
                         android:layout_gravity="bottom"
-                        android:background="@drawable/buttons"
+                        android:background="@drawable/new_buttons"
+                        android:textAllCaps="false"
+                        android:textSize="17sp"
                         android:text="Изменить"
                         android:textColor="@color/fon" />
 
@@ -560,7 +582,9 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="70dp"
                                 android:layout_gravity="bottom"
-                                android:background="@drawable/buttons"
+                                android:background="@drawable/new_buttons"
+                                android:textAllCaps="false"
+                                android:textSize="17sp"
                                 android:text="Изменить"
                                 android:textColor="@color/fon" />
 
@@ -606,7 +630,9 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="70dp"
                                 android:layout_gravity="bottom"
-                                android:background="@drawable/buttons"
+                                android:background="@drawable/new_buttons"
+                                android:textAllCaps="false"
+                                android:textSize="17sp"
                                 android:text="Изменить"
                                 android:textColor="@color/fon" />
 
@@ -619,7 +645,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
                 android:layout_marginBottom="30dp"
-                android:background="@drawable/buttons"
+                android:background="@drawable/new_buttons"
+                android:textAllCaps="false"
+                android:textSize="17sp"
                 android:text="Сохранить"
                 android:textColor="@color/fon" />
 

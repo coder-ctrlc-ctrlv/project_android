@@ -48,6 +48,8 @@ public class TitlePageActivity extends AppCompatActivity {
         final LinearLayout termsLayout = findViewById(R.id.termsLayout);
         final LinearLayout nameElectroLayout = findViewById(R.id.nameElectroLayout);
         final LinearLayout addressLayout = findViewById(R.id.addressLayout);
+        final LinearLayout workersLayout = findViewById(R.id.workersLayout);
+        final LinearLayout chiefLayout = findViewById(R.id.chiefLayout);
         final LinearLayout numberPrLayout = findViewById(R.id.numberPrLayout);
         final LinearLayout dateLayout = findViewById(R.id.dateLayout);
         final LinearLayout targetLayout = findViewById(R.id.targetLayout);
@@ -62,6 +64,10 @@ public class TitlePageActivity extends AppCompatActivity {
         final TextView numberPrTEXT = findViewById(R.id.textView39);
         Button dateBTN = findViewById(R.id.button41);
         final TextView dateTEXT = findViewById(R.id.textView41);
+        Button workersBTN = findViewById(R.id.button138);
+        final TextView workersTEXT = findViewById(R.id.textView135);
+        Button chiefBTN = findViewById(R.id.button238);
+        final TextView chiefTEXT = findViewById(R.id.textView235);
         temperature = findViewById(R.id.editText7);
         humidity = findViewById(R.id.editText8);
         pressure = findViewById(R.id.editText9);
@@ -74,8 +80,9 @@ public class TitlePageActivity extends AppCompatActivity {
 
         //ЗАПОЛНЯЕМ ДАННЫЕ, ЕСЛИ ОНИ ЕСТЬ
         Cursor cursor = database.query(DBHelper.TABLE_TITLE, new String[] {DBHelper.TITLE_NAME_ELECTRO, DBHelper.TITLE_TARGET,
-                DBHelper.TITLE_ADDRESS, DBHelper.TITLE_NUMBER_OF_PROTOKOL, DBHelper.TITLE_DATE,
-                DBHelper.TITLE_TEMPERATURE, DBHelper.TITLE_HUMIDITY, DBHelper.TITLE_PRESSURE}, null, null, null, null, null);
+                DBHelper.TITLE_ADDRESS, DBHelper.TITLE_NUMBER_OF_PROTOKOL, DBHelper.TITLE_DATE, DBHelper.TITLE_FIRST_WORKER,
+                DBHelper.TITLE_SECOND_WORKER, DBHelper.TITLE_CHIEF, DBHelper.TITLE_TEMPERATURE, DBHelper.TITLE_HUMIDITY,
+                DBHelper.TITLE_PRESSURE}, null, null, null, null, null);
         if (cursor.moveToFirst()) {
             isNew = false;
             int nameElectroIndex = cursor.getColumnIndex(DBHelper.TITLE_NAME_ELECTRO);
@@ -83,15 +90,28 @@ public class TitlePageActivity extends AppCompatActivity {
             int addressIndex = cursor.getColumnIndex(DBHelper.TITLE_ADDRESS);
             int numberPrIndex = cursor.getColumnIndex(DBHelper.TITLE_NUMBER_OF_PROTOKOL);
             int dateIndex = cursor.getColumnIndex(DBHelper.TITLE_DATE);
+            int worker_1Index = cursor.getColumnIndex(DBHelper.TITLE_FIRST_WORKER);
+            int worker_2Index = cursor.getColumnIndex(DBHelper.TITLE_SECOND_WORKER);
+            int chiefIndex = cursor.getColumnIndex(DBHelper.TITLE_CHIEF);
             int temperatureIndex = cursor.getColumnIndex(DBHelper.TITLE_TEMPERATURE);
             int humidityIndex = cursor.getColumnIndex(DBHelper.TITLE_HUMIDITY);
             int pressureIndex = cursor.getColumnIndex(DBHelper.TITLE_PRESSURE);
             do {
+                String worker_1 = cursor.getString(worker_1Index);
+                String worker_2 = cursor.getString(worker_2Index);
+                if (worker_2.equals("Нет")) {
+                    workersTEXT.setText(worker_1);
+                }
+                else {
+                    String res = worker_1 + "\n" + worker_2;
+                    workersTEXT.setText(res);
+                }
                 nameElectroTEXT.setText(cursor.getString(nameElectroIndex));
                 targetTEXT.setText(cursor.getString(targetIndex));
                 addressTEXT.setText(cursor.getString(addressIndex));
                 numberPrTEXT.setText(cursor.getString(numberPrIndex));
                 dateTEXT.setText(cursor.getString(dateIndex));
+                chiefTEXT.setText(cursor.getString(chiefIndex));
                 temperature.setText(cursor.getString(temperatureIndex));
                 humidity.setText(cursor.getString(humidityIndex));
                 pressure.setText(cursor.getString(pressureIndex));
@@ -106,7 +126,7 @@ public class TitlePageActivity extends AppCompatActivity {
                 AlertDialog.Builder alert1 = new AlertDialog.Builder(TitlePageActivity.this);
                 final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
                 alert1.setCancelable(false);
-                alert1.setTitle("Введите наименование элктроустановки:");
+                alert1.setTitle("Введите наименование электроустановки:");
                 final EditText input = myView.findViewById(R.id.editText);
                 if (!nameElectroTEXT.getText().toString().equals("Нет"))
                     input.setText(nameElectroTEXT.getText().toString());
@@ -245,6 +265,103 @@ public class TitlePageActivity extends AppCompatActivity {
             }
         });
 
+        //ПРОВЕРКУ ПРОВЕЛИ
+        workersBTN.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alert1 = new AlertDialog.Builder(TitlePageActivity.this);
+                final View myView = getLayoutInflater().inflate(R.layout.dialog_for_double_names,null);
+                alert1.setCancelable(false);
+                alert1.setTitle("Проверку провели\n(инж. по нал. и исп. эл. оборуд.):");
+                final EditText input = myView.findViewById(R.id.editText);
+                final EditText input2 = myView.findViewById(R.id.editText2);
+                input.setHint("Введите ФИО №1");
+                input2.setHint("Введите ФИО №2");
+                String current_str = workersTEXT.getText().toString();
+                if (!current_str.equals("Нет")) {
+                    if (current_str.contains("\n")) {
+                        input.setText(current_str.substring(0, current_str.indexOf("\n")));
+                        input2.setText(current_str.substring(current_str.indexOf("\n") + 1));
+                    }
+                    else {
+                        input.setText(current_str);
+                    }
+                }
+                openKeyboard();
+                alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        closeKeyboard(myView);
+                        String workerName_1 = input.getText().toString();
+                        String workerName_2 = input2.getText().toString();
+                        if (workerName_1.trim().length() > 0 && workerName_2.trim().length() > 0) {
+                            String result = workerName_1 + "\n" + workerName_2;
+                            workersTEXT.setText(result);
+                        }
+                        else if (workerName_1.trim().length() > 0 || workerName_2.trim().length() > 0) {
+                            if (workerName_1.trim().length() > 0)
+                                workersTEXT.setText(workerName_1);
+                            else
+                                workersTEXT.setText(workerName_2);
+                        }
+                        else {
+                            AlertDialog.Builder alert2 = new AlertDialog.Builder(TitlePageActivity.this);
+                            alert2.setCancelable(false);
+                            alert2.setMessage("Одно из полей должно быть заполнено");
+                            alert2.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+
+                                }
+                            });
+                            alert2.show();
+                        }
+                    }
+                });
+                alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //СКРЫВАЕМ КЛАВИАТУРУ
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                    }
+                });
+                alert1.setView(myView);
+                alert1.show();
+                clearFocus();
+            }
+        });
+
+        //ПРОВЕРИЛ
+        chiefBTN.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alert1 = new AlertDialog.Builder(TitlePageActivity.this);
+                final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
+                alert1.setCancelable(false);
+                alert1.setTitle("Проверил\n(начальник эл. лаборатории):");
+                final EditText input = myView.findViewById(R.id.editText);
+                input.setHint("Введите ФИО");
+                if (!chiefTEXT.getText().toString().equals("Нет"))
+                    input.setText(chiefTEXT.getText().toString());
+                openKeyboard();
+                alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        closeKeyboard(myView);
+                        String chiefName = input.getText().toString();
+                        chiefTEXT.setText(chiefName);
+                    }
+                });
+                alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //СКРЫВАЕМ КЛАВИАТУРУ
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(myView.getWindowToken(),0);
+                    }
+                });
+                alert1.setView(myView);
+                alert1.show();
+                clearFocus();
+            }
+        });
+
         //СОХРАНЕНИЕ ДАННЫХ
         save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -253,7 +370,9 @@ public class TitlePageActivity extends AppCompatActivity {
                         isIncorrectInput(addressTEXT.getText().toString(), addressLayout) |
                         isIncorrectInput(numberPrTEXT.getText().toString(), numberPrLayout) |
                         isIncorrectInput(dateTEXT.getText().toString(), dateLayout) |
-                        isIncorrectInput(targetTEXT.getText().toString(), targetLayout) | (
+                        isIncorrectInput(targetTEXT.getText().toString(), targetLayout) |
+                        isIncorrectInput(workersTEXT.getText().toString(), workersLayout) |
+                        isIncorrectInput(chiefTEXT.getText().toString(), chiefLayout) | (
                         isIncorrectInput(temperature.getText().toString(), termsLayout)||
                         isIncorrectInput(humidity.getText().toString(), termsLayout)||
                         isIncorrectInput(pressure.getText().toString(), termsLayout))) {
@@ -273,6 +392,16 @@ public class TitlePageActivity extends AppCompatActivity {
                     alert.setMessage("Вы уверены, что хотите сохранить изменения?");
                     alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
+                            String worker_1, worker_2;
+                            String workers = workersTEXT.getText().toString();
+                            if (workers.contains("\n")) {
+                                worker_1 = workers.substring(0, workers.indexOf("\n"));
+                                worker_2 = workers.substring(workers.indexOf("\n") + 1);
+                            }
+                            else {
+                                worker_1 = workers;
+                                worker_2 = "Нет";
+                            }
                             if (!isNew)
                                 database.delete(DBHelper.TABLE_TITLE, null, null);
                             ContentValues contentValues = new ContentValues();
@@ -281,6 +410,9 @@ public class TitlePageActivity extends AppCompatActivity {
                             contentValues.put(DBHelper.TITLE_NAME_ELECTRO, nameElectroTEXT.getText().toString());
                             contentValues.put(DBHelper.TITLE_NUMBER_OF_PROTOKOL, numberPrTEXT.getText().toString());
                             contentValues.put(DBHelper.TITLE_DATE, dateTEXT.getText().toString());
+                            contentValues.put(DBHelper.TITLE_FIRST_WORKER, worker_1);
+                            contentValues.put(DBHelper.TITLE_SECOND_WORKER, worker_2);
+                            contentValues.put(DBHelper.TITLE_CHIEF, chiefTEXT.getText().toString());
                             contentValues.put(DBHelper.TITLE_TEMPERATURE, temperature.getText().toString());
                             contentValues.put(DBHelper.TITLE_HUMIDITY, humidity.getText().toString());
                             contentValues.put(DBHelper.TITLE_PRESSURE, pressure.getText().toString());
@@ -406,7 +538,7 @@ public class TitlePageActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent(TitlePageActivity.this, MainActivity.class);
+                Intent intent = new Intent(TitlePageActivity.this, MenuItemsActivity.class);
                 startActivity(intent);
                 return true;
         }

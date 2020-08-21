@@ -60,7 +60,6 @@ public class InsulationActivity1 extends AppCompatActivity {
         Button addFloor = findViewById(R.id.button9);
         Button addNote = findViewById(R.id.button11);
         Button pdf = findViewById(R.id.button8);
-        Button optionsPdf = findViewById(R.id.button10);
 
         //НАСТРАИВАЕМ ACTIONBAR
         getSupportActionBar().setSubtitle("Этажи");
@@ -374,14 +373,6 @@ public class InsulationActivity1 extends AppCompatActivity {
                 dialog1.show();
             }
         });
-
-        //НАСТРОЙКА PDF
-        optionsPdf.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
     }
 
     //НАЗАД
@@ -389,7 +380,7 @@ public class InsulationActivity1 extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent(InsulationActivity1.this, MainActivity.class);
+                Intent intent = new Intent(InsulationActivity1.this, MenuItemsActivity.class);
                 startActivity(intent);
                 return true;
         }

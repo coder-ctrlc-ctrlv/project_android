@@ -6,14 +6,4 @@
         android:orderInCategory="100"
         android:title="@string/libraries"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/loadBD"
-        android:orderInCategory="100"
-        android:title="@string/loadBD"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/saveBD"
-        android:orderInCategory="100"
-        android:title="@string/saveBD"
-        app:showAsAction="never" />
 </menu>

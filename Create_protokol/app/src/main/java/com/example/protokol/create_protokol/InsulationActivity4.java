@@ -497,7 +497,7 @@ public class InsulationActivity4 extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             case R.id.action_main:
-                Intent intent1 = new Intent(InsulationActivity4.this, MainActivity.class);
+                Intent intent1 = new Intent(InsulationActivity4.this, MenuItemsActivity.class);
                 startActivity(intent1);
                 return true;
         }

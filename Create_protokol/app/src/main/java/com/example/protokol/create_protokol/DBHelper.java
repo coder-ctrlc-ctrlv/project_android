@@ -3,28 +3,43 @@ package com.example.protokol.create_protokol;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 
 import java.lang.annotation.Target;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 76;
+    public static final int DATABASE_VERSION = 85;
     public static final String DATABLE_NAME = "contactDB";
+
+    //PROJECT INFORMATION
+
+    //table1
+    public static final String TABLE_PROJECT_INFO = "project_info";
+    public static final String PROJECT_ID = "_id";
+    public static final String PROJECT_NAME = "name";
+    public static final String PROJECT_TITLE = "title";
+    public static final String PROJECT_VISUAL_INSPECTION = "visual_inspection";
+    public static final String PROJECT_INSULATION = "insulation";
+    public static final String PROJECT_AUTOMATICS = "automatics";
+    public static final String PROJECT_DIF_AUTOMATICS = "dif_automatics";
+    public static final String PROJECT_GROUNDING_DEVICES = "grounding_devices";
+    public static final String PROJECT_ROOM_ELEMENT = "room_element";
 
     //ROOM_ELEMENT
 
-    //table1
+    //table2
     public static final String TABLE_FLOORS = "floors";
     public static final String FL_ID = "_id";
     public static final String FL_NAME = "floor";
 
-    //table2
+    //table3
     public static final String TABLE_ROOMS = "rooms";
     public static final String KEY_ID = "_id";
     public static final String KEY_ID_FLOOR = "rfl_id";
     public static final String KEY_NAME = "room";
 
-    //table3
+    //table4
     public static final String TABLE_ELEMENTS = "elements";
     public static final String EL_ID = "_id";
     public static final String EL_NAME = "element";
@@ -34,7 +49,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String EL_SOPR = "sopr";
     public static final String EL_CONCLUSION = "conclusion";
 
-    //table4
+    //table5
     public static final String TABLE_ELEMENTS_PZ = "elements_pz";
     public static final String EL_PZ_ID = "_id";
     public static final String EL_PZ_ELEMENT_ID = "el_id";
@@ -44,24 +59,24 @@ public class DBHelper extends SQLiteOpenHelper {
 
     //INSULATION
 
-    //table5
+    //table6
     public static final String TABLE_INS_FLOORS = "ins_floors";
     public static final String INS_FL_ID = "_id";
     public static final String INS_FL_NAME = "ins_floor";
 
-    //table6
+    //table7
     public static final String TABLE_LINE_ROOMS = "lnrooms";
     public static final String LNR_ID = "_id";
     public static final String INS_ID_RFLOOR = "ins_rfl_id";
     public static final String LNR_NAME = "room";
 
-    //table7
+    //table8
     public static final String TABLE_LINES = "lines";
     public static final String LN_ID = "_id";
     public static final String LN_NAME = "line";
     public static final String LN_ID_ROOM = "lnr_id";
 
-    //table8
+    //table9
     public static final String TABLE_GROUPS = "groups";
     public static final String GR_LINE_ID = "grline_id";
     public static final String GR_ID = "_id";
@@ -89,14 +104,14 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String GR_N_PE = "n_pe";
     public static final String GR_CONCLUSION = "conclusion";
 
-    //table9
+    //table10
     public static final String TABLE_INS_NOTES = "ins_notes";
     public static final String INS_NOTE_ID = "_id";
     public static final String INS_NOTE = "ins_note";
 
     //TITLE_PAGE
 
-    //table10
+    //table11
     public static final String TABLE_TITLE = "title";
     public static final String TITLE_ID = "_id";
     public static final String TITLE_NAME_ELECTRO = "name_electro";
@@ -104,13 +119,16 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TITLE_ADDRESS = "address";
     public static final String TITLE_NUMBER_OF_PROTOKOL = "number_protokol";
     public static final String TITLE_DATE = "date";
+    public static final String TITLE_FIRST_WORKER = "first_worker";
+    public static final String TITLE_SECOND_WORKER = "second_worker";
+    public static final String TITLE_CHIEF = "chief";
     public static final String TITLE_TEMPERATURE = "temperature";
     public static final String TITLE_HUMIDITY = "humidity";
     public static final String TITLE_PRESSURE = "pressure";
 
     //GROUNDING_DEVICES
 
-    //table11
+    //table12
     public static final String TABLE_GD = "grounding_devices";
     public static final String GD_DEVICE_ID = "_id";
     //Global data
@@ -146,24 +164,24 @@ public class DBHelper extends SQLiteOpenHelper {
 
     //AUTOMATICS
 
-    //table12
+    //table13
     public static final String TABLE_AU_FLOORS = "au_floors";
     public static final String AU_FL_ID = "_id";
     public static final String AU_FL_NAME = "au_floor";
 
-    //table13
+    //table14
     public static final String TABLE_AU_ROOMS = "au_rooms";
     public static final String AU_ROOM_ID = "_id";
     public static final String AU_ID_RFLOOR = "au_rfl_id";
     public static final String AU_ROOM_NAME = "au_room";
 
-    //table14
+    //table15
     public static final String TABLE_AU_LINES = "au_lines";
     public static final String AU_LINE_ID = "_id";
     public static final String AU_ID_LROOM = "au_lroom_id";
     public static final String AU_LINE_NAME = "au_line";
 
-    //table15
+    //table16
     public static final String TABLE_AUTOMATICS = "automatics";
     public static final String AU_ID = "_id";
     public static final String AU_ID_ALINE = "auline_id";
@@ -187,24 +205,24 @@ public class DBHelper extends SQLiteOpenHelper {
 
     //DIF_AUTOMATICS
 
-    //table16
+    //table17
     public static final String TABLE_DIF_AU_FLOORS = "dif_au_floors";
     public static final String DIF_AU_FL_ID = "_id";
     public static final String DIF_AU_FL_NAME = "dif_au_floor";
 
-    //table17
+    //table18
     public static final String TABLE_DIF_AU_ROOMS = "dif_au_rooms";
     public static final String DIF_AU_ROOM_ID = "_id";
     public static final String DIF_AU_ID_RFLOOR = "dif_au_rfl_id";
     public static final String DIF_AU_ROOM_NAME = "dif_au_room";
 
-    //table18
+    //table19
     public static final String TABLE_DIF_AU_LINES = "dif_au_lines";
     public static final String DIF_AU_LINE_ID = "_id";
     public static final String DIF_AU_ID_LROOM = "dif_au_lroom_id";
     public static final String DIF_AU_LINE_NAME = "dif_au_line";
 
-    //table19
+    //table20
     public static final String TABLE_DIF_AUTOMATICS = "dif_automatics";
     public static final String DIF_AU_ID = "_id";
     public static final String DIF_AU_ID_ALINE = "dif_auline_id";
@@ -226,37 +244,37 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DIF_AU_CONCLUSION = "conclusion";
 
     //LIBRARY_NAMES_EL
-    //table20
+    //table21
     public static final String TABLE_NAMES_EL = "names_el";
     public static final String NAME_EL_ID = "_id";
     public static final String NAME_EL = "name_el";
 
     //LIBRARY_MARKS
-    //table21
+    //table22
     public static final String TABLE_MARKS = "marks";
     public static final String MARK_ID = "_id";
     public static final String MARK = "mark";
 
     //LIBRARY_ROOMS
-    //table22
+    //table23
     public static final String TABLE_LIBRARY_ROOMS = "lib_rooms";
     public static final String LIB_ROOM_ID = "_id";
     public static final String LIB_ROOM_NAME = "room_name";
 
     //LIBRARY_LINES
-    //table23
+    //table24
     public static final String TABLE_LIBRARY_LINES = "lib_lines";
     public static final String LIB_LINE_ID = "_id";
     public static final String LIB_LINE_NAME = "line_name";
 
     //LIBRARY_FLOORS
-    //table24
+    //table25
     public static final String TABLE_LIBRARY_FLOORS = "lib_floors";
     public static final String LIB_FLOOR_ID = "_id";
     public static final String LIB_FLOOR_NAME = "floor_name";
 
     //LIBRARY_AUTOMATICS
-    //table25
+    //table26
     public static final String TABLE_LIBRARY_AUTOMATICS = "lib_automatics";
     public static final String LIB_AU_ID = "_id";
     public static final String LIB_AU_NAME = "au_name";
@@ -266,7 +284,20 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     @Override
+    public void onOpen(SQLiteDatabase db) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            db.disableWriteAheadLogging();
+        }
+        super.onOpen(db);
+    }
+
+    @Override
     public void onCreate(SQLiteDatabase db) {
+        db.execSQL("create table " + TABLE_PROJECT_INFO + "(" + PROJECT_ID + " integer primary key AUTOINCREMENT," + PROJECT_NAME +
+                " text," + PROJECT_TITLE + " integer," + PROJECT_VISUAL_INSPECTION + " integer,"  + PROJECT_INSULATION +
+                " integer," + PROJECT_AUTOMATICS + " integer," + PROJECT_DIF_AUTOMATICS + " integer," + PROJECT_GROUNDING_DEVICES +
+                " integer," + PROJECT_ROOM_ELEMENT + " integer" + ");");
+
         db.execSQL("create table " + TABLE_FLOORS + "(" + FL_ID + " integer primary key AUTOINCREMENT," + FL_NAME +
                 " text" + ");");
 
@@ -300,6 +331,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         db.execSQL("create table " + TABLE_TITLE + "(" + TITLE_ID + " integer primary key AUTOINCREMENT," + TITLE_NAME_ELECTRO +
             " text," + TITLE_TARGET + " text," + TITLE_ADDRESS + " text," + TITLE_NUMBER_OF_PROTOKOL + " text," + TITLE_DATE +
+            " text," + TITLE_FIRST_WORKER + " text," + TITLE_SECOND_WORKER + " text," + TITLE_CHIEF +
             " text," + TITLE_TEMPERATURE + " text," + TITLE_HUMIDITY + " text," + TITLE_PRESSURE + " text" + ");");
 
         db.execSQL("create table " + TABLE_GD + "(" + GD_DEVICE_ID + " integer primary key AUTOINCREMENT," + GD_RESULT_VIEW +
@@ -380,6 +412,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("drop table if exists " + TABLE_PROJECT_INFO);
         db.execSQL("drop table if exists " + TABLE_FLOORS);
         db.execSQL("drop table if exists " + TABLE_ROOMS);
         db.execSQL("drop table if exists " + TABLE_ELEMENTS);

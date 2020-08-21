@@ -56,7 +56,6 @@ public class RoomElementActivity1 extends AppCompatActivity {
         final ListView floors = findViewById(R.id.floors);
         Button addFloor = findViewById(R.id.button9);
         Button pdf = findViewById(R.id.button8);
-        Button optionsPdf = findViewById(R.id.button10);
 
         //НАСТРАИВАЕМ ACTIONBAR
         getSupportActionBar().setSubtitle("Этажи");
@@ -313,7 +312,7 @@ public class RoomElementActivity1 extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent(RoomElementActivity1.this, MainActivity.class);
+                Intent intent = new Intent(RoomElementActivity1.this, MenuItemsActivity.class);
                 startActivity(intent);
                 return true;
         }

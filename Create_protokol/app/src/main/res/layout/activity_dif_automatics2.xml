@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/fon"
+    android:background="@drawable/start_menu_bg"
     tools:layout_editor_absoluteY="25dp"
     tools:context=".DifAutomaticsActivity2">
 
@@ -15,7 +15,7 @@
         android:layout_marginTop="15dp"
         android:layout_marginBottom="15dp"
         android:text="Этаж"
-        android:textColor="@color/text"
+        android:textColor="#fff"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/rooms"
         app:layout_constraintEnd_toEndOf="parent"
@@ -46,7 +46,9 @@
         android:layout_marginEnd="15dp"
         android:layout_marginRight="15dp"
         android:layout_marginBottom="15dp"
-        android:background="@drawable/buttons2"
+        android:background="@drawable/new_buttons"
+        android:textAllCaps="false"
+        android:textSize="17sp"
         android:text="Добавить комнату"
         android:textColor="@color/fon"
         app:layout_constraintBottom_toBottomOf="parent"

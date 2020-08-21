@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/start_menu_bg"
     tools:context=".TitlePageActivity">
 
     <ScrollView
@@ -55,7 +56,9 @@
                     android:id="@+id/button37"
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
-                    android:background="@drawable/buttons"
+                    android:background="@drawable/new_buttons"
+                    android:textAllCaps="false"
+                    android:textSize="17sp"
                     android:text="Изменить"
                     android:textColor="@color/fon" />
             </LinearLayout>
@@ -93,7 +96,9 @@
                     android:id="@+id/button39"
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
-                    android:background="@drawable/buttons"
+                    android:background="@drawable/new_buttons"
+                    android:textAllCaps="false"
+                    android:textSize="17sp"
                     android:text="Изменить"
                     android:textColor="@color/fon" />
             </LinearLayout>
@@ -143,7 +148,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="70dp"
                             android:layout_gravity="bottom"
-                            android:background="@drawable/buttons"
+                            android:background="@drawable/new_buttons"
+                            android:textAllCaps="false"
+                            android:textSize="17sp"
                             android:text="Изменить"
                             android:textColor="@color/fon" />
 
@@ -189,7 +196,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="70dp"
                             android:layout_gravity="bottom"
-                            android:background="@drawable/buttons"
+                            android:background="@drawable/new_buttons"
+                            android:textAllCaps="false"
+                            android:textSize="17sp"
                             android:text="Изменить"
                             android:textColor="@color/fon" />
 
@@ -230,7 +239,89 @@
                     android:id="@+id/button38"
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
-                    android:background="@drawable/buttons"
+                    android:background="@drawable/new_buttons"
+                    android:textAllCaps="false"
+                    android:textSize="17sp"
+                    android:text="Изменить"
+                    android:textColor="@color/fon" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/workersLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/listview"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <TextView
+                    android:id="@+id/textView134"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:gravity="center"
+                    android:text="Проверку провели\n(инж. по нал. и исп. эл. оборуд.):"
+                    android:textColor="@color/text"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/textView135"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
+                    android:gravity="center"
+                    android:text="Нет"
+                    android:textColor="@color/text"
+                    android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/button138"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:background="@drawable/new_buttons"
+                    android:textAllCaps="false"
+                    android:textSize="17sp"
+                    android:text="Изменить"
+                    android:textColor="@color/fon" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/chiefLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/listview"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <TextView
+                    android:id="@+id/textView234"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:gravity="center"
+                    android:text="Проверил\n(начальник эл. лаборатории):"
+                    android:textColor="@color/text"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/textView235"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
+                    android:gravity="center"
+                    android:text="Нет"
+                    android:textColor="@color/text"
+                    android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/button238"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:background="@drawable/new_buttons"
+                    android:textAllCaps="false"
+                    android:textSize="17sp"
                     android:text="Изменить"
                     android:textColor="@color/fon" />
             </LinearLayout>
@@ -357,7 +448,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/buttons"
+                android:background="@drawable/new_buttons"
+                android:textAllCaps="false"
+                android:textSize="17sp"
                 android:text="Сохранить изменения"
                 android:textColor="@color/fon" />
 
@@ -367,7 +460,9 @@
                 android:layout_height="70dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="30dp"
-                android:background="@drawable/buttons"
+                android:background="@drawable/new_buttons"
+                android:textAllCaps="false"
+                android:textSize="17sp"
                 android:text="Создать PDF"
                 android:textColor="@color/fon" />
         </LinearLayout>

@@ -775,7 +775,7 @@ public class AutomaticsActivity5 extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             case R.id.action_main:
-                Intent intent1 = new Intent(AutomaticsActivity5.this, MainActivity.class);
+                Intent intent1 = new Intent(AutomaticsActivity5.this, MenuItemsActivity.class);
                 startActivity(intent1);
                 return true;
         }

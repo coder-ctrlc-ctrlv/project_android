@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -25,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Objects;
 
 
@@ -40,85 +43,143 @@ public class MainActivity extends AppCompatActivity {
 
         dbHelper = new DBHelper(this);
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
-        final Button updatebase = findViewById(R.id.button24);
+
+        final Button continue_project_btn = findViewById(R.id.button1);
+        final Button create_project_btn = findViewById(R.id.button2);
+        final Button load_project_btn = findViewById(R.id.button3);
 
         //НАСТРАИВАЕМ ACTIONBAR
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setCustomView(R.layout.actionbar_main);
+        getSupportActionBar().setTitle("Protokol");
 
-        //ОБНОВЛЕНИЕ БАЗЫ ДАННЫХ
-        updatebase.setOnClickListener(new View.OnClickListener() {
+        //ПРОДОЛЖИТЬ ПРОЕКТ
+        continue_project_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setCancelable(false);
-                builder.setPositiveButton("Да", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        database.delete(DBHelper.TABLE_FLOORS, null, null);
-                        database.delete(DBHelper.TABLE_ROOMS, null, null);
-                        database.delete(DBHelper.TABLE_ELEMENTS, null, null);
-                        database.delete(DBHelper.TABLE_ELEMENTS_PZ, null, null);
-                        database.delete(DBHelper.TABLE_INS_FLOORS, null, null);
-                        database.delete(DBHelper.TABLE_LINE_ROOMS, null, null);
-                        database.delete(DBHelper.TABLE_LINES, null, null);
-                        database.delete(DBHelper.TABLE_GROUPS, null, null);
-                        database.delete(DBHelper.TABLE_INS_NOTES, null, null);
-                        database.delete(DBHelper.TABLE_TITLE, null, null);
-                        database.delete(DBHelper.TABLE_GD, null, null);
-                        database.delete(DBHelper.TABLE_AU_FLOORS, null, null);
-                        database.delete(DBHelper.TABLE_AU_LINES, null, null);
-                        database.delete(DBHelper.TABLE_AU_ROOMS, null, null);
-                        database.delete(DBHelper.TABLE_AUTOMATICS, null, null);
-                        database.delete(DBHelper.TABLE_DIF_AU_FLOORS, null, null);
-                        database.delete(DBHelper.TABLE_DIF_AU_LINES, null, null);
-                        database.delete(DBHelper.TABLE_DIF_AU_ROOMS, null, null);
-                        database.delete(DBHelper.TABLE_DIF_AUTOMATICS, null, null);
-                        Toast toast = Toast.makeText(getApplicationContext(),
-                                "Данные были успешно удалены", Toast.LENGTH_SHORT);
-                        toast.show();
-                    }
-                });
-                builder.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
+                if (!getNameProject(database).equals("")) {
+                    go_to_menu_items();
+                }
+                else {
+                    AlertDialog.Builder alert2 = new AlertDialog.Builder(MainActivity.this);
+                    alert2.setCancelable(false);
+                    alert2.setMessage("Для начала необходимо создать проект");
+                    alert2.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
 
-                    }
-                });
-                builder.setMessage("Вы уверены, что хотите удалить данные?\nНесохраненные данные будут потеряны.");
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                        }
+                    });
+                    alert2.show();
+                }
             }
         });
-    }
 
-    public void titlePage (View view) {
-        Intent intent = new Intent("android.intent.action.TitlePage");
-        startActivity(intent);
-    }
+        //СОЗДАТЬ ПРОЕКТ
+        create_project_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String nameProject = getNameProject(database);
+                if (!nameProject.equals("")) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            saveAndCreateNew(database, nameProject);
+                        }
+                    });
+                    builder.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            createNew(database);
+                        }
+                    });
+                    builder.setNeutralButton("Отмена", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
+                        }
+                    });
+                    builder.setMessage("Сохранить текущий проект? Несохранённые данные будут потеряны.");
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+                else {
+                    createNew(database);
+                }
+            }
+        });
 
-    public void groundingDevices (View view) {
-        Intent intent = new Intent("android.intent.action.GroundingDevices1");
-        startActivity(intent);
-    }
+        //ЗАГРУЗИТЬ ПРОЕКТ
+        load_project_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String sd = Environment.getExternalStorageDirectory().toString();
+                final File data = Environment.getDataDirectory();
+                final File folder = new File(sd, "Protokol_projects");
+                File[] listOfFiles;
+                if (!folder.exists())
+                    folder.mkdirs();
+                listOfFiles = folder.listFiles();
+                if (listOfFiles.length == 0) {
+                    AlertDialog.Builder alert2 = new AlertDialog.Builder(MainActivity.this);
+                    alert2.setCancelable(false);
+                    alert2.setMessage("Сохраненные проекты отсутствуют");
+                    alert2.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
 
-    public void roomElement (View view) {
-        Intent intent = new Intent("android.intent.action.RoomElement1");
-        startActivity(intent);
-    }
+                        }
+                    });
+                    alert2.show();
+                }
+                else {
+                    int i;
+                    final String[] arrayNameFiles = new String[listOfFiles.length];
+                    for (i = 0; i < listOfFiles.length; i++) {
+                        arrayNameFiles[i] = listOfFiles[i].getName();
+                    }
+                    AlertDialog.Builder alert1 = new AlertDialog.Builder(MainActivity.this);
+                    alert1.setCancelable(false);
+                    alert1.setTitle("Выберите файл:");
+                    alert1.setItems(arrayNameFiles, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String outputPath = "//data//com.example.protokol.create_protokol//databases//contactDB";
+                            InputStream in = null;
+                            OutputStream out = null;
+                            try {
+                                File outputFile = new File(data, outputPath);
+                                File inputFile = new File(folder, arrayNameFiles[which]);
+                                if (inputFile.exists()){
+                                    in = new FileInputStream(inputFile);
+                                    out = new FileOutputStream(outputFile);
+                                    byte[] buffer = new byte[in.available()];
+                                    int length;
+                                    while ((length = in.read(buffer)) != -1) {
+                                        out.write(buffer, 0, length);
+                                    }
+                                    in.close();
+                                    in = null;
+                                    out.flush();
+                                    out.close();
+                                    out = null;
+                                    Toast toast = Toast.makeText(getApplicationContext(),
+                                            "Данные были успешно импортированы", Toast.LENGTH_SHORT);
+                                    toast.show();
+                                    go_to_menu_items();
+                                }
+                            } catch (FileNotFoundException fnfe1) {
+                                Log.e("tag", fnfe1.getMessage());
+                            } catch (Exception e) {
+                                Log.e("tag", e.getMessage());
+                            }
+                        }
+                    });
+                    alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
 
-    public void insulation (View view) {
-        Intent intent = new Intent("android.intent.action.Insulation1");
-        startActivity(intent);
-    }
-
-    public void automatics (View view) {
-        Intent intent = new Intent("android.intent.action.Automatics1");
-        startActivity(intent);
-    }
-
-    public void dif_automatics (View view) {
-        Intent intent = new Intent("android.intent.action.DifAutomatics1");
-        startActivity(intent);
+                        }
+                    });
+                    alert1.show();
+                }
+            }
+        });
     }
 
     @Override
@@ -177,120 +238,95 @@ public class MainActivity extends AppCompatActivity {
                 });
                 alert.show();
                 return true;
-            case R.id.loadBD:
-                String sd = Environment.getExternalStorageDirectory().toString();
-                final File data = Environment.getDataDirectory();
-                final File folder = new File(sd, "Базы данных");
-                File[] listOfFiles;
-                if (!folder.exists())
-                    folder.mkdirs();
-                listOfFiles = folder.listFiles();
-                if (listOfFiles.length == 0) {
-                    AlertDialog.Builder alert2 = new AlertDialog.Builder(MainActivity.this);
-                    alert2.setCancelable(false);
-                    alert2.setMessage("Файлы с базой данных отсутствуют");
-                    alert2.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert2.show();
-                }
-                else {
-                    int i;
-                    final String[] arrayNameFiles = new String[listOfFiles.length];
-                    for (i = 0; i < listOfFiles.length; i++) {
-                        arrayNameFiles[i] = listOfFiles[i].getName();
-                    }
-                    AlertDialog.Builder alert1 = new AlertDialog.Builder(MainActivity.this);
-                    alert1.setCancelable(false);
-                    alert1.setTitle("Выберите файл:");
-                    alert1.setItems(arrayNameFiles, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            String outputPath = "//data//com.example.protokol.create_protokol//databases//contactDB";
-                            InputStream in = null;
-                            OutputStream out = null;
-                            try {
-                                File outputFile = new File(data, outputPath);
-                                File inputFile = new File(folder, arrayNameFiles[which]);
-                                if (inputFile.exists()){
-                                    in = new FileInputStream(inputFile);
-                                    out = new FileOutputStream(outputFile);
-                                    byte[] buffer = new byte[in.available()];
-                                    int length;
-                                    while ((length = in.read(buffer)) != -1) {
-                                        out.write(buffer, 0, length);
-                                    }
-                                    in.close();
-                                    in = null;
-                                    out.flush();
-                                    out.close();
-                                    out = null;
-                                    Toast toast = Toast.makeText(getApplicationContext(),
-                                            "Данные были успешно импортированы", Toast.LENGTH_SHORT);
-                                    toast.show();
-                                }
-                            } catch (FileNotFoundException fnfe1) {
-                                Log.e("tag", fnfe1.getMessage());
-                            } catch (Exception e) {
-                                Log.e("tag", e.getMessage());
-                            }
-                        }
-                    });
-                    alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                        }
-                    });
-                    alert1.show();
-                }
-                return true;
-            case R.id.saveBD:
-                getNameFileAndCopy();
-                return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void getNameFileAndCopy() {
-        nameFile = "";
+    private void createNew(final SQLiteDatabase database) {
+        AlertDialog.Builder alert5 = new AlertDialog.Builder(MainActivity.this);
+        final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
+        alert5.setCancelable(false);
+        alert5.setTitle("Введите название нового проекта:");
+        final EditText input = myView.findViewById(R.id.editText);
+        openKeyboard();
+        alert5.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                closeKeyboard(myView);
+                String nameProject = input.getText().toString();
+                if (isCorrectInput(nameProject)) {
+                    database.delete(DBHelper.TABLE_PROJECT_INFO, null, null);
+                    database.delete(DBHelper.TABLE_FLOORS, null, null);
+                    database.delete(DBHelper.TABLE_ROOMS, null, null);
+                    database.delete(DBHelper.TABLE_ELEMENTS, null, null);
+                    database.delete(DBHelper.TABLE_ELEMENTS_PZ, null, null);
+                    database.delete(DBHelper.TABLE_INS_FLOORS, null, null);
+                    database.delete(DBHelper.TABLE_LINE_ROOMS, null, null);
+                    database.delete(DBHelper.TABLE_LINES, null, null);
+                    database.delete(DBHelper.TABLE_GROUPS, null, null);
+                    database.delete(DBHelper.TABLE_INS_NOTES, null, null);
+                    database.delete(DBHelper.TABLE_TITLE, null, null);
+                    database.delete(DBHelper.TABLE_GD, null, null);
+                    database.delete(DBHelper.TABLE_AU_FLOORS, null, null);
+                    database.delete(DBHelper.TABLE_AU_LINES, null, null);
+                    database.delete(DBHelper.TABLE_AU_ROOMS, null, null);
+                    database.delete(DBHelper.TABLE_AUTOMATICS, null, null);
+                    database.delete(DBHelper.TABLE_DIF_AU_FLOORS, null, null);
+                    database.delete(DBHelper.TABLE_DIF_AU_LINES, null, null);
+                    database.delete(DBHelper.TABLE_DIF_AU_ROOMS, null, null);
+                    database.delete(DBHelper.TABLE_DIF_AUTOMATICS, null, null);
+                    go_to_content_selection(nameProject.trim());
+                }
+                else {
+                    AlertDialog.Builder alert1 = new AlertDialog.Builder(MainActivity.this);
+                    alert1.setCancelable(false);
+                    alert1.setMessage("Некорректный ввод.\nПовторите попытку.");
+                    alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            createNew(database);
+                        }
+                    });
+                    alert1.show();
+                }
+            }
+        });
+        alert5.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                closeKeyboard(myView);
+            }
+        });
+        alert5.setView(myView);
+        alert5.show();
+    }
+
+    private void saveAndCreateNew(final SQLiteDatabase database, final String nameProj) {
+        nameFile = nameProj;
         AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
         final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
         alert.setCancelable(false);
         alert.setTitle("Введите название сохраняемого файла:");
         final EditText input = myView.findViewById(R.id.editText);
+        input.setText(nameFile);
         openKeyboard();
         alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 closeKeyboard(myView);
                 nameFile = input.getText().toString();
-                if (nameFile.equals("")) {
+                if (isCorrectInput(nameFile)) {
+                    nameFile = nameFile.trim() + ".db";
+                    copyFile();
+                    createNew(database);
+                }
+                else {
                     AlertDialog.Builder alert1 = new AlertDialog.Builder(MainActivity.this);
                     alert1.setCancelable(false);
-                    alert1.setMessage("Поле ввода оказалось пустым!\nЕсли хотите, чтобы данные сохранились, введите название файла и повторите попытку.");
+                    alert1.setMessage("Некорректный ввод.\nПовторите попытку.");
                     alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            getNameFileAndCopy();
+                            saveAndCreateNew(database, nameProj);
                         }
                     });
                     alert1.show();
                 }
-                else
-                    if (!nameFile.matches("[0-9а-яА-Яa-zA-Z]+")){
-                        AlertDialog.Builder alert1 = new AlertDialog.Builder(MainActivity.this);
-                        alert1.setCancelable(false);
-                        alert1.setMessage("Вы можете вводить только цифры и буквы русского или английского алфавитов.\nЕсли хотите, чтобы данные сохранились, повторите попытку с корректным названием.");
-                        alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                getNameFileAndCopy();
-                            }
-                        });
-                        alert1.show();
-                    } else {
-                        nameFile = nameFile + ".db";
-                        copyFile();
-                    }
             }
         });
         alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
@@ -310,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
         OutputStream out = null;
         try {
             //СОЗДАДИМ ПАПКУ(output), ЕСЛИ ЕЕ НЕТ
-            File folder = new File(sd, "Базы данных");
+            File folder = new File(sd, "Protokol_projects");
             if (!folder.exists())
                 folder.mkdirs();
             File inputFile = new File(data, inputPath);
@@ -337,6 +373,33 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("tag", e.getMessage());
         }
+    }
+
+    String getNameProject(SQLiteDatabase database) {
+        String name = "";
+        Cursor cursor1 = database.query(DBHelper.TABLE_PROJECT_INFO, new String[] {DBHelper.PROJECT_NAME},
+                null, null, null, null, null);
+        if (cursor1.moveToFirst()) {
+            int nameIndex = cursor1.getColumnIndex(DBHelper.PROJECT_NAME);
+            name = cursor1.getString(nameIndex);
+        }
+        cursor1.close();
+        return name;
+    }
+
+    boolean isCorrectInput(String data) {
+        return !data.equals("") && data.matches("[0-9а-яА-Яa-zA-Z ]+") && data.trim().length() > 0;
+    }
+
+    void go_to_menu_items() {
+        Intent intent = new Intent("android.intent.action.MenuItems");
+        startActivity(intent);
+    }
+
+    void go_to_content_selection(String name) {
+        Intent intent = new Intent("android.intent.action.ContentSelection");
+        intent.putExtra("nameProject", name);
+        startActivity(intent);
     }
 
     void openKeyboard() {
