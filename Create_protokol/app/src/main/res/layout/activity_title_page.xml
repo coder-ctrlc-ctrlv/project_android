@@ -282,7 +282,7 @@
                     android:background="@drawable/new_buttons"
                     android:textAllCaps="false"
                     android:textSize="17sp"
-                    android:text="Изменить"
+                    android:text="Заполнить"
                     android:textColor="@color/fon" />
             </LinearLayout>
 
@@ -322,7 +322,7 @@
                     android:background="@drawable/new_buttons"
                     android:textAllCaps="false"
                     android:textSize="17sp"
-                    android:text="Изменить"
+                    android:text="Заполнить"
                     android:textColor="@color/fon" />
             </LinearLayout>
 
@@ -371,7 +371,7 @@
                             android:layout_marginLeft="8dp"
                             android:layout_marginRight="8dp"
                             android:layout_gravity="center"
-                            android:digits="0123456789"
+                            android:digits="0123456789-"
                             android:hint="\u2103"
                             android:ems="10"
                             android:gravity="center"
@@ -444,26 +444,26 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/button43"
+                android:id="@+id/button42"
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/new_buttons"
                 android:textAllCaps="false"
                 android:textSize="17sp"
-                android:text="Сохранить изменения"
+                android:text="Создать PDF"
                 android:textColor="@color/fon" />
 
             <Button
-                android:id="@+id/button42"
+                android:id="@+id/button43"
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="30dp"
-                android:background="@drawable/new_buttons"
+                android:background="@drawable/extra_button"
                 android:textAllCaps="false"
                 android:textSize="17sp"
-                android:text="Создать PDF"
+                android:text="Готово"
                 android:textColor="@color/fon" />
         </LinearLayout>
     </ScrollView>

@@ -60,6 +60,7 @@ public class InsulationActivity1 extends AppCompatActivity {
         Button addFloor = findViewById(R.id.button9);
         Button addNote = findViewById(R.id.button11);
         Button pdf = findViewById(R.id.button8);
+        Button back_btn = findViewById(R.id.button10);
 
         //НАСТРАИВАЕМ ACTIONBAR
         getSupportActionBar().setSubtitle("Этажи");
@@ -373,6 +374,15 @@ public class InsulationActivity1 extends AppCompatActivity {
                 dialog1.show();
             }
         });
+
+        //ГОТОВО
+        back_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(InsulationActivity1.this, MenuItemsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     //НАЗАД
@@ -443,7 +453,9 @@ public class InsulationActivity1 extends AppCompatActivity {
 
         //ЗАПРОС НА СПИСОК ЭТАЖЕЙ И КОЛ-ВО КОМНАТ
         Cursor cursor = database.rawQuery("SELECT ins_floor, count(*) AS count_rooms FROM ins_floors AS f " +
-                "JOIN lnrooms AS r ON f._id = r.ins_rfl_id GROUP BY f._id ORDER BY f._id, r._id", new String[] { });
+                "JOIN lnrooms AS r ON f._id = r.ins_rfl_id AND r._id IN (" +
+                "SELECT lnr_id FROM `lines` AS l JOIN groups AS g ON l._id = g.grline_id GROUP BY lnr_id" +
+                ") GROUP BY f._id ORDER BY f._id, r._id", new String[] { });
         if (cursor.moveToFirst()) {
             int nameFloorIndex = cursor.getColumnIndex(DBHelper.INS_FL_NAME);
             int countRoomIndex = cursor.getColumnIndex("count_rooms");
@@ -456,7 +468,9 @@ public class InsulationActivity1 extends AppCompatActivity {
 
         //ЗАПРОС НА СПИСОК КОМНАТ И КОЛ-ВО ЩИТОВ
         Cursor cursor1 = database.rawQuery("SELECT room, count(*) AS count_lines FROM lnrooms AS r " +
-                "JOIN `lines` AS l ON r._id = l.lnr_id GROUP BY r._id ORDER BY r.ins_rfl_id, r._id, l._id", new String[] { });
+                "JOIN `lines` AS l ON r._id = l.lnr_id AND l._id IN (" +
+                "SELECT grline_id FROM groups GROUP BY grline_id" +
+                ") GROUP BY r._id ORDER BY r.ins_rfl_id, r._id, l._id", new String[] { });
         if (cursor1.moveToFirst()) {
             int nameRoomIndex = cursor1.getColumnIndex(DBHelper.LNR_NAME);
             int countLineIndex = cursor1.getColumnIndex("count_lines");

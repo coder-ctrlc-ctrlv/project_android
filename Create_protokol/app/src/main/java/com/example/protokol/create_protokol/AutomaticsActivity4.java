@@ -44,6 +44,7 @@ public class AutomaticsActivity4 extends AppCompatActivity {
         TextView line = findViewById(R.id.textView7);
         final ListView listAutomatics = findViewById(R.id.automatics);
         Button addAutomatic = findViewById(R.id.button9);
+        Button back_btn = findViewById(R.id.button10);
         nameFloor = getIntent().getStringExtra("nameFloor");
         idFloor = getIntent().getIntExtra("idFloor", 0);
         nameRoom = getIntent().getStringExtra("nameRoom");
@@ -58,7 +59,7 @@ public class AutomaticsActivity4 extends AppCompatActivity {
 
         //ВЫВОД ЭТАЖА И КОМНАТЫ
         floor.setText("Этаж: " + nameFloor);
-        room.setText("Комната: " + nameRoom);
+        room.setText("Помещение: " + nameRoom);
         line.setText("Щит: " + nameLine);
 
         //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
@@ -314,6 +315,19 @@ public class AutomaticsActivity4 extends AppCompatActivity {
                 alert.show();
             }
         });
+
+        //ГОТОВО
+        back_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent("android.intent.action.Automatics3");
+                intent.putExtra("nameFloor", nameFloor);
+                intent.putExtra("idFloor", idFloor);
+                intent.putExtra("nameRoom", nameRoom);
+                intent.putExtra("idRoom", idRoom);
+                startActivity(intent);
+            }
+        });
     }
 
     //НА ГЛАВНУЮ
@@ -380,6 +394,11 @@ public class AutomaticsActivity4 extends AppCompatActivity {
             automaticIndex = cursor.getColumnIndex(DBHelper.AU_ID);
             idUp = cursor.getInt(automaticIndex);
             cursor.close();
+
+            //МЕНЯЕМ ID ПРИВЯЗАННОГО АВТОМАТА В ТАБЛИЦЕ "ГРУППЫ"
+            values = new ContentValues();
+            values.put(DBHelper.GR_AUT_ID, Integer.toString(idCurrent));
+            database.update(DBHelper.TABLE_GROUPS, values,"aut_id = ? and aut_type = 'normal_aut'", new String[]{Integer.toString(idUp)});
 
             //МЕНЯЕМ ID
             values = new ContentValues();

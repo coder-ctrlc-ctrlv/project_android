@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 85;
+    public static final int DATABASE_VERSION = 87;
     public static final String DATABLE_NAME = "contactDB";
 
     //PROJECT INFORMATION
@@ -103,6 +103,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String GR_C_PE = "c_pe";
     public static final String GR_N_PE = "n_pe";
     public static final String GR_CONCLUSION = "conclusion";
+    public static final String GR_AUT_TYPE = "aut_type";
+    public static final String GR_AUT_ID = "aut_id";
 
     //table10
     public static final String TABLE_INS_NOTES = "ins_notes";
@@ -243,38 +245,76 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DIF_AU_TIME_MEASURED = "time_measured";
     public static final String DIF_AU_CONCLUSION = "conclusion";
 
-    //LIBRARY_NAMES_EL
+    //PHASE_ZERO
+
     //table21
+    public static final String TABLE_PZ_FLOORS = "pz_floors";
+    public static final String PZ_FL_ID = "_id";
+    public static final String PZ_FL_NAME = "pz_floor";
+
+    //table22
+    public static final String TABLE_PZ_ROOMS = "pz_rooms";
+    public static final String PZ_ROOM_ID = "_id";
+    public static final String PZ_ID_RFLOOR = "pz_rfl_id";
+    public static final String PZ_ROOM_NAME = "pz_room";
+
+    //table23
+    public static final String TABLE_PZ_LINES = "pz_lines";
+    public static final String PZ_LINE_ID = "_id";
+    public static final String PZ_ID_LROOM = "pz_lroom_id";
+    public static final String PZ_LINE_NAME = "pz_line";
+
+    //table24
+    public static final String TABLE_PZ = "phaze_zero";
+    public static final String PZ_ID = "_id";
+    public static final String PZLINE_ID = "pzline_id";
+    public static final String PZ_PLACE = "place";
+    public static final String PZ_TYPE_SYMBOL = "type_symbol";
+    public static final String PZ_TYPE_RELEASE = "type_release";
+    public static final String PZ_NOMINAL = "nominal";
+    public static final String PZ_RANGE = "range";
+    public static final String PZ_R_L1 = "r_l1";
+    public static final String PZ_R_L2 = "r_l2";
+    public static final String PZ_R_L3 = "r_l3";
+    public static final String PZ_I_L1 = "i_l1";
+    public static final String PZ_I_L2 = "i_l2";
+    public static final String PZ_I_L3 = "i_l3";
+    public static final String PZ_POSSIBLE = "possible";
+    public static final String PZ_FACTUAL = "factual";
+    public static final String PZ_CONCLUSION = "conclusion";
+
+    //LIBRARY_NAMES_EL
+    //table25
     public static final String TABLE_NAMES_EL = "names_el";
     public static final String NAME_EL_ID = "_id";
     public static final String NAME_EL = "name_el";
 
     //LIBRARY_MARKS
-    //table22
+    //table26
     public static final String TABLE_MARKS = "marks";
     public static final String MARK_ID = "_id";
     public static final String MARK = "mark";
 
     //LIBRARY_ROOMS
-    //table23
+    //table27
     public static final String TABLE_LIBRARY_ROOMS = "lib_rooms";
     public static final String LIB_ROOM_ID = "_id";
     public static final String LIB_ROOM_NAME = "room_name";
 
     //LIBRARY_LINES
-    //table24
+    //table28
     public static final String TABLE_LIBRARY_LINES = "lib_lines";
     public static final String LIB_LINE_ID = "_id";
     public static final String LIB_LINE_NAME = "line_name";
 
     //LIBRARY_FLOORS
-    //table25
+    //table29
     public static final String TABLE_LIBRARY_FLOORS = "lib_floors";
     public static final String LIB_FLOOR_ID = "_id";
     public static final String LIB_FLOOR_NAME = "floor_name";
 
     //LIBRARY_AUTOMATICS
-    //table26
+    //table30
     public static final String TABLE_LIBRARY_AUTOMATICS = "lib_automatics";
     public static final String LIB_AU_ID = "_id";
     public static final String LIB_AU_NAME = "au_name";
@@ -324,7 +364,8 @@ public class DBHelper extends SQLiteOpenHelper {
             " text," + GR_NAME + " text," + GR_U1 + " text,"  + GR_MARK + " text," + GR_VEIN + " text," + GR_SECTION +
             " text," + GR_U2 + " text," + GR_R + " text," + GR_PHASE + " text," + GR_A_B + " text," + GR_B_C +
             " text," + GR_C_A + " text," + GR_A_N + " text," + GR_B_N + " text," + GR_C_N + " text," + GR_A_PE +
-            " text," + GR_B_PE + " text," + GR_C_PE + " text," + GR_N_PE + " text," + GR_CONCLUSION + " text" + ");");
+            " text," + GR_B_PE + " text," + GR_C_PE + " text," + GR_N_PE + " text," + GR_CONCLUSION + " text," + GR_AUT_TYPE +
+            " text," + GR_AUT_ID + " integer" + ");");
 
         db.execSQL("create table " + TABLE_INS_NOTES + "(" + INS_NOTE_ID + " integer primary key AUTOINCREMENT," + INS_NOTE +
                 " text" + ");");
@@ -371,6 +412,20 @@ public class DBHelper extends SQLiteOpenHelper {
                 " text," + DIF_AU_SET_THERMAL + " text," + DIF_AU_SET_ELECTR_MAGN + " text," + DIF_AU_CHECK_TEST_TOK + " text," + DIF_AU_CHECK_TIME_ + " text," + DIF_AU_CHECK_WORK_TOK +
                 " text," + DIF_AU_I_NOM + " text," + DIF_AU_I_LEAK + " text," + DIF_AU_I_EXTRA + " text," + DIF_AU_I_MEASURED + " text," + DIF_AU_TIME_EXTRA +
                 " text," + DIF_AU_TIME_MEASURED + " text," + DIF_AU_CONCLUSION + " text" + ");");
+
+        db.execSQL("create table " + TABLE_PZ_FLOORS + "(" + PZ_FL_ID + " integer primary key AUTOINCREMENT," + PZ_FL_NAME +
+                " text" + ");");
+
+        db.execSQL("create table " + TABLE_PZ_ROOMS + "(" + PZ_ROOM_ID + " integer primary key AUTOINCREMENT," + PZ_ID_RFLOOR + " integer," + PZ_ROOM_NAME +
+                " text" + ");");
+
+        db.execSQL("create table " + TABLE_PZ_LINES + "(" + PZ_LINE_ID + " integer primary key AUTOINCREMENT," + PZ_ID_LROOM + " integer," + PZ_LINE_NAME +
+                " text" + ");");
+
+        db.execSQL("create table " + TABLE_PZ + "(" + PZ_ID + " integer primary key AUTOINCREMENT," + PZLINE_ID +
+                " integer," + PZ_PLACE + " text," + PZ_TYPE_SYMBOL + " text," + PZ_TYPE_RELEASE + " text," + PZ_NOMINAL +
+                " text," + PZ_RANGE + " text," + PZ_R_L1 + " text," + PZ_R_L2 + " text," + PZ_R_L3 + " text," + PZ_I_L1 +
+                " text," + PZ_I_L2 + " text," + PZ_I_L3 + " text," + PZ_POSSIBLE + " text," + PZ_FACTUAL + " text," + PZ_CONCLUSION + " text" + ");");
 
         db.execSQL("create table if not exists " + TABLE_NAMES_EL + "(" + NAME_EL_ID + " integer primary key AUTOINCREMENT," + NAME_EL + " text" + ");");
         //start of comment
@@ -432,6 +487,10 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("drop table if exists " + TABLE_DIF_AU_ROOMS);
         db.execSQL("drop table if exists " + TABLE_DIF_AU_LINES);
         db.execSQL("drop table if exists " + TABLE_DIF_AUTOMATICS);
+        db.execSQL("drop table if exists " + TABLE_PZ_FLOORS);
+        db.execSQL("drop table if exists " + TABLE_PZ_ROOMS);
+        db.execSQL("drop table if exists " + TABLE_PZ_LINES);
+        db.execSQL("drop table if exists " + TABLE_PZ);
         onCreate(db);
     }
 }

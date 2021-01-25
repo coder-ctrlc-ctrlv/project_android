@@ -82,7 +82,26 @@ public class MainActivity extends AppCompatActivity {
                     builder.setCancelable(false);
                     builder.setPositiveButton("Да", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            saveAndCreateNew(database, nameProject);
+                            Boolean emptyItems = checkEmptyItems(database);
+                            if (emptyItems) {
+                                AlertDialog.Builder builder10 = new AlertDialog.Builder(MainActivity.this);
+                                builder10.setCancelable(false);
+                                builder10.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        saveAndCreateNew(database, nameProject);
+                                    }
+                                });
+                                builder10.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+
+                                    }
+                                });
+                                builder10.setMessage("Остались незаполненные пункты.\nВы уверены, что хотите продолжить?");
+                                AlertDialog dialog10 = builder10.create();
+                                dialog10.show();
+                            }
+                            else
+                                saveAndCreateNew(database, nameProject);
                         }
                     });
                     builder.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
@@ -195,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                 AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
                 alert.setCancelable(false);
                 alert.setTitle("Выберите библиотеку:");
-                final String libararies[] = {"\nНазвания элементов\n", "\nМарки\n", "\nКомнаты\n", "\nЩиты\n", "\nЭтажи\n", "\nАвтомат. выкл.\n"};
+                final String libararies[] = {"\nНазвания элементов\n", "\nМарки\n", "\nПомещения\n", "\nЩиты\n", "\nЭтажи\n", "\nАвтомат. выкл.\n"};
                 alert.setItems(libararies, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -274,6 +293,10 @@ public class MainActivity extends AppCompatActivity {
                     database.delete(DBHelper.TABLE_DIF_AU_LINES, null, null);
                     database.delete(DBHelper.TABLE_DIF_AU_ROOMS, null, null);
                     database.delete(DBHelper.TABLE_DIF_AUTOMATICS, null, null);
+                    database.delete(DBHelper.TABLE_PZ_FLOORS, null, null);
+                    database.delete(DBHelper.TABLE_PZ_LINES, null, null);
+                    database.delete(DBHelper.TABLE_PZ_ROOMS, null, null);
+                    database.delete(DBHelper.TABLE_PZ, null, null);
                     go_to_content_selection(nameProject.trim());
                 }
                 else {
@@ -373,6 +396,57 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("tag", e.getMessage());
         }
+    }
+
+    boolean checkEmptyItems(SQLiteDatabase db) {
+        boolean res = false;
+        final int[] valuesOfItems = new int[7];
+        String[] array_queries_for_items = {
+                "SELECT * FROM title LIMIT 1",
+                "",
+                "SELECT * FROM groups LIMIT 1",
+                "SELECT * FROM automatics LIMIT 1",
+                "SELECT * FROM dif_automatics LIMIT 1",
+                "SELECT * FROM grounding_devices LIMIT 1",
+                "SELECT * FROM elements LIMIT 1"
+        };
+        Cursor cursor1 = db.query(DBHelper.TABLE_PROJECT_INFO, new String[] {DBHelper.PROJECT_TITLE,
+                DBHelper.PROJECT_VISUAL_INSPECTION, DBHelper.PROJECT_INSULATION, DBHelper.PROJECT_AUTOMATICS,
+                DBHelper.PROJECT_DIF_AUTOMATICS, DBHelper.PROJECT_GROUNDING_DEVICES,
+                DBHelper.PROJECT_ROOM_ELEMENT},null, null, null, null, null);
+        if (cursor1.moveToFirst()) {
+            int titleIndex = cursor1.getColumnIndex(DBHelper.PROJECT_TITLE);
+            int visualInspectionIndex = cursor1.getColumnIndex(DBHelper.PROJECT_VISUAL_INSPECTION);
+            int insulationIndex = cursor1.getColumnIndex(DBHelper.PROJECT_INSULATION);
+            int automaticsIndex = cursor1.getColumnIndex(DBHelper.PROJECT_AUTOMATICS);
+            int difAutomaticsIndex = cursor1.getColumnIndex(DBHelper.PROJECT_DIF_AUTOMATICS);
+            int groundingDevicesIndex = cursor1.getColumnIndex(DBHelper.PROJECT_GROUNDING_DEVICES);
+            int roomElementIndex = cursor1.getColumnIndex(DBHelper.PROJECT_ROOM_ELEMENT);
+            valuesOfItems[0] = cursor1.getInt(titleIndex);
+            valuesOfItems[1] = cursor1.getInt(visualInspectionIndex);
+            valuesOfItems[2] = cursor1.getInt(insulationIndex);
+            valuesOfItems[3] = cursor1.getInt(automaticsIndex);
+            valuesOfItems[4] = cursor1.getInt(difAutomaticsIndex);
+            valuesOfItems[5] = cursor1.getInt(groundingDevicesIndex);
+            valuesOfItems[6] = cursor1.getInt(roomElementIndex);
+        }
+        cursor1.close();
+        for (int i = 0; i < valuesOfItems.length; ++i)
+            if ((i != 1) && (valuesOfItems[i] == 1) && queryIsEmpty(db, array_queries_for_items[i])) {
+                res = true;
+                break;
+            }
+        return res;
+    }
+
+    boolean queryIsEmpty(SQLiteDatabase database, String query) {
+        Boolean isEmpty = true;
+        Cursor cursor10 = database.rawQuery(query, new String[] { });
+        if (cursor10.moveToFirst()) {
+            isEmpty = false;
+        }
+        cursor10.close();
+        return isEmpty;
     }
 
     String getNameProject(SQLiteDatabase database) {

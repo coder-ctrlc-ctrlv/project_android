@@ -7,8 +7,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Paint;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,15 +28,18 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import static java.math.BigDecimal.ROUND_HALF_UP;
+
 public class InsulationActivity5 extends AppCompatActivity {
 
     DBHelper dbHelper;
-    String nameFloor, nameRoom, nameLine;
-    int idFloor, idRoom, idLine;
+    String nameFloor, nameRoom, nameLine, nameGroup;
+    int idFloor, idRoom, idLine, idSubgroup;
     String numb_poles = "1P";
     SQLiteDatabase database;
 
@@ -45,17 +51,34 @@ public class InsulationActivity5 extends AppCompatActivity {
         dbHelper = new DBHelper(this);
         database = dbHelper.getWritableDatabase();
 
+        final LinearLayout insDataLayout = findViewById(R.id.ins_data);
+        final LinearLayout autDataLayout = findViewById(R.id.aut_data);
+        final LinearLayout difAutDataLayout = findViewById(R.id.dif_aut_data);
+        final LinearLayout symbolLayout = findViewById(R.id.symbolLayout);
         final LinearLayout nameAutomatLayout = findViewById(R.id.nameAutomatLayout);
+        final LinearLayout polesLayout = findViewById(R.id.poles_layout);
         final LinearLayout typeKzLayout = findViewById(R.id.typeKzLayout);
         final LinearLayout nominalLayout = findViewById(R.id.nominalLayout);
         final LinearLayout rangeLayout = findViewById(R.id.rangeLayout);
+        final LinearLayout typeOverloadLayout = findViewById(R.id.typeOverloadLayout);
+        final LinearLayout nominalApparatLayout = findViewById(R.id.nom_apLayout);
         final LinearLayout markLayout = findViewById(R.id.markLayout);
         final LinearLayout veinLayout = findViewById(R.id.veinLayout);
         final LinearLayout sectionLayout = findViewById(R.id.sectionLayout);
         final LinearLayout workULayout = findViewById(R.id.workULayout);
         final LinearLayout phaseLayout = findViewById(R.id.phaseLayout);
         final LinearLayout numbLayout = findViewById(R.id.numbLayout);
+        final LinearLayout uzoDiffLayout = findViewById(R.id.uzoLayout);
+        final LinearLayout uDiffLayout = findViewById(R.id.uLayout);
+        final LinearLayout iNomDiffLayout = findViewById(R.id.iNomLayout);
 
+        final Switch autOrDifAutSwitch = findViewById(R.id.switch30);
+        final TextView titleAut = findViewById(R.id.titleAut);
+        final TextView titleDifAut = findViewById(R.id.titleDifAut);
+        final Switch vvodSwitch = findViewById(R.id.switch1);
+        Button vvodButton = findViewById(R.id.button25);
+        final TextView symbolText = findViewById(R.id.textView21);
+        Button symbolButton = findViewById(R.id.button38);
         final TextView nameGroupText = findViewById(R.id.textView8);
         final TextView nameAutomatText = findViewById(R.id.textView6);
         Button nameAutomatButton = findViewById(R.id.button40);
@@ -66,6 +89,17 @@ public class InsulationActivity5 extends AppCompatActivity {
         Button nominalButton = findViewById(R.id.button29);
         final TextView rangeText = findViewById(R.id.textView39);
         Button rangeButton = findViewById(R.id.button59);
+        final TextView typeOverloadText = findViewById(R.id.textView202);
+        Button typeOverloadButton = findViewById(R.id.button262);
+        final TextView nominalApparatText = findViewById(R.id.textView391);
+        Button nominalApparatButton = findViewById(R.id.button591);
+        final TextView uzoDiffText = findViewById(R.id.textView201);
+        Button uzoDiffButton = findViewById(R.id.button261);
+        final TextView uDiffText = findViewById(R.id.textView301);
+        Button uDiffButton = findViewById(R.id.button301);
+        final TextView iNomDiffText = findViewById(R.id.textView35);
+        final Button iNomDiffButton = findViewById(R.id.button601);
+
         final Switch reserveSwitch = findViewById(R.id.switch3);
         final TextView markText = findViewById(R.id.textView40);
         Button markButton = findViewById(R.id.button60);
@@ -90,9 +124,9 @@ public class InsulationActivity5 extends AppCompatActivity {
         idRoom = getIntent().getIntExtra("idRoom", 0);
         nameLine = getIntent().getStringExtra("nameLine");
         idLine = getIntent().getIntExtra("idLine", 0);
-        String nameGroup = getIntent().getStringExtra("nameGroup");
+        nameGroup = getIntent().getStringExtra("nameGroup");
         final int idGroup = getIntent().getIntExtra("idGroup", -1);
-        final int idSubgroup = getIntent().getIntExtra("idSubgroup", -1);
+        idSubgroup = getIntent().getIntExtra("idSubgroup", -1);
         final int currentIndexSwap = getIntent().getIntExtra("currentIndexSwap", -1);
         final int stopIndexSwap = getIntent().getIntExtra("stopIndexSwap", -1);
 
@@ -101,7 +135,7 @@ public class InsulationActivity5 extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //ОПРЕДЕЛЯЕМ, СОЗДАЕМ ЛИ МЫ НОВУЮ ГРУППУ ИЛИ ИЗМЕНЯЕМ СТАРУЮ
-        boolean isNewSubgroup = idSubgroup != -1;
+        final boolean isNewSubgroup = idSubgroup != -1;
         final boolean isChange;
         if (idGroup != -1) {
             isChange = true;
@@ -120,33 +154,43 @@ public class InsulationActivity5 extends AppCompatActivity {
 
         //ДЕЛАЕМ ПЕРЕКЛЮЧАТЕЛЬ ВЫКЛЮЧЕННЫМ ПО УМОЛЧАНИЮ
         reserveSwitch.setChecked(false);
-        
+        vvodSwitch.setChecked(false);
+        autOrDifAutSwitch.setChecked(false);
+        titleAut.setPaintFlags(titleAut.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+
         //ЗАПОЛНЕНИЕ ДАННЫХ, ЕСЛИ ОНИ ПЕРЕДАНЫ
         nameGroupText.setText(nameGroup);
         if (isChange) {
             //ЗАПРОС В БД(ПОЛУЧЕНИЕ ИНФОРМАЦИИ О ГРУППЕ)
+            int aut_id = 0;
+            String aut_type = "";
             String nameAu = "";
             Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID,
                     DBHelper.GR_AUTOMATIC, DBHelper.GR_TYPE_KZ, DBHelper.GR_NOMINAL, DBHelper.GR_RANGE,
                     DBHelper.GR_MARK, DBHelper.GR_VEIN, DBHelper.GR_SECTION, DBHelper.GR_U1,
                     DBHelper.GR_U2, DBHelper.GR_R, DBHelper.GR_PHASE, DBHelper.GR_A_B,
-                    DBHelper.GR_A_N, DBHelper.GR_B_N, DBHelper.GR_C_N}, "_id = ?", new String[] {String.valueOf(idGroup)}, null, null, null);
+                    DBHelper.GR_A_N, DBHelper.GR_B_N, DBHelper.GR_C_N,
+                    DBHelper.GR_AUT_ID, DBHelper.GR_AUT_TYPE}, "_id = ?", new String[] {String.valueOf(idGroup)}, null, null, null);
             if (cursor.moveToFirst()) {
                 int nameAuIndex = cursor.getColumnIndex(DBHelper.GR_AUTOMATIC);
                 int type_kzIndex = cursor.getColumnIndex(DBHelper.GR_TYPE_KZ);
                 int nominalIndex = cursor.getColumnIndex(DBHelper.GR_NOMINAL);
                 int rangeIndex = cursor.getColumnIndex(DBHelper.GR_RANGE);
                 int markIndex = cursor.getColumnIndex(DBHelper.GR_MARK);
-                int veinIndex = cursor. getColumnIndex(DBHelper.GR_VEIN);
-                int sectionIndex = cursor. getColumnIndex(DBHelper.GR_SECTION);
-                int workUIndex = cursor. getColumnIndex(DBHelper.GR_U1);
-                int uIndex = cursor. getColumnIndex(DBHelper.GR_U2);
-                int rIndex = cursor. getColumnIndex(DBHelper.GR_R);
-                int phaseIndex = cursor. getColumnIndex(DBHelper.GR_PHASE);
-                int a_bIndex = cursor. getColumnIndex(DBHelper.GR_A_B);
-                int a_nIndex = cursor. getColumnIndex(DBHelper.GR_A_N);
-                int b_nIndex = cursor. getColumnIndex(DBHelper.GR_B_N);
-                int c_nIndex = cursor. getColumnIndex(DBHelper.GR_C_N);
+                int veinIndex = cursor.getColumnIndex(DBHelper.GR_VEIN);
+                int sectionIndex = cursor.getColumnIndex(DBHelper.GR_SECTION);
+                int workUIndex = cursor.getColumnIndex(DBHelper.GR_U1);
+                int uIndex = cursor.getColumnIndex(DBHelper.GR_U2);
+                int rIndex = cursor.getColumnIndex(DBHelper.GR_R);
+                int phaseIndex = cursor.getColumnIndex(DBHelper.GR_PHASE);
+                int a_bIndex = cursor.getColumnIndex(DBHelper.GR_A_B);
+                int a_nIndex = cursor.getColumnIndex(DBHelper.GR_A_N);
+                int b_nIndex = cursor.getColumnIndex(DBHelper.GR_B_N);
+                int c_nIndex = cursor.getColumnIndex(DBHelper.GR_C_N);
+                int aut_idIndex = cursor.getColumnIndex(DBHelper.GR_AUT_ID);
+                int aut_typeIndex = cursor.getColumnIndex(DBHelper.GR_AUT_TYPE);
+                aut_id = cursor.getInt(aut_idIndex);
+                aut_type = cursor.getString(aut_typeIndex);
                 do {
                     //ЗАПОЛНЕНИЕ ДАННЫХ
                     nameAu = cursor.getString(nameAuIndex);
@@ -194,22 +238,67 @@ public class InsulationActivity5 extends AppCompatActivity {
                 } while (cursor.moveToNext());
             }
             cursor.close();
+            //ЗАПРОС В БД(ПОЛУЧЕНИЕ ИНФОРМАЦИИ О ДИФ./ОБЫЧН. АВТОМАТЕ)
+            if (aut_type.equals("dif_aut")) {
+                autOrDifAutSwitch.setChecked(true);
+                titleAut.setPaintFlags(titleAut.getPaintFlags() & (~ Paint.UNDERLINE_TEXT_FLAG));
+                titleDifAut.setPaintFlags(titleDifAut.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                autDataLayout.setVisibility(View.GONE);
+                difAutDataLayout.setVisibility(View.VISIBLE);
+                polesLayout.setVisibility(View.GONE);
+                Cursor cursor5 = database.query(DBHelper.TABLE_DIF_AUTOMATICS, new String[] {DBHelper.DIF_AU_PLACE,
+                        DBHelper.DIF_AU_UZO, DBHelper.DIF_AU_U,
+                        DBHelper.DIF_AU_I_NOM}, "_id = ?", new String[] {String.valueOf(aut_id)}, null, null, null);
+                if (cursor5.moveToFirst()) {
+                    int symbolIndex = cursor5.getColumnIndex(DBHelper.DIF_AU_PLACE);
+                    int uzoIndex = cursor5.getColumnIndex(DBHelper.DIF_AU_UZO);
+                    int dif_uIndex = cursor5.getColumnIndex(DBHelper.DIF_AU_U);
+                    int dif_i_nomIndex = cursor5.getColumnIndex(DBHelper.DIF_AU_I_NOM);
+                    symbolText.setText(cursor5.getString(symbolIndex));
+                    uzoDiffText.setText(cursor5.getString(uzoIndex));
+                    uDiffText.setText(cursor5.getString(dif_uIndex));
+                    iNomDiffText.setText(cursor5.getString(dif_i_nomIndex));
+                }
+                cursor5.close();
+            }
+            else {
+                Cursor cursor5 = database.query(DBHelper.TABLE_AUTOMATICS, new String[] {DBHelper.AU_SYMBOL_SCHEME,
+                        DBHelper.AU_TYPE_OVERLOAD, DBHelper.AU_NOMINAL_1}, "_id = ?", new String[] {String.valueOf(aut_id)}, null, null, null);
+                if (cursor5.moveToFirst()) {
+                    int symbolIndex = cursor5.getColumnIndex(DBHelper.AU_SYMBOL_SCHEME);
+                    int type_overloadIndex = cursor5.getColumnIndex(DBHelper.AU_TYPE_OVERLOAD);
+                    int nom1Index = cursor5.getColumnIndex(DBHelper.AU_NOMINAL_1);
+                    symbolText.setText(cursor5.getString(symbolIndex));
+                    typeOverloadText.setText(cursor5.getString(type_overloadIndex));
+                    nominalApparatText.setText(cursor5.getString(nom1Index));
+                }
+                cursor5.close();
+            }
+            //МЕНЯЕМ РАДИО КНОПКУ С ПОЛЮСОМ
             if (nameAu.contains("3P")) {
                 radioGroup.check(R.id.three_poles);
                 numb_poles = "3P";
             }
+
         }
         else if (isNewSubgroup) {
             //ЗАПРОС В БД(ПОЛУЧЕНИЕ ИНФОРМАЦИИ О ГРУППЕ)
+            int aut_id = 0;
+            String aut_type = "";
             String nameAu = "";
             Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID,
                     DBHelper.GR_AUTOMATIC, DBHelper.GR_TYPE_KZ, DBHelper.GR_NOMINAL,
-                    DBHelper.GR_RANGE}, "_id = ?", new String[] {String.valueOf(idSubgroup)}, null, null, null);
+                    DBHelper.GR_RANGE, DBHelper.GR_AUT_ID,
+                    DBHelper.GR_AUT_TYPE}, "_id = ?", new String[] {String.valueOf(idSubgroup)}, null, null, null);
             if (cursor.moveToFirst()) {
                 int nameAuIndex = cursor.getColumnIndex(DBHelper.GR_AUTOMATIC);
                 int type_kzIndex = cursor.getColumnIndex(DBHelper.GR_TYPE_KZ);
                 int nominalIndex = cursor.getColumnIndex(DBHelper.GR_NOMINAL);
                 int rangeIndex = cursor.getColumnIndex(DBHelper.GR_RANGE);
+                int aut_idIndex = cursor.getColumnIndex(DBHelper.GR_AUT_ID);
+                int aut_typeIndex = cursor.getColumnIndex(DBHelper.GR_AUT_TYPE);
+                aut_id = cursor.getInt(aut_idIndex);
+                aut_type = cursor.getString(aut_typeIndex);
                 do {
                     //ЗАПОЛНЕНИЕ ДАННЫХ
                     nameAu = cursor.getString(nameAuIndex);
@@ -220,11 +309,117 @@ public class InsulationActivity5 extends AppCompatActivity {
                 } while (cursor.moveToNext());
             }
             cursor.close();
+            //ЗАПРОС В БД(ПОЛУЧЕНИЕ ИНФОРМАЦИИ О ДИФ./ОБЫЧН. АВТОМАТЕ)
+            if (aut_type.equals("dif_aut")) {
+                autOrDifAutSwitch.setChecked(true);
+                titleAut.setPaintFlags(titleAut.getPaintFlags() & (~ Paint.UNDERLINE_TEXT_FLAG));
+                titleDifAut.setPaintFlags(titleDifAut.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                autDataLayout.setVisibility(View.GONE);
+                difAutDataLayout.setVisibility(View.VISIBLE);
+                polesLayout.setVisibility(View.GONE);
+                Cursor cursor5 = database.query(DBHelper.TABLE_DIF_AUTOMATICS, new String[] {DBHelper.DIF_AU_PLACE,
+                        DBHelper.DIF_AU_UZO, DBHelper.DIF_AU_U,
+                        DBHelper.DIF_AU_I_NOM}, "_id = ?", new String[] {String.valueOf(aut_id)}, null, null, null);
+                if (cursor5.moveToFirst()) {
+                    int symbolIndex = cursor5.getColumnIndex(DBHelper.DIF_AU_PLACE);
+                    int uzoIndex = cursor5.getColumnIndex(DBHelper.DIF_AU_UZO);
+                    int dif_uIndex = cursor5.getColumnIndex(DBHelper.DIF_AU_U);
+                    int dif_i_nomIndex = cursor5.getColumnIndex(DBHelper.DIF_AU_I_NOM);
+                    symbolText.setText(cursor5.getString(symbolIndex));
+                    uzoDiffText.setText(cursor5.getString(uzoIndex));
+                    uDiffText.setText(cursor5.getString(dif_uIndex));
+                    iNomDiffText.setText(cursor5.getString(dif_i_nomIndex));
+                }
+                cursor5.close();
+            }
+            else {
+                Cursor cursor5 = database.query(DBHelper.TABLE_AUTOMATICS, new String[] {DBHelper.AU_SYMBOL_SCHEME,
+                        DBHelper.AU_TYPE_OVERLOAD, DBHelper.AU_NOMINAL_1}, "_id = ?", new String[] {String.valueOf(aut_id)}, null, null, null);
+                if (cursor5.moveToFirst()) {
+                    int symbolIndex = cursor5.getColumnIndex(DBHelper.AU_SYMBOL_SCHEME);
+                    int type_overloadIndex = cursor5.getColumnIndex(DBHelper.AU_TYPE_OVERLOAD);
+                    int nom1Index = cursor5.getColumnIndex(DBHelper.AU_NOMINAL_1);
+                    symbolText.setText(cursor5.getString(symbolIndex));
+                    typeOverloadText.setText(cursor5.getString(type_overloadIndex));
+                    nominalApparatText.setText(cursor5.getString(nom1Index));
+                }
+                cursor5.close();
+            }
+            //МЕНЯЕМ РАДИО КНОПКУ С ПОЛЮСОМ
             if (nameAu.contains("3P")) {
                 radioGroup.check(R.id.three_poles);
                 numb_poles = "3P";
             }
         }
+
+        // ПЕРЕКЛЮЧАТЕЛЬ ДИФ АВТОМАТ ИЛИ АВТОМАТ
+        autOrDifAutSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    titleAut.setPaintFlags(titleAut.getPaintFlags() & (~ Paint.UNDERLINE_TEXT_FLAG));
+                    titleDifAut.setPaintFlags(titleDifAut.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                    autDataLayout.setVisibility(View.GONE);
+                    difAutDataLayout.setVisibility(View.VISIBLE);
+                    polesLayout.setVisibility(View.GONE);
+                }
+                else {
+                    titleDifAut.setPaintFlags(titleDifAut.getPaintFlags() & (~ Paint.UNDERLINE_TEXT_FLAG));
+                    titleAut.setPaintFlags(titleAut.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                    difAutDataLayout.setVisibility(View.GONE);
+                    autDataLayout.setVisibility(View.VISIBLE);
+                    polesLayout.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        // ПЕРЕКЛЮЧАТЕЛЬ ВВОДНОЙ
+        vvodSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    insDataLayout.setVisibility(View.GONE);
+                }
+                else {
+                    insDataLayout.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        // КНОПКА ВВОДНОЙ
+        vvodButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                vvodSwitch.setChecked(!vvodSwitch.isChecked());
+            }
+        });
+
+        // ОБОЗНАЧЕНИЕ ПО СХЕМЕ
+        symbolButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity5.this);
+                final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
+                alert1.setCancelable(false);
+                alert1.setTitle("Введите обозначение по схеме:");
+                final EditText input = myView.findViewById(R.id.editText);
+                openKeyboard();
+                alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        closeKeyboard(myView);
+                        String sym = input.getText().toString();
+                        symbolText.setText(sym);
+                    }
+                });
+                alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        closeKeyboard(myView);
+                    }
+                });
+                alert1.setView(myView);
+                alert1.show();
+            }
+        });
 
         // НАЗВАНИЕ АВТОМАТА
         nameAutomatButton.setOnClickListener(new View.OnClickListener() {
@@ -293,7 +488,7 @@ public class InsulationActivity5 extends AppCompatActivity {
                 AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity5.this);
                 alert.setCancelable(false);
                 alert.setTitle("Выберите тип расцепителей к.з.:");
-                final String type_kz_array[] = {"B", "C", "D", "ОВВ+МД"};
+                final String type_kz_array[] = {"B", "C", "D", "МД"};
                 alert.setItems(type_kz_array, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -388,6 +583,7 @@ public class InsulationActivity5 extends AppCompatActivity {
                                 rangeText.setText(set_kz);
                             }
                             nominalText.setText(nom_str);
+                            nominalApparatText.setText(nom_str);
                         }
                     }
                 });
@@ -461,6 +657,149 @@ public class InsulationActivity5 extends AppCompatActivity {
                 alert1.setView(myView);
                 alert1.show();
                 numberEdit.clearFocus();
+            }
+        });
+
+        //ТИПЫ РАСЦЕПИТЕЛЕЙ ПЕРЕЗАГРУЗКИ
+        typeOverloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity5.this);
+                alert.setCancelable(false);
+                alert.setTitle("Выберите тип расцепителей перегрузки:");
+                final String type_overload_array[] = {"ОВВ", "НВВ"};
+                alert.setItems(type_overload_array, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        typeOverloadText.setText(type_overload_array[which]);
+                    }
+                });
+                alert.setPositiveButton("Ввести", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity5.this);
+                        final View myView = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
+                        alert1.setCancelable(false);
+                        alert1.setTitle("Введите тип расцепителей перегрузки:");
+                        final EditText input = myView.findViewById(R.id.editText);
+                        openKeyboard();
+                        alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                closeKeyboard(myView);
+                                String type_overload = input.getText().toString();
+                                typeOverloadText.setText(type_overload);
+                            }
+                        });
+                        alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                closeKeyboard(myView);
+                            }
+                        });
+                        alert1.setView(myView);
+                        alert1.show();
+                    }
+                });
+                alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                    }
+                });
+                alert.show();
+            }
+        });
+
+        // НОМИНАЛЬНЫЙ ТОК АППАРАТА
+        nominalApparatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alert1 = new AlertDialog.Builder(InsulationActivity5.this);
+                final View myView = getLayoutInflater().inflate(R.layout.dialog_for_excerpt,null);
+                alert1.setCancelable(false);
+                alert1.setTitle("Введите номинальный ток аппарата:");
+                final EditText input = myView.findViewById(R.id.editText2);
+                openKeyboard();
+                alert1.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        closeKeyboard(myView);
+                        String nomApp = input.getText().toString();
+                        nominalApparatText.setText(nomApp);
+                    }
+                });
+                alert1.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        closeKeyboard(myView);
+                    }
+                });
+                alert1.setView(myView);
+                alert1.show();
+            }
+        });
+
+        // ТИП УЗО
+        uzoDiffButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity5.this);
+                alert.setCancelable(false);
+                alert.setTitle("Выберите тип УЗО:");
+                final String uzo_array[] = {"А", "АС"};
+                alert.setItems(uzo_array, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        uzoDiffText.setText(uzo_array[which]);
+                    }
+                });
+                alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                    }
+                });
+                alert.show();
+            }
+        });
+
+        // Uф(В)
+        uDiffButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity5.this);
+                alert.setCancelable(false);
+                alert.setTitle("Выберите напряжение:");
+                final String u_array[] = {"220", "380"};
+                alert.setItems(u_array, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        uDiffText.setText(u_array[which]);
+                    }
+                });
+                alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                    }
+                });
+                alert.show();
+            }
+        });
+
+        // НОМИНАЛЬНЫЙ ТОК (ДИФ)
+        iNomDiffButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity5.this);
+                alert.setCancelable(false);
+                alert.setTitle("Выберите ток ном. (мА):");
+                final String i_nom_array[] = {"30", "100", "300"};
+                alert.setItems(i_nom_array, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        iNomDiffText.setText(i_nom_array[which]);
+                    }
+                });
+                alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                    }
+                });
+                alert.show();
             }
         });
 
@@ -819,6 +1158,33 @@ public class InsulationActivity5 extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Boolean isBadAut = false;
+                String uzoDiff = uzoDiffText.getText().toString();
+                String uDiff = uDiffText.getText().toString();
+                String iNomDiff = iNomDiffText.getText().toString();
+                String typeOverload = typeOverloadText.getText().toString();
+                String nomApp = nominalApparatText.getText().toString();
+                if (autOrDifAutSwitch.isChecked()) {
+                    if (isIncorrectInput(uzoDiff, uzoDiffLayout) |
+                        isIncorrectInput(uDiff, uDiffLayout) |
+                        isIncorrectInput(iNomDiff, iNomDiffLayout))
+                        isBadAut = true;
+                    if (!isBadAut)
+                        if (uDiffText.getText().toString().equals("380"))
+                            numb_poles = "3P";
+                        else
+                            numb_poles = "1P";
+                }
+                else
+                    if (isIncorrectInput(nomApp, nominalApparatLayout) |
+                        isIncorrectInput(typeOverload, typeOverloadLayout))
+                        isBadAut = true;
+                String place;
+                if (vvodSwitch.isChecked())
+                    place = "Вводной";
+                else
+                    place = "";
+                String symbol = symbolText.getText().toString();
                 String nameAut = nameAutomatText.getText().toString() + " " + numb_poles;
                 String type_kz = typeKzText.getText().toString();
                 String nominal = nominalText.getText().toString();
@@ -832,16 +1198,23 @@ public class InsulationActivity5 extends AppCompatActivity {
                 String r = rText.getText().toString();
                 String phase = phaseText.getText().toString();
                 String numb = numberEdit.getText().toString();
+                Boolean isBadGroup = false;
+                if (!vvodSwitch.isChecked()) {
+                    if (isIncorrectInput(mark, markLayout) | isIncorrectInput(vein, veinLayout) |
+                        isIncorrectInput(section, sectionLayout) | isIncorrectInput(workU, workULayout) |
+                        isIncorrectInput(phase, phaseLayout) | isIncorrectInput(numb, numbLayout)) {
+                        if ((vein.equals("2") && phase.equals("-")) || (vein.equals("3") && phase.equals("-")))
+                            phaseLayout.setBackgroundResource(R.drawable.incorrect_input);
+                        if (numb.contains(",") && Double.parseDouble(numb.replace(",",".")) > 1)
+                            numbLayout.setBackgroundResource(R.drawable.incorrect_input);
+                        isBadGroup = true;
+                    }
+                }
                 //ПРОВЕРКА НА ВВОД ВСЕХ ДАННЫХ
                 if (isIncorrectInput(nameAutomatText.getText().toString(), nameAutomatLayout) |
-                        isIncorrectInput(type_kz, typeKzLayout) | isIncorrectInput(nominal, nominalLayout) |
-                        isIncorrectInput(range, rangeLayout) | isIncorrectInput(mark, markLayout) |
-                        isIncorrectInput(vein, veinLayout) | isIncorrectInput(section, sectionLayout) |
-                        isIncorrectInput(workU, workULayout) | isIncorrectInput(phase, phaseLayout) |
-                        isIncorrectInput(numb, numbLayout) | ((vein.equals("2") && phase.equals("-")) ||
-                        (vein.equals("3") && phase.equals("-")))) {
-                    if ((vein.equals("2") && phase.equals("-")) || (vein.equals("3") && phase.equals("-")))
-                        phaseLayout.setBackgroundResource(R.drawable.incorrect_input);
+                    isIncorrectInput(type_kz, typeKzLayout) | isIncorrectInput(nominal, nominalLayout) |
+                    isIncorrectInput(range, rangeLayout) | isIncorrectInput(symbol, symbolLayout) |
+                    isBadAut | isBadGroup) {
                     AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity5.this);
                     alert.setCancelable(false);
                     alert.setMessage("Заполните все поля!");
@@ -853,19 +1226,112 @@ public class InsulationActivity5 extends AppCompatActivity {
                     alert.show();
                 }
                 else {
-                    if (numb.contains(",") && Double.parseDouble(numb.replace(",",".")) > 1) {
-                        numbLayout.setBackgroundResource(R.drawable.incorrect_input);
-                        AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity5.this);
-                        alert.setCancelable(false);
-                        alert.setMessage("Число не может быть дробным, если оно больше единицы!");
-                        alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-
-                            }
-                        });
-                        alert.show();
+                    // ПРОВЕРКА ЭТАЖЕЙ, КОМНАТ И ЩИТОВ В ДИФ/ОБЫЧН. АВТОМАТАХ
+                    int f_id = checkFloorsInAutomatItem(database, nameFloor, autOrDifAutSwitch.isChecked());
+                    int r_id = checkRoomsInAutomatItem(database, nameRoom, f_id, autOrDifAutSwitch.isChecked());
+                    int l_id = checkLinesInAutomatItem(database, nameLine, r_id, autOrDifAutSwitch.isChecked());
+                    // ЕСЛИ ВНОСИМ ИЗМЕНЕНИЯ, ТО ДОСТАЁМ АЙДИ АВТОМАТА
+                    int idAutomat = 0;
+                    if (isChange) {
+                        Cursor cursor30 = database.query(DBHelper.TABLE_GROUPS, new String[] {
+                                DBHelper.GR_AUT_ID}, "_id = ?", new String[] {String.valueOf(idGroup)}, null, null, null);
+                        if (cursor30.moveToFirst()) {
+                            int idIndex = cursor30.getColumnIndex(DBHelper.GR_AUT_ID);
+                            idAutomat = cursor30.getInt(idIndex);
+                        }
+                        cursor30.close();
+                    }
+                    else if (isNewSubgroup) {
+                        Cursor cursor30 = database.query(DBHelper.TABLE_GROUPS, new String[] {
+                                DBHelper.GR_AUT_ID}, "_id = ?", new String[] {String.valueOf(idSubgroup)}, null, null, null);
+                        if (cursor30.moveToFirst()) {
+                            int idIndex = cursor30.getColumnIndex(DBHelper.GR_AUT_ID);
+                            idAutomat = cursor30.getInt(idIndex);
+                        }
+                        cursor30.close();
+                    }
+                    // ДОБАВЛЯЕМ ДИФ./ОБЫЧН. АВТОМАТ
+                    if (autOrDifAutSwitch.isChecked()) {
+                        String type_switch = type_kz + " " + nominal;
+                        String i_extra = getI_Extra(iNomDiff);
+                        String time_extra = getTimeExtra(uDiff);
+                        //УДАЛИМ НАШ АППАРАТ, ЕСЛИ МЫ ВНОСИМ ИЗМЕНЕНИЯ, А НЕ СОЗДАЕМ НОВЫЙ
+                        if (isChange || isNewSubgroup)
+                            database.delete(DBHelper.TABLE_DIF_AUTOMATICS, "_id = ?", new String[]{String.valueOf(idAutomat)});
+                        //СОЗДАЕМ НОВУЮ ЗАПИСЬ
+                        ContentValues contentValues = new ContentValues();
+                        if (isChange || isNewSubgroup)
+                            contentValues.put(DBHelper.DIF_AU_ID, idAutomat);
+                        contentValues.put(DBHelper.DIF_AU_ID_ALINE, l_id);
+                        contentValues.put(DBHelper.DIF_AU_PLACE, symbol);
+                        contentValues.put(DBHelper.DIF_AU_UZO, uzoDiff);
+                        contentValues.put(DBHelper.DIF_AU_TYPE_SWITCH, type_switch);
+                        contentValues.put(DBHelper.DIF_AU_U, uDiff);
+                        contentValues.put(DBHelper.DIF_AU_SET_THERMAL, "-");
+                        contentValues.put(DBHelper.DIF_AU_SET_ELECTR_MAGN, range);
+                        contentValues.put(DBHelper.DIF_AU_CHECK_TEST_TOK, "-");
+                        contentValues.put(DBHelper.DIF_AU_CHECK_TIME_, "-");
+                        contentValues.put(DBHelper.DIF_AU_CHECK_WORK_TOK, "-");
+                        contentValues.put(DBHelper.DIF_AU_I_NOM, iNomDiff);
+                        contentValues.put(DBHelper.DIF_AU_I_LEAK, "-");
+                        contentValues.put(DBHelper.DIF_AU_I_EXTRA, i_extra);
+                        contentValues.put(DBHelper.DIF_AU_I_MEASURED, "Нет");
+                        contentValues.put(DBHelper.DIF_AU_TIME_EXTRA, time_extra);
+                        contentValues.put(DBHelper.DIF_AU_TIME_MEASURED, "Нет");
+                        contentValues.put(DBHelper.DIF_AU_CONCLUSION, "Нет");
+                        database.insert(DBHelper.TABLE_DIF_AUTOMATICS, null, contentValues);
                     }
                     else {
+                        String set_overload = getOverloadSet(nominal);
+                        String test_tok = getTestTok(set_overload);
+                        String time_measured = getTimeMeasured(nominal);
+                        String time_permissible = getTimePermissible(nominal);
+                        String tok_work = getTokWork(range);
+                        String time_work = getTimeWork(numb_poles);
+                        String conclusion = getConclusion(time_permissible, time_measured, range, tok_work);
+                        //УДАЛИМ НАШ АППАРАТ, ЕСЛИ МЫ ВНОСИМ ИЗМЕНЕНИЯ, А НЕ СОЗДАЕМ НОВЫЙ
+                        if (isChange || isNewSubgroup)
+                            database.delete(DBHelper.TABLE_AUTOMATICS, "_id = ?", new String[]{String.valueOf(idAutomat)});
+                        //СОЗДАЕМ НОВУЮ ЗАПИСЬ
+                        ContentValues contentValues = new ContentValues();
+                        if (isChange || isNewSubgroup)
+                            contentValues.put(DBHelper.AU_ID, idAutomat);
+                        contentValues.put(DBHelper.AU_ID_ALINE, l_id);
+                        contentValues.put(DBHelper.AU_PLACE, place);
+                        contentValues.put(DBHelper.AU_SYMBOL_SCHEME, symbol);
+                        contentValues.put(DBHelper.AU_NAME, nameAut);
+                        contentValues.put(DBHelper.AU_TYPE_OVERLOAD, typeOverload);
+                        contentValues.put(DBHelper.AU_TYPE_KZ, type_kz);
+                        contentValues.put(DBHelper.AU_EXCERPT, "-");
+                        contentValues.put(DBHelper.AU_NOMINAL_1, nomApp);
+                        contentValues.put(DBHelper.AU_NOMINAL_2, nominal);
+                        contentValues.put(DBHelper.AU_SET_OVERLOAD, set_overload);
+                        contentValues.put(DBHelper.AU_SET_KZ, range);
+                        contentValues.put(DBHelper.AU_TEST_TOK, test_tok);
+                        contentValues.put(DBHelper.AU_TIME_PERMISSIBLE, time_permissible);
+                        contentValues.put(DBHelper.AU_TIME_MEASURED, time_measured);
+                        contentValues.put(DBHelper.AU_LENGTH_ANNEX, "1,6");
+                        contentValues.put(DBHelper.AU_TOK_WORK, tok_work);
+                        contentValues.put(DBHelper.AU_TIME_WORK, time_work);
+                        contentValues.put(DBHelper.AU_CONCLUSION, conclusion);
+                        database.insert(DBHelper.TABLE_AUTOMATICS, null, contentValues);
+                    }
+                    // ЕСЛИ АВТОМАТ НЕ ВВОДНОЙ, ТО ДОБАВЛЯЕМ ГРУППУ
+                    if (!vvodSwitch.isChecked()) {
+                        String aut_type;
+                        if (autOrDifAutSwitch.isChecked())
+                            aut_type = "dif_aut";
+                        else
+                            aut_type = "normal_aut";
+                        // ДОСТАЁМ АЙДИ ДОБАВЛЕННОГО АВТОМАТА
+                        if (!isChange && !isNewSubgroup) {
+                            Cursor cursor3 = database.rawQuery("SELECT last_insert_rowid() as _id", new String[]{});
+                            if (cursor3.moveToFirst()) {
+                                int idIndex = cursor3.getColumnIndex("_id");
+                                idAutomat = cursor3.getInt(idIndex);
+                            }
+                            cursor3.close();
+                        }
                         //УДАЛИМ НАШУ ГРУППУ, ЕСЛИ МЫ ВНОСИМ ИЗМЕНЕНИЯ, А НЕ СОЗДАЕМ НОВУЮ
                         if (isChange)
                             database.delete(DBHelper.TABLE_GROUPS, "_id = ?", new String[]{String.valueOf(idGroup)});
@@ -898,6 +1364,8 @@ public class InsulationActivity5 extends AppCompatActivity {
                             contentValues.put(DBHelper.GR_C_PE, "-");
                             contentValues.put(DBHelper.GR_N_PE, "-");
                             contentValues.put(DBHelper.GR_CONCLUSION, "-");
+                            contentValues.put(DBHelper.GR_AUT_TYPE, aut_type);
+                            contentValues.put(DBHelper.GR_AUT_ID, idAutomat);
                             database.insert(DBHelper.TABLE_GROUPS, null, contentValues);
                         } else {
                             //ЗАПОЛНЕНИЕ НОВОЙ СТРОКИ
@@ -921,6 +1389,8 @@ public class InsulationActivity5 extends AppCompatActivity {
                                 contentValues.put(DBHelper.GR_CONCLUSION, "соответст.");
                             else
                                 contentValues.put(DBHelper.GR_CONCLUSION, "не соотв.");
+                            contentValues.put(DBHelper.GR_AUT_TYPE, aut_type);
+                            contentValues.put(DBHelper.GR_AUT_ID, idAutomat);
                             //2 ЖИЛЫ
                             if (vein.equals("2")) {
                                 contentValues.put(DBHelper.GR_A_B, "-");
@@ -1013,24 +1483,31 @@ public class InsulationActivity5 extends AppCompatActivity {
                             }
                             database.insert(DBHelper.TABLE_GROUPS, null, contentValues);
                         }
-                        if (stopIndexSwap != -1 && currentIndexSwap != -1)
-                            swapGroups(stopIndexSwap, currentIndexSwap);
-                        Toast toast2 = Toast.makeText(getApplicationContext(),
-                                "Данные сохранены", Toast.LENGTH_SHORT);
-                        toast2.show();
-                        //ПЕРЕХОД К СПИСКАМ ГРУПП
-                        Intent intent = new Intent("android.intent.action.Insulation4");
-                        intent.putExtra("nameFloor", nameFloor);
-                        intent.putExtra("idFloor", idFloor);
-                        intent.putExtra("nameRoom", nameRoom);
-                        intent.putExtra("idRoom", idRoom);
-                        intent.putExtra("nameLine", nameLine);
-                        intent.putExtra("idLine", idLine);
-                        startActivity(intent);
                     }
+                    if (stopIndexSwap != -1 && currentIndexSwap != -1)
+                        swapGroups(stopIndexSwap, currentIndexSwap);
+                    Toast toast2 = Toast.makeText(getApplicationContext(),
+                            "Данные сохранены", Toast.LENGTH_SHORT);
+                    toast2.show();
+                    //ПЕРЕХОД К СПИСКАМ ГРУПП
+                    Intent intent = new Intent("android.intent.action.Insulation4");
+                    intent.putExtra("nameFloor", nameFloor);
+                    intent.putExtra("idFloor", idFloor);
+                    intent.putExtra("nameRoom", nameRoom);
+                    intent.putExtra("idRoom", idRoom);
+                    intent.putExtra("nameLine", nameLine);
+                    intent.putExtra("idLine", idLine);
+                    startActivity(intent);
                 }
             }
         });
+    }
+
+    // АППАРАТНОЕ НАЗАД
+    @Override
+    public void onBackPressed() {
+        changeNameSubgroup();
+        super.onBackPressed();
     }
 
     //НА ГЛАВНУЮ
@@ -1045,6 +1522,7 @@ public class InsulationActivity5 extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                changeNameSubgroup();
                 Intent intent = new Intent("android.intent.action.Insulation4");
                 intent.putExtra("nameFloor", nameFloor);
                 intent.putExtra("idFloor", idFloor);
@@ -1055,11 +1533,23 @@ public class InsulationActivity5 extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             case R.id.action_main:
+                changeNameSubgroup();
                 Intent intent1 = new Intent(InsulationActivity5.this, MenuItemsActivity.class);
                 startActivity(intent1);
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    void changeNameSubgroup() {
+        if (nameGroup.contains("/2")) {
+            ContentValues uppname = new ContentValues();
+            uppname.put(DBHelper.GR_NAME, "Гр " + nameGroup.substring(8, nameGroup.indexOf("/")));
+            database.update(DBHelper.TABLE_GROUPS,
+                    uppname,
+                    "_id = ?",
+                    new String[]{String.valueOf(idSubgroup)});
+        }
     }
 
     boolean isIncorrectInput(String data, LinearLayout layout) {
@@ -1147,19 +1637,262 @@ public class InsulationActivity5 extends AppCompatActivity {
         }
     }
 
+    public int checkFloorsInAutomatItem(SQLiteDatabase db, String floor, Boolean isDif) {
+        int f_id = 0;
+        if (isDif) {
+            Cursor cursor1 = db.rawQuery("SELECT _id, dif_au_floor FROM dif_au_floors WHERE dif_au_floor = ?", new String[] { floor });
+            if (cursor1.moveToFirst()) {
+                int idIndex = cursor1.getColumnIndex("_id");
+                f_id = cursor1.getInt(idIndex);
+            }
+            else {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(DBHelper.DIF_AU_FL_NAME, floor);
+                db.insert(DBHelper.TABLE_DIF_AU_FLOORS, null, contentValues);
+                Cursor cursor2 = db.rawQuery("SELECT last_insert_rowid() as _id", new String[] { });
+                if (cursor2.moveToFirst()) {
+                    int idIndex = cursor2.getColumnIndex("_id");
+                    f_id = cursor2.getInt(idIndex);
+                }
+                cursor2.close();
+            }
+            cursor1.close();
+        }
+        else {
+            Cursor cursor1 = db.rawQuery("SELECT _id, au_floor FROM au_floors WHERE au_floor = ?", new String[] { floor });
+            if (cursor1.moveToFirst()) {
+                int idIndex = cursor1.getColumnIndex("_id");
+                f_id = cursor1.getInt(idIndex);
+            }
+            else {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(DBHelper.AU_FL_NAME, floor);
+                db.insert(DBHelper.TABLE_AU_FLOORS, null, contentValues);
+                Cursor cursor2 = db.rawQuery("SELECT last_insert_rowid() as _id", new String[] { });
+                if (cursor2.moveToFirst()) {
+                    int idIndex = cursor2.getColumnIndex("_id");
+                    f_id = cursor2.getInt(idIndex);
+                }
+                cursor2.close();
+            }
+            cursor1.close();
+        }
+        return f_id;
+    }
+
+    public int checkRoomsInAutomatItem(SQLiteDatabase db, String room, int f_id, Boolean isDif) {
+        int r_id = 0;
+        if (isDif) {
+            Cursor cursor1 = db.rawQuery("SELECT _id, dif_au_room FROM dif_au_rooms WHERE dif_au_room = ?", new String[] { room });
+            if (cursor1.moveToFirst()) {
+                int idIndex = cursor1.getColumnIndex("_id");
+                r_id = cursor1.getInt(idIndex);
+            }
+            else {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(DBHelper.DIF_AU_ROOM_NAME, room);
+                contentValues.put(DBHelper.DIF_AU_ID_RFLOOR, f_id);
+                db.insert(DBHelper.TABLE_DIF_AU_ROOMS, null, contentValues);
+                Cursor cursor2 = db.rawQuery("SELECT last_insert_rowid() as _id", new String[] { });
+                if (cursor2.moveToFirst()) {
+                    int idIndex = cursor2.getColumnIndex("_id");
+                    r_id = cursor2.getInt(idIndex);
+                }
+                cursor2.close();
+            }
+            cursor1.close();
+        }
+        else {
+            Cursor cursor1 = db.rawQuery("SELECT _id, au_room FROM au_rooms WHERE au_room = ?", new String[] { room });
+            if (cursor1.moveToFirst()) {
+                int idIndex = cursor1.getColumnIndex("_id");
+                r_id = cursor1.getInt(idIndex);
+            }
+            else {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(DBHelper.AU_ROOM_NAME, room);
+                contentValues.put(DBHelper.AU_ID_RFLOOR, f_id);
+                db.insert(DBHelper.TABLE_AU_ROOMS, null, contentValues);
+                Cursor cursor2 = db.rawQuery("SELECT last_insert_rowid() as _id", new String[] { });
+                if (cursor2.moveToFirst()) {
+                    int idIndex = cursor2.getColumnIndex("_id");
+                    r_id = cursor2.getInt(idIndex);
+                }
+                cursor2.close();
+            }
+            cursor1.close();
+        }
+        return r_id;
+    }
+
+    public int checkLinesInAutomatItem(SQLiteDatabase db, String line, int r_id, Boolean isDif) {
+        int l_id = 0;
+        if (isDif) {
+            Cursor cursor1 = db.rawQuery("SELECT _id, dif_au_line FROM dif_au_lines WHERE dif_au_line = ?", new String[] { line });
+            if (cursor1.moveToFirst()) {
+                int idIndex = cursor1.getColumnIndex("_id");
+                l_id = cursor1.getInt(idIndex);
+            }
+            else {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(DBHelper.DIF_AU_LINE_NAME, line);
+                contentValues.put(DBHelper.DIF_AU_ID_LROOM, r_id);
+                db.insert(DBHelper.TABLE_DIF_AU_LINES, null, contentValues);
+                Cursor cursor2 = db.rawQuery("SELECT last_insert_rowid() as _id", new String[] { });
+                if (cursor2.moveToFirst()) {
+                    int idIndex = cursor2.getColumnIndex("_id");
+                    l_id = cursor2.getInt(idIndex);
+                }
+                cursor2.close();
+            }
+            cursor1.close();
+        }
+        else {
+            Cursor cursor1 = db.rawQuery("SELECT _id, au_line FROM au_lines WHERE au_line = ?", new String[] { line });
+            if (cursor1.moveToFirst()) {
+                int idIndex = cursor1.getColumnIndex("_id");
+                l_id = cursor1.getInt(idIndex);
+            }
+            else {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(DBHelper.AU_LINE_NAME, line);
+                contentValues.put(DBHelper.AU_ID_LROOM, r_id);
+                db.insert(DBHelper.TABLE_AU_LINES, null, contentValues);
+                Cursor cursor2 = db.rawQuery("SELECT last_insert_rowid() as _id", new String[] { });
+                if (cursor2.moveToFirst()) {
+                    int idIndex = cursor2.getColumnIndex("_id");
+                    l_id = cursor2.getInt(idIndex);
+                }
+                cursor2.close();
+            }
+            cursor1.close();
+        }
+        return l_id;
+    }
+
+    String getI_Extra(String x) {
+        String i_extra = "";
+        switch (x) {
+            case "30":
+                i_extra = "15" + '\u003C' + "I" + '\u2264' + "30";
+                break;
+            case "100":
+                i_extra = "50" + '\u003C' + "I" + '\u2264' + "100";
+                break;
+            case "300":
+                i_extra = "150" + '\u003C' + "I" + '\u2264' + "300";
+                break;
+        }
+        return i_extra;
+    }
+
+    String getTimeExtra(String x) {
+        if (x.equals("220"))
+            return "0,4";
+        return "0,2";
+    }
+
+    public String getOverloadSet(String s) {
+        BigDecimal overDecimal = new BigDecimal(s);
+        BigDecimal k = new BigDecimal("2.55");
+        BigDecimal result = overDecimal.multiply(k).setScale(1, ROUND_HALF_UP);
+        String overString = result.toString();
+        if (overString.contains("0") && overString.indexOf('0', overString.indexOf('.')) == overString.length() - 1)
+            return overString.substring(0, overString.indexOf('.'));
+        return overString.replace('.',',');
+    }
+
+    public String getTestTok(String numb) {
+        String xStr, yStr;
+        BigDecimal y;
+        BigDecimal k1 = new BigDecimal("2.5");
+        BigDecimal k2 = new BigDecimal("7.5");
+        if (numb.contains(",")) {
+            numb = numb.replace(',', '.');
+            xStr = numb.substring(0,numb.indexOf('.') - 1);
+            yStr = numb.substring(numb.indexOf('.') - 1, numb.length());
+        } else {
+            xStr = numb.substring(0, numb.length() - 1);
+            yStr = numb.substring(numb.length() - 1, numb.length());
+        }
+        y = new BigDecimal(yStr);
+        if (y.compareTo(k1) < 0)
+            return xStr + "0";
+        if (y.compareTo(k2) > 0)
+            return String.valueOf(Integer.parseInt(xStr) + 1) + "0";
+        return xStr + "5";
+    }
+
+    public String getTimeMeasured(String s) {
+        int num = Integer.parseInt(s);
+        Random generator = new Random();
+        if (num <= 32)
+            return String.valueOf(generator.nextInt(21) + 30);
+        return String.valueOf(generator.nextInt(61) + 30);
+    }
+
+    public String getTimePermissible(String numb) {
+        int num = Integer.parseInt(numb);
+        if (num <= 32)
+            return "60";
+        return "120";
+    }
+
+    public String getTokWork(String range) {
+        String numb;
+        if (range.contains(">"))
+            numb = range.substring(1);
+        else
+            numb = range.substring(range.indexOf("-") + 1);
+        int x = Integer.parseInt(numb);
+        Random generator = new Random();
+        if (range.contains(">"))
+            return String.valueOf(x + ((generator.nextInt(3) + 1) * 10));
+        return String.valueOf(x - ((generator.nextInt(3) + 1) * 10));
+    }
+
+    public String getTimeWork(String name) {
+        Random generator = new Random();
+        if (name.contains("3P"))
+            return "0," + String.valueOf(generator.nextInt(8) + 12);
+        return "0," + String.valueOf(generator.nextInt(28) + 12);
+    }
+
+    public String getConclusion(String numb1, String numb2, String diapazon, String tok_w) {
+        String concl = "не соотв.";
+        if (diapazon.contains(">")){
+            int numb = Integer.parseInt(diapazon.substring(1));
+            if ((Integer.parseInt(numb2) < Integer.parseInt(numb1)) && (numb > Integer.parseInt(tok_w)))
+                concl = "соответст.";
+        }
+        else {
+            int left = Integer.parseInt(diapazon.substring(0, diapazon.indexOf('-')));
+            int right = Integer.parseInt(diapazon.substring(diapazon.indexOf('-') + 1));
+            if ((Integer.parseInt(numb2) < Integer.parseInt(numb1)) && (left <= Integer.parseInt(tok_w)) && (right >= Integer.parseInt(tok_w)))
+                concl = "соответст.";
+        }
+        return concl;
+    }
+
     public String getRandomNumber(String x) {
         if (x.contains(","))
             return x;
         int oldNumb = Integer.parseInt(x);
         int random = 0;
         Random generator = new Random();
-        if (oldNumb < 300)
+        if (oldNumb <= 20)
             random = oldNumb;
+        if (20 < oldNumb && oldNumb <= 50)
+            random = (generator.nextInt(7) - 3) * 5 + oldNumb;
+        if (50 < oldNumb && oldNumb <= 100)
+            random = (generator.nextInt(11) - 5) * 10 + oldNumb;
+        if (100 < oldNumb && oldNumb < 300)
+            random = (generator.nextInt(21) - 10) * 10 + oldNumb;
         if (300 <= oldNumb && oldNumb < 500)
             random = (generator.nextInt(9) - 4) * 50 + oldNumb;
         if (500 <= oldNumb && oldNumb < 1000)
             random = (generator.nextInt(5) - 2) * 100 + oldNumb;
-        if (1000 <= oldNumb && oldNumb < 3000 )
+        if (1000 <= oldNumb && oldNumb < 3000)
             random = (generator.nextInt(9) - 4) * 100 + oldNumb;
         if (3000 <= oldNumb)
             random = (generator.nextInt(11) - 5) * 200 + oldNumb;
@@ -1176,7 +1909,7 @@ public class InsulationActivity5 extends AppCompatActivity {
                 if (arr[i].equals(num))
                     count++;
             }
-            if (count == arr.length && Integer.parseInt(num) >= 300)
+            if (count == arr.length && Integer.parseInt(num) > 20)
                 pushArray(arr, num);
         }
     }

@@ -27,7 +27,7 @@
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
-        android:layout_height="170dp"
+        android:layout_height="260dp"
         android:layout_marginStart="15dp"
         android:layout_marginLeft="15dp"
         android:layout_marginEnd="15dp"
@@ -48,15 +48,26 @@
                 android:text="Добавить заземлитель"
                 android:textColor="@color/fon" />
 
-        <Button
-            android:id="@+id/button32"
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginTop="10dp"
-            android:textColor="@color/fon"
-            android:background="@drawable/new_buttons"
-            android:textAllCaps="false"
-            android:textSize="17sp"
-            android:text="Создать PDF" />
+            <Button
+                android:id="@+id/button32"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/fon"
+                android:background="@drawable/new_buttons"
+                android:textAllCaps="false"
+                android:textSize="17sp"
+                android:text="Создать PDF" />
+
+            <Button
+                android:id="@+id/button10"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/fon"
+                android:background="@drawable/extra_button"
+                android:textAllCaps="false"
+                android:textSize="17sp"
+                android:text="Готово" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

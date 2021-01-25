@@ -40,11 +40,12 @@ public class AutomaticsActivity2 extends AppCompatActivity {
         TextView floor = findViewById(R.id.textView6);
         final ListView rooms = findViewById(R.id.rooms);
         Button addRoom = findViewById(R.id.button9);
+        Button back_btn = findViewById(R.id.button10);
         final String nameFloor = getIntent().getStringExtra("nameFloor");
         final int idFloor = getIntent().getIntExtra("idFloor", 0);
 
         //НАСТРАИВАЕМ ACTIONBAR
-        getSupportActionBar().setSubtitle("Комнаты");
+        getSupportActionBar().setSubtitle("Помещения");
         getSupportActionBar().setTitle("Автомат. выключатели");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -61,7 +62,7 @@ public class AutomaticsActivity2 extends AppCompatActivity {
                 AlertDialog.Builder alert = new AlertDialog.Builder(AutomaticsActivity2.this);
                 final View myView = getLayoutInflater().inflate(R.layout.dialog_for_marks,null);
                 alert.setCancelable(false);
-                alert.setTitle("Введите название комнаты:");
+                alert.setTitle("Введите название помещения:");
                 final AutoCompleteTextView input = myView.findViewById(R.id.autoCompleteTextView3);
                 ImageView arrow = myView.findViewById(R.id.imageView4);
                 //ОТОБРАЖЕНИЕ ВЫПЛЫВАЮЩЕГО СПИСКА
@@ -92,7 +93,7 @@ public class AutomaticsActivity2 extends AppCompatActivity {
                             database.insert(DBHelper.TABLE_LIBRARY_ROOMS, null, newName);
                         }
                         Toast toast = Toast.makeText(getApplicationContext(),
-                                "Комната <" + nameRoom + "> добавлена", Toast.LENGTH_SHORT);
+                                "Помещение <" + nameRoom + "> добавлено", Toast.LENGTH_SHORT);
                         toast.show();
                     }
                 });
@@ -112,7 +113,7 @@ public class AutomaticsActivity2 extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, final View view, final int position, final long id) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(AutomaticsActivity2.this);
                 alert.setTitle(((TextView) view).getText());
-                String arrayMenu[] = {"\nПерейти к щитам\n", "\nИзменить название\n", "\nУдалить комнату\n"};
+                String arrayMenu[] = {"\nПерейти к щитам\n", "\nИзменить название\n", "\nУдалить помещение\n"};
                 alert.setItems(arrayMenu, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -139,7 +140,7 @@ public class AutomaticsActivity2 extends AppCompatActivity {
                             AlertDialog.Builder alert1 = new AlertDialog.Builder(AutomaticsActivity2.this);
                             final View myView = getLayoutInflater().inflate(R.layout.dialog_for_marks,null);
                             alert1.setCancelable(false);
-                            alert1.setTitle("Введите новое название комнаты:");
+                            alert1.setTitle("Введите новое название помещения:");
                             final AutoCompleteTextView input = myView.findViewById(R.id.autoCompleteTextView3);
                             ImageView arrow = myView.findViewById(R.id.imageView4);
                             input.setText(((TextView) view).getText().toString());
@@ -206,7 +207,7 @@ public class AutomaticsActivity2 extends AppCompatActivity {
                                     //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА КОМНАТ
                                     addSpisokRooms(database, rooms, idFloor);
                                     Toast toast2 = Toast.makeText(getApplicationContext(),
-                                            "Комната <" + ((TextView) view).getText() + "> удалена", Toast.LENGTH_SHORT);
+                                            "Помещение <" + ((TextView) view).getText() + "> удалено", Toast.LENGTH_SHORT);
                                     toast2.show();
                                 }
                             });
@@ -215,13 +216,22 @@ public class AutomaticsActivity2 extends AppCompatActivity {
 
                                 }
                             });
-                            builder4.setMessage("Вы точно хотите удалить комнату <" + ((TextView) view).getText() + ">?");
+                            builder4.setMessage("Вы точно хотите удалить помещение <" + ((TextView) view).getText() + ">?");
                             AlertDialog dialog4 = builder4.create();
                             dialog4.show();
                         }
                     }
                 });
                 alert.show();
+            }
+        });
+
+        //ГОТОВО
+        back_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent("android.intent.action.Automatics1");
+                startActivity(intent);
             }
         });
     }

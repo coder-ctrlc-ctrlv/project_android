@@ -867,11 +867,19 @@ public class AutomaticsActivity5 extends AppCompatActivity {
     }
 
     public String getConclusion(String numb1, String numb2, String diapazon, String tok_w) {
-        int left = Integer.parseInt(diapazon.substring(0, diapazon.indexOf('-')));
-        int right = Integer.parseInt(diapazon.substring(diapazon.indexOf('-') + 1));
-        if ((Integer.parseInt(numb2) < Integer.parseInt(numb1)) && (left <= Integer.parseInt(tok_w)) && (right >= Integer.parseInt(tok_w)))
-            return "соответст.";
-        return "не соотв.";
+        String concl = "не соотв.";
+        if (diapazon.contains(">")){
+            int numb = Integer.parseInt(diapazon.substring(1));
+            if ((Integer.parseInt(numb2) < Integer.parseInt(numb1)) && (numb > Integer.parseInt(tok_w)))
+                concl = "соответст.";
+        }
+        else {
+            int left = Integer.parseInt(diapazon.substring(0, diapazon.indexOf('-')));
+            int right = Integer.parseInt(diapazon.substring(diapazon.indexOf('-') + 1));
+            if ((Integer.parseInt(numb2) < Integer.parseInt(numb1)) && (left <= Integer.parseInt(tok_w)) && (right >= Integer.parseInt(tok_w)))
+                concl = "соответст.";
+        }
+        return concl;
     }
 
     void openKeyboard() {

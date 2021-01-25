@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -43,6 +44,7 @@ public class LibraryActivity extends AppCompatActivity {
 
         filter = findViewById(R.id.userFilter);
         library_items = findViewById(R.id.userList);
+        Button back_btn = findViewById(R.id.button10);
         final String lib = getIntent().getStringExtra("lib");
 
         //НАСТРАИВАЕМ ACTIONBAR
@@ -55,7 +57,7 @@ public class LibraryActivity extends AppCompatActivity {
         if (lib.equals("marks"))
             getSupportActionBar().setSubtitle("Марки");
         if (lib.equals("rooms"))
-            getSupportActionBar().setSubtitle("Комнаты");
+            getSupportActionBar().setSubtitle("Помещения");
         if (lib.equals("lines"))
             getSupportActionBar().setSubtitle("Щиты");
         if (lib.equals("floors"))
@@ -221,6 +223,15 @@ public class LibraryActivity extends AppCompatActivity {
                     }
                 });
                 alert.show();
+            }
+        });
+
+        //ГОТОВО
+        back_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LibraryActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
     }

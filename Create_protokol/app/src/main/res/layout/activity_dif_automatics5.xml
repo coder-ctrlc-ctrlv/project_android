@@ -135,7 +135,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Тип авт. выключателя:"
+                        android:text="Тип расц. авт. выкл.:"
                         android:textColor="@color/text"
                         android:textSize="20sp" />
 
@@ -379,7 +379,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
                 android:layout_marginBottom="20dp"
-                android:background="@drawable/extra_button"
+                android:background="@drawable/dark_buttons_gradient"
                 android:textAllCaps="false"
                 android:textSize="17sp"
                 android:text="Показать дополнительные данные"
@@ -645,10 +645,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
                 android:layout_marginBottom="30dp"
-                android:background="@drawable/new_buttons"
+                android:background="@drawable/extra_button"
                 android:textAllCaps="false"
                 android:textSize="17sp"
-                android:text="Сохранить"
+                android:text="Готово"
                 android:textColor="@color/fon" />
 
         </LinearLayout>

@@ -56,6 +56,7 @@ public class RoomElementActivity1 extends AppCompatActivity {
         final ListView floors = findViewById(R.id.floors);
         Button addFloor = findViewById(R.id.button9);
         Button pdf = findViewById(R.id.button8);
+        Button back_btn = findViewById(R.id.button10);
 
         //НАСТРАИВАЕМ ACTIONBAR
         getSupportActionBar().setSubtitle("Этажи");
@@ -298,6 +299,15 @@ public class RoomElementActivity1 extends AppCompatActivity {
             }
         });
 
+        //ГОТОВО
+        back_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(RoomElementActivity1.this, MenuItemsActivity.class);
+                startActivity(intent);
+            }
+        });
+
         //НАСТРОЙКА PDF
 //        optionsPdf.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -526,7 +536,10 @@ public class RoomElementActivity1 extends AppCompatActivity {
         final ArrayList<String> NZ = new ArrayList<>();
 
         //ЗАПРОС НА СПИСОК ЭТАЖЕЙ И КОЛ-ВО КОМНАТ
-        Cursor cursor = database.rawQuery("SELECT floor, count(*) AS count_rooms FROM floors AS f JOIN rooms AS r ON f._id = r.rfl_id GROUP BY f._id ORDER BY f._id, r._id", new String[] { });
+        Cursor cursor = database.rawQuery("SELECT floor, count(*) AS count_rooms FROM floors AS f " +
+                "JOIN rooms AS r ON f._id = r.rfl_id AND r._id IN (" +
+                "SELECT room_id FROM elements GROUP BY room_id" +
+                ") GROUP BY f._id ORDER BY f._id, r._id", new String[] { });
         if (cursor.moveToFirst()) {
             int nameFloorIndex = cursor.getColumnIndex(DBHelper.FL_NAME);
             int countRoomIndex = cursor.getColumnIndex("count_rooms");

@@ -43,6 +43,7 @@ public class DifAutomaticsActivity3 extends AppCompatActivity {
         TextView room = findViewById(R.id.textView7);
         final ListView listLines = findViewById(R.id.lines);
         Button addLine = findViewById(R.id.button9);
+        Button back_btn = findViewById(R.id.button10);
         nameFloor = getIntent().getStringExtra("nameFloor");
         idFloor = getIntent().getIntExtra("idFloor", 0);
         final String nameRoom = getIntent().getStringExtra("nameRoom");
@@ -55,7 +56,7 @@ public class DifAutomaticsActivity3 extends AppCompatActivity {
 
         //ВЫВОД ЭТАЖА И КОМНАТЫ
         floor.setText("Этаж: " + nameFloor);
-        room.setText("Комната: " + nameRoom);
+        room.setText("Помещение: " + nameRoom);
 
         //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЩИТОВ
         addSpisokLines(database, listLines, idRoom);
@@ -223,6 +224,17 @@ public class DifAutomaticsActivity3 extends AppCompatActivity {
                     }
                 });
                 alert.show();
+            }
+        });
+
+        //ГОТОВО
+        back_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent("android.intent.action.DifAutomatics2");
+                intent.putExtra("nameFloor", nameFloor);
+                intent.putExtra("idFloor", idFloor);
+                startActivity(intent);
             }
         });
     }

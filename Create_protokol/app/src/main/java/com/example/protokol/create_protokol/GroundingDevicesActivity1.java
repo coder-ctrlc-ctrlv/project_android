@@ -64,6 +64,7 @@ public class GroundingDevicesActivity1 extends AppCompatActivity {
         final ListView devices = findViewById(R.id.Devices);
         Button addDevice = findViewById(R.id.button34);
         Button pdf = findViewById(R.id.button32);
+        Button back_btn = findViewById(R.id.button10);
 
         //НАСТРАИВАЕМ ACTIONBAR
         getSupportActionBar().setSubtitle("Заземлители");
@@ -275,6 +276,15 @@ public class GroundingDevicesActivity1 extends AppCompatActivity {
                 builder1.setMessage("Хотите просто посмотреть файл или же открыть с дальнейшим сохранением?");
                 AlertDialog dialog1 = builder1.create();
                 dialog1.show();
+            }
+        });
+
+        //ГОТОВО
+        back_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GroundingDevicesActivity1.this, MenuItemsActivity.class);
+                startActivity(intent);
             }
         });
     }

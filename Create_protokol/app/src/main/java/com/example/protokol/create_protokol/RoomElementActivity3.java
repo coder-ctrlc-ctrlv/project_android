@@ -46,6 +46,7 @@ public class RoomElementActivity3 extends AppCompatActivity {
         TextView room = findViewById(R.id.textView7);
         final ListView listElements = findViewById(R.id.elements);
         Button addElement = findViewById(R.id.button9);
+        Button back_btn = findViewById(R.id.button10);
         nameFloor = getIntent().getStringExtra("nameFloor");
         idFloor = getIntent().getIntExtra("idFloor", 0);
         final String nameRoom = getIntent().getStringExtra("nameRoom");
@@ -58,7 +59,7 @@ public class RoomElementActivity3 extends AppCompatActivity {
 
         //ВЫВОД ЭТАЖА И КОМНАТЫ
         floor.setText("Этаж: " + nameFloor);
-        room.setText("Комната: " + nameRoom);
+        room.setText("Помещение: " + nameRoom);
 
         //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ЭЛЕМЕНТОВ
         addSpisokElements(database, listElements, idRoom);
@@ -218,7 +219,7 @@ public class RoomElementActivity3 extends AppCompatActivity {
                                             contentValues.put(DBHelper.EL_SOPR, r);
                                             contentValues.put(DBHelper.EL_CONCLUSION, concl);
                                             database.insert(DBHelper.TABLE_ELEMENTS, null, contentValues);
-                                            swapElements(listElements.getAdapter().getCount() - position, listElements.getAdapter().getCount() + 1, idRoom, database);
+                                            //swapElements(listElements.getAdapter().getCount() - position, listElements.getAdapter().getCount() + 1, idRoom, database);
                                             addSpisokElements(database, listElements, idRoom);
                                         }
                                         Toast toast = Toast.makeText(getApplicationContext(),
@@ -276,6 +277,17 @@ public class RoomElementActivity3 extends AppCompatActivity {
                     }
                 });
                 alert.show();
+            }
+        });
+
+        //ГОТОВО
+        back_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent("android.intent.action.RoomElement2");
+                intent.putExtra("nameFloor", nameFloor);
+                intent.putExtra("idFloor", idFloor);
+                startActivity(intent);
             }
         });
     }

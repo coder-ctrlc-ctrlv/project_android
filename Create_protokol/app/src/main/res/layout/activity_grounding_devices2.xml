@@ -71,7 +71,7 @@
                             android:layout_marginLeft="8dp"
                             android:layout_marginRight="8dp"
                             android:layout_gravity="center"
-                            android:digits="0123456789"
+                            android:digits="0123456789-"
                             android:hint="\u2103"
                             android:ems="10"
                             android:gravity="center"
@@ -594,10 +594,10 @@
                 android:layout_height="70dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="30dp"
-                android:background="@drawable/new_buttons"
+                android:background="@drawable/extra_button"
                 android:textAllCaps="false"
                 android:textSize="17sp"
-                android:text="Сохранить"
+                android:text="Готово"
                 android:textColor="@color/fon" />
 
         </LinearLayout>

@@ -31,7 +31,7 @@ public class InsulationActivity4 extends AppCompatActivity {
 
     DBHelper dbHelper;
     String nameFloor, nameRoom;
-    int idFloor, idRoom;
+    int idFloor, idRoom, idLine;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +46,13 @@ public class InsulationActivity4 extends AppCompatActivity {
         TextView line = findViewById(R.id.textView7);
         final ListView groups = findViewById(R.id.groups);
         Button addGroup = findViewById(R.id.button9);
+        Button back_btn = findViewById(R.id.button10);
         nameFloor = getIntent().getStringExtra("nameFloor");
         idFloor = getIntent().getIntExtra("idFloor", 0);
         nameRoom = getIntent().getStringExtra("nameRoom");
         idRoom = getIntent().getIntExtra("idRoom", 0);
         final String nameLine = getIntent().getStringExtra("nameLine");
-        final int idLine = getIntent().getIntExtra("idLine", 0);
+        idLine = getIntent().getIntExtra("idLine", 0);
 
         //НАСТРАИВАЕМ ACTIONBAR
         getSupportActionBar().setSubtitle("Группы");
@@ -60,7 +61,7 @@ public class InsulationActivity4 extends AppCompatActivity {
 
         //ВЫВОД КОМНАТЫ И ЩИТА
         floor.setText("Этаж: " + nameFloor);
-        room.setText("Комната: " + nameRoom);
+        room.setText("Помещение: " + nameRoom);
         line.setText("Щит: " + nameLine);
 
         //ЗАПРОС В БД И ЗАПОЛНЕНИЕ СПИСКА ГРУПП
@@ -232,6 +233,8 @@ public class InsulationActivity4 extends AppCompatActivity {
                                 cursor1.close();
                                 nameGroup = "Гр " + String.valueOf(countGroup + 1);
                             }
+                            String aut_type = "";
+                            int aut_id = 0;
                             String nameAu = "", type_kz = "", nominal = "", range = "";
                             String nameMark = "", numberVein = "", numberSection = "", numberWorkU = "", numberU = "", numberR = "", concl = "";
 
@@ -239,7 +242,8 @@ public class InsulationActivity4 extends AppCompatActivity {
                             Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {
                                     DBHelper.GR_AUTOMATIC, DBHelper.GR_TYPE_KZ, DBHelper.GR_NOMINAL, DBHelper.GR_RANGE,
                                     DBHelper.GR_MARK, DBHelper.GR_VEIN, DBHelper.GR_SECTION, DBHelper.GR_U1,
-                                    DBHelper.GR_U2, DBHelper.GR_R, DBHelper.GR_CONCLUSION}, "_id= ?", new String[] {String.valueOf(groupId)}, null, null, null);
+                                    DBHelper.GR_U2, DBHelper.GR_R, DBHelper.GR_CONCLUSION,
+                                    DBHelper.GR_AUT_TYPE, DBHelper.GR_AUT_ID}, "_id = ?", new String[] {String.valueOf(groupId)}, null, null, null);
                             if (cursor.moveToFirst()) {
                                 int nameAuIndex = cursor.getColumnIndex(DBHelper.GR_AUTOMATIC);
                                 int type_kzIndex = cursor.getColumnIndex(DBHelper.GR_TYPE_KZ);
@@ -252,6 +256,8 @@ public class InsulationActivity4 extends AppCompatActivity {
                                 int uIndex = cursor.getColumnIndex(DBHelper.GR_U2);
                                 int rIndex = cursor.getColumnIndex(DBHelper.GR_R);
                                 int conclIndex = cursor.getColumnIndex(DBHelper.GR_CONCLUSION);
+                                int aut_typeIndex = cursor.getColumnIndex(DBHelper.GR_AUT_TYPE);
+                                int aut_idIndex = cursor.getColumnIndex(DBHelper.GR_AUT_ID);
                                 nameAu = cursor.getString(nameAuIndex);
                                 type_kz = cursor.getString(type_kzIndex);
                                 nominal = cursor.getString(nominalIndex);
@@ -263,65 +269,98 @@ public class InsulationActivity4 extends AppCompatActivity {
                                 numberU = cursor.getString(uIndex);
                                 numberR = cursor.getString(rIndex);
                                 concl = cursor.getString(conclIndex);
+                                aut_type = cursor.getString(aut_typeIndex);
+                                aut_id = cursor.getInt(aut_idIndex);
                             }
                             cursor.close();
 
                             //ЕСЛИ ОНА РЕЗЕРВ
                             if (nameMark.equals("резерв")) {
-                                AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
-                                alert.setCancelable(false);
-                                alert.setMessage("Вы точно хотите добавить линию(резерв)?");
                                 final String finalNameAu = nameAu;
                                 final String finalType_kz = type_kz;
                                 final String finalNominal = nominal;
                                 final String finalRange = range;
+                                final int finalAut_id = aut_id;
+                                final String finalAut_type = aut_type;
+                                AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
+                                final View myView2 = getLayoutInflater().inflate(R.layout.dialog_for_names,null);
+                                alert.setCancelable(false);
+                                if (!nameGroup.contains("/")) {
+                                    alert.setTitle("Введите обозначение по схеме:");
+                                    openKeyboard();
+                                }
+                                else
+                                    alert.setMessage("Вы уверены, что хотите повторить резервную подгруппу?");
+                                final EditText symbolEdit = myView2.findViewById(R.id.editText);
                                 alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
-                                        ContentValues contentValues = new ContentValues();
-                                        contentValues.put(DBHelper.GR_LINE_ID, idLine);
-                                        contentValues.put(DBHelper.GR_AUTOMATIC, finalNameAu);
-                                        contentValues.put(DBHelper.GR_TYPE_KZ, finalType_kz);
-                                        contentValues.put(DBHelper.GR_NOMINAL, finalNominal);
-                                        contentValues.put(DBHelper.GR_RANGE, finalRange);
-                                        contentValues.put(DBHelper.GR_NAME, nameGroup);
-                                        contentValues.put(DBHelper.GR_U1, "-");
-                                        contentValues.put(DBHelper.GR_MARK, "резерв");
-                                        contentValues.put(DBHelper.GR_VEIN, "-");
-                                        contentValues.put(DBHelper.GR_SECTION, "-");
-                                        contentValues.put(DBHelper.GR_U2, "-");
-                                        contentValues.put(DBHelper.GR_R, "-");
-                                        contentValues.put(DBHelper.GR_PHASE, "-");
-                                        contentValues.put(DBHelper.GR_A_B, "-");
-                                        contentValues.put(DBHelper.GR_B_C, "-");
-                                        contentValues.put(DBHelper.GR_C_A, "-");
-                                        contentValues.put(DBHelper.GR_A_N, "-");
-                                        contentValues.put(DBHelper.GR_B_N, "-");
-                                        contentValues.put(DBHelper.GR_C_N, "-");
-                                        contentValues.put(DBHelper.GR_A_PE, "-");
-                                        contentValues.put(DBHelper.GR_B_PE, "-");
-                                        contentValues.put(DBHelper.GR_C_PE, "-");
-                                        contentValues.put(DBHelper.GR_N_PE, "-");
-                                        contentValues.put(DBHelper.GR_CONCLUSION, "-");
-                                        database.insert(DBHelper.TABLE_GROUPS, null, contentValues);
-                                        swapGroups(groups.getAdapter().getCount() - position, groups.getAdapter().getCount() + 1, idLine, database);
-                                        addSpisokGroups(database, groups, idLine);
-                                        Toast toast2 = Toast.makeText(getApplicationContext(),
-                                                "Группа добавлена", Toast.LENGTH_SHORT);
-                                        toast2.show();
+                                        closeKeyboard(myView2);
+                                        String sym = symbolEdit.getText().toString();
+                                        if (!sym.equals("") || nameGroup.contains("/")) {
+                                            int newAutId = finalAut_id;
+                                            if (!nameGroup.contains("/"))
+                                                newAutId = addAutomat(database, finalAut_id, finalAut_type, sym);
+                                            ContentValues contentValues = new ContentValues();
+                                            contentValues.put(DBHelper.GR_LINE_ID, idLine);
+                                            contentValues.put(DBHelper.GR_AUTOMATIC, finalNameAu);
+                                            contentValues.put(DBHelper.GR_TYPE_KZ, finalType_kz);
+                                            contentValues.put(DBHelper.GR_NOMINAL, finalNominal);
+                                            contentValues.put(DBHelper.GR_RANGE, finalRange);
+                                            contentValues.put(DBHelper.GR_NAME, nameGroup);
+                                            contentValues.put(DBHelper.GR_U1, "-");
+                                            contentValues.put(DBHelper.GR_MARK, "резерв");
+                                            contentValues.put(DBHelper.GR_VEIN, "-");
+                                            contentValues.put(DBHelper.GR_SECTION, "-");
+                                            contentValues.put(DBHelper.GR_U2, "-");
+                                            contentValues.put(DBHelper.GR_R, "-");
+                                            contentValues.put(DBHelper.GR_PHASE, "-");
+                                            contentValues.put(DBHelper.GR_A_B, "-");
+                                            contentValues.put(DBHelper.GR_B_C, "-");
+                                            contentValues.put(DBHelper.GR_C_A, "-");
+                                            contentValues.put(DBHelper.GR_A_N, "-");
+                                            contentValues.put(DBHelper.GR_B_N, "-");
+                                            contentValues.put(DBHelper.GR_C_N, "-");
+                                            contentValues.put(DBHelper.GR_A_PE, "-");
+                                            contentValues.put(DBHelper.GR_B_PE, "-");
+                                            contentValues.put(DBHelper.GR_C_PE, "-");
+                                            contentValues.put(DBHelper.GR_N_PE, "-");
+                                            contentValues.put(DBHelper.GR_CONCLUSION, "-");
+                                            contentValues.put(DBHelper.GR_AUT_TYPE, finalAut_type);
+                                            contentValues.put(DBHelper.GR_AUT_ID, newAutId);
+                                            database.insert(DBHelper.TABLE_GROUPS, null, contentValues);
+                                            swapGroups(groups.getAdapter().getCount() - position, groups.getAdapter().getCount() + 1, idLine, database);
+                                            addSpisokGroups(database, groups, idLine);
+                                            Toast toast2 = Toast.makeText(getApplicationContext(),
+                                                    "Группа добавлена", Toast.LENGTH_SHORT);
+                                            toast2.show();
+                                        }
+                                        else {
+                                            AlertDialog.Builder alert10 = new AlertDialog.Builder(InsulationActivity4.this);
+                                            alert10.setCancelable(false);
+                                            alert10.setMessage("Ошибка. Поле оказалось пустым.");
+                                            alert10.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int whichButton) {
+
+                                                }
+                                            });
+                                            alert10.show();
+                                        }
                                     }
                                 });
                                 alert.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
-
+                                        closeKeyboard(myView2);
                                     }
                                 });
+                                if (!nameGroup.contains("/"))
+                                    alert.setView(myView2);
                                 alert.show();
                             }
                             //ЕСЛИ НЕ РЕЗЕРВ
                             else {
                                 if (!concl.equals("не соотв.")) {
                                     changePhase(groups, database, idLine, nameAu, type_kz, nominal, range, nameGroup,
-                                            numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position);
+                                            numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position, aut_type, aut_id);
                                 }
                                 else {
                                     AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
@@ -388,8 +427,28 @@ public class InsulationActivity4 extends AppCompatActivity {
                             builder4.setCancelable(false);
                             builder4.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
+                                    //ДОСТАНЕМ АЙДИ И ТИП АВТОМАТА,КОТОРЫЙ ЗАТЕМ УДАЛИМ
+                                    int aut_id = 0;
+                                    String aut_type = "";
+                                    Cursor cursor30 = database.query(DBHelper.TABLE_GROUPS, new String[] { DBHelper.GR_AUT_TYPE,
+                                            DBHelper.GR_AUT_ID}, "_id = ?", new String[] {String.valueOf(groupId)}, null, null, null);
+                                    if (cursor30.moveToFirst()) {
+                                        int typeIndex = cursor30.getColumnIndex(DBHelper.GR_AUT_TYPE);
+                                        int idIndex = cursor30.getColumnIndex(DBHelper.GR_AUT_ID);
+                                        aut_id = cursor30.getInt(idIndex);
+                                        aut_type = cursor30.getString(typeIndex);
+                                    }
+                                    cursor30.close();
+
                                     database.delete(DBHelper.TABLE_GROUPS, "_id = ?", new String[] {String.valueOf(groupId)});
+
                                     if (!((TextView) view).getText().toString().substring(3, ((TextView) view).getText().toString().indexOf(' ', 3)).contains("/")) {
+                                        //УДАЛИМ АВТОМАТ
+                                        if (aut_type.equals("dif_aut"))
+                                            database.delete(DBHelper.TABLE_DIF_AUTOMATICS, "_id = ?", new String[] {String.valueOf(aut_id)});
+                                        else
+                                            database.delete(DBHelper.TABLE_AUTOMATICS, "_id = ?", new String[] {String.valueOf(aut_id)});
+
                                         //МЕНЯЕМ НАЗВАНИЯ У НУЖНЫХ ГРУПП И ПОДГРУПП
                                         Cursor cursor = database.query(DBHelper.TABLE_GROUPS, new String[] {DBHelper.GR_ID, DBHelper.GR_NAME, DBHelper.GR_LINE_ID}, "_id > ? and grline_id = ?", new String[] {String.valueOf(groupId), String.valueOf(idLine)}, null, null, null);
                                         if (cursor.moveToFirst()) {
@@ -475,6 +534,19 @@ public class InsulationActivity4 extends AppCompatActivity {
                 alert.show();
             }
         });
+
+        //ГОТОВО
+        back_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent("android.intent.action.Insulation3");
+                intent.putExtra("nameFloor", nameFloor);
+                intent.putExtra("idFloor", idFloor);
+                intent.putExtra("nameRoom", nameRoom);
+                intent.putExtra("idRoom", idRoom);
+                startActivity(intent);
+            }
+        });
     }
 
     //НА ГЛАВНУЮ
@@ -511,8 +583,14 @@ public class InsulationActivity4 extends AppCompatActivity {
         int oldNumb = Integer.parseInt(x);
         int random = 0;
         Random generator = new Random();
-        if (oldNumb < 300)
+        if (oldNumb <= 20)
             random = oldNumb;
+        if (20 < oldNumb && oldNumb <= 50)
+            random = (generator.nextInt(7) - 3) * 5 + oldNumb;
+        if (50 < oldNumb && oldNumb <= 100)
+            random = (generator.nextInt(11) - 5) * 10 + oldNumb;
+        if (100 < oldNumb && oldNumb < 300)
+            random = (generator.nextInt(21) - 10) * 10 + oldNumb;
         if (300 <= oldNumb && oldNumb < 500)
             random = (generator.nextInt(9) - 4) * 50 + oldNumb;
         if (500 <= oldNumb && oldNumb < 1000)
@@ -533,7 +611,7 @@ public class InsulationActivity4 extends AppCompatActivity {
             if (arr[i].equals(num))
                 count++;
         }
-        if (count == arr.length && Integer.parseInt(num) >= 300)
+        if (count == arr.length && Integer.parseInt(num) > 20)
             pushArray(arr, num);
     }
 
@@ -541,15 +619,13 @@ public class InsulationActivity4 extends AppCompatActivity {
     void changePhase(final ListView groups, final SQLiteDatabase database, final int idLine, final String nameAu,
                      final String type_kz, final String nominal, final String range, final String nameGroup,
                      final String numberWorkU, final String nameMark, final String numberVein, final String numberSection,
-                     final String numberU, final String numberR, final int position) {
+                     final String numberU, final String numberR, final int position, final String aut_type, final int aut_id) {
         AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
         final View myView = getLayoutInflater().inflate(R.layout.dialog_for_repeat_group,null);
         alert.setCancelable(false);
-        if (numberVein.equals("2") || numberVein.equals("3"))
-            alert.setTitle("Выберете фазу и введите значение:");
-        else
-            alert.setTitle("Введите значение сопротивления:");
+        alert.setTitle("Введите необходимые параметры:");
         openKeyboard();
+        final EditText symbolEdit = myView.findViewById(R.id.editText);
         final RadioGroup grradio = myView.findViewById(R.id.radioGroup);
         final RadioButton phaseA = myView.findViewById(R.id.phaseA);
         final RadioButton phaseB = myView.findViewById(R.id.phaseB);
@@ -560,14 +636,15 @@ public class InsulationActivity4 extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int whichButton) {
                 closeKeyboard(myView);
                 String numb = input.getText().toString();
-                if (numb.equals("")) {
+                String symbol = symbolEdit.getText().toString();
+                if (numb.equals("") || symbol.equals("")) {
                     AlertDialog.Builder alert = new AlertDialog.Builder(InsulationActivity4.this);
                     alert.setCancelable(false);
-                    alert.setMessage("Заполните поле значения!");
+                    alert.setMessage("Заполните все поля!");
                     alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             changePhase(groups, database, idLine, nameAu, type_kz, nominal, range, nameGroup,
-                                    numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position);
+                                    numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position, aut_type, aut_id);
                         }
                     });
                     alert.show();
@@ -580,12 +657,15 @@ public class InsulationActivity4 extends AppCompatActivity {
                         alert.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 changePhase(groups, database, idLine, nameAu, type_kz, nominal, range, nameGroup,
-                                        numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position);
+                                        numberWorkU, nameMark, numberVein, numberSection, numberU, numberR, position, aut_type, aut_id);
                             }
                         });
                         alert.show();
                     }
                     else {
+                        int newAutId = aut_id;
+                        if (!nameGroup.contains("/"))
+                            newAutId = addAutomat(database, aut_id, aut_type, symbol);
                         String namePhase;
                         if (numberVein.equals("2") || numberVein.equals("3")) {
                             if (phaseA.isChecked())
@@ -616,6 +696,8 @@ public class InsulationActivity4 extends AppCompatActivity {
                             contentValues.put(DBHelper.GR_CONCLUSION, "соответст.");
                         else
                             contentValues.put(DBHelper.GR_CONCLUSION, "не соотв.");
+                        contentValues.put(DBHelper.GR_AUT_TYPE, aut_type);
+                        contentValues.put(DBHelper.GR_AUT_ID, newAutId);
                         //2 ЖИЛЫ
                         if (numberVein.equals("2")) {
                             contentValues.put(DBHelper.GR_A_B, "-");
@@ -800,6 +882,148 @@ public class InsulationActivity4 extends AppCompatActivity {
         }
     }
 
+    public int addAutomat (SQLiteDatabase database, final int aut_id, final String aut_type, final String symbol) {
+        int new_id = -1;
+        if (aut_type.equals("normal_aut")) {
+            String place = "", type_overload = "", type_kz = "", excerpt = "", nom1 = "", nom2 = "", set_overload = "", name = "";
+            String set_kz = "", test_tok = "", time_permissible = "", length_annex = "", conclusion = "";
+            Cursor cursor1 = database.query(DBHelper.TABLE_AUTOMATICS, new String[] {DBHelper.AU_ID, DBHelper.AU_PLACE, DBHelper.AU_NAME,
+                            DBHelper.AU_TYPE_OVERLOAD, DBHelper.AU_TYPE_KZ, DBHelper.AU_EXCERPT, DBHelper.AU_NOMINAL_1,
+                            DBHelper.AU_NOMINAL_2, DBHelper.AU_SET_OVERLOAD, DBHelper.AU_SET_KZ,
+                            DBHelper.AU_TEST_TOK, DBHelper.AU_TIME_PERMISSIBLE, DBHelper.AU_LENGTH_ANNEX, DBHelper.AU_CONCLUSION},
+                    "_id = ?", new String[] {String.valueOf(aut_id)}, null, null, null);
+            if (cursor1.moveToFirst()) {
+                int placeIndex = cursor1.getColumnIndex(DBHelper.AU_PLACE);
+                int nameIndex = cursor1.getColumnIndex(DBHelper.AU_NAME);
+                int type_overloadIndex = cursor1.getColumnIndex(DBHelper.AU_TYPE_OVERLOAD);
+                int type_kzIndex = cursor1.getColumnIndex(DBHelper.AU_TYPE_KZ);
+                int excerptIndex = cursor1.getColumnIndex(DBHelper.AU_EXCERPT);
+                int nom1Index = cursor1.getColumnIndex(DBHelper.AU_NOMINAL_1);
+                int nom2Index = cursor1.getColumnIndex(DBHelper.AU_NOMINAL_2);
+                int set_overloadIndex = cursor1.getColumnIndex(DBHelper.AU_SET_OVERLOAD);
+                int set_kzIndex = cursor1.getColumnIndex(DBHelper.AU_SET_KZ);
+                int test_tokIndex = cursor1.getColumnIndex(DBHelper.AU_TEST_TOK);
+                int time_permissibleIndex = cursor1.getColumnIndex(DBHelper.AU_TIME_PERMISSIBLE);
+                int length_annexIndex = cursor1.getColumnIndex(DBHelper.AU_LENGTH_ANNEX);
+                int conclIndex = cursor1.getColumnIndex(DBHelper.AU_CONCLUSION);
+                do {
+                    place = cursor1.getString(placeIndex);
+                    name = cursor1.getString(nameIndex);
+                    type_overload = cursor1.getString(type_overloadIndex);
+                    type_kz = cursor1.getString(type_kzIndex);
+                    excerpt = cursor1.getString(excerptIndex);
+                    nom1 = cursor1.getString(nom1Index);
+                    nom2 = cursor1.getString(nom2Index);
+                    set_overload = cursor1.getString(set_overloadIndex);
+                    set_kz = cursor1.getString(set_kzIndex);
+                    test_tok = cursor1.getString(test_tokIndex);
+                    time_permissible = cursor1.getString(time_permissibleIndex);
+                    length_annex = cursor1.getString(length_annexIndex);
+                    conclusion = cursor1.getString(conclIndex);
+                } while (cursor1.moveToNext());
+            }
+            cursor1.close();
+
+            if (!conclusion.equals("не соотв.")) {
+                String time_measured = getTimeMeasured(nom2);
+                String tok_work = getTokWork(set_kz.substring(set_kz.indexOf('-') + 1));
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(DBHelper.AU_ID_ALINE, idLine);
+                contentValues.put(DBHelper.AU_PLACE, place);
+                contentValues.put(DBHelper.AU_SYMBOL_SCHEME, symbol);
+                contentValues.put(DBHelper.AU_NAME, name);
+                contentValues.put(DBHelper.AU_TYPE_OVERLOAD, type_overload);
+                contentValues.put(DBHelper.AU_TYPE_KZ, type_kz);
+                contentValues.put(DBHelper.AU_EXCERPT, excerpt);
+                contentValues.put(DBHelper.AU_NOMINAL_1, nom1);
+                contentValues.put(DBHelper.AU_NOMINAL_2, nom2);
+                contentValues.put(DBHelper.AU_SET_OVERLOAD, set_overload);
+                contentValues.put(DBHelper.AU_SET_KZ, set_kz);
+                contentValues.put(DBHelper.AU_TEST_TOK, test_tok);
+                contentValues.put(DBHelper.AU_TIME_PERMISSIBLE, time_permissible);
+                contentValues.put(DBHelper.AU_TIME_MEASURED, time_measured);
+                contentValues.put(DBHelper.AU_LENGTH_ANNEX, length_annex);
+                contentValues.put(DBHelper.AU_TOK_WORK, tok_work);
+                contentValues.put(DBHelper.AU_TIME_WORK, getTimeWork(name));
+                contentValues.put(DBHelper.AU_CONCLUSION, getConclusion(time_permissible, time_measured, set_kz, tok_work));
+                database.insert(DBHelper.TABLE_AUTOMATICS, null, contentValues);
+            }
+        }
+        else {
+            String uzo = "", type_switch = "", u = "", set_thermal = "", set_electromagn = "", check_test_tok = "", check_time = "";
+            String check_work_tok = "", i_nom = "", i_leack = "", i_extra = "", i_measured = "", time_extra = "", time_measured = "", conclusion = "";
+            Cursor cursor1 = database.query(DBHelper.TABLE_DIF_AUTOMATICS, new String[] {DBHelper.DIF_AU_ID,
+                    DBHelper.DIF_AU_UZO, DBHelper.DIF_AU_TYPE_SWITCH, DBHelper.DIF_AU_U,
+                    DBHelper.DIF_AU_SET_THERMAL, DBHelper.DIF_AU_SET_ELECTR_MAGN, DBHelper.DIF_AU_CHECK_TEST_TOK, DBHelper.DIF_AU_CHECK_TIME_, DBHelper.DIF_AU_CHECK_WORK_TOK,
+                    DBHelper.DIF_AU_I_NOM, DBHelper.DIF_AU_I_LEAK, DBHelper.DIF_AU_I_EXTRA, DBHelper.DIF_AU_I_MEASURED,
+                    DBHelper.DIF_AU_TIME_EXTRA, DBHelper.DIF_AU_TIME_MEASURED, DBHelper.DIF_AU_CONCLUSION}, "_id = ?", new String[] {String.valueOf(aut_id)}, null, null, null);
+            if (cursor1.moveToFirst()) {
+                int uzoIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_UZO);
+                int type_switchIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_TYPE_SWITCH);
+                int uIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_U);
+                int set_thermalIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_SET_THERMAL);
+                int set_electromagnIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_SET_ELECTR_MAGN);
+                int check_test_tokIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_CHECK_TEST_TOK);
+                int check_timeIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_CHECK_TIME_);
+                int check_work_tokIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_CHECK_WORK_TOK);
+                int i_nomIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_I_NOM);
+                int i_leackIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_I_LEAK);
+                int i_extraIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_I_EXTRA);
+                int i_measuredIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_I_MEASURED);
+                int time_extraIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_TIME_EXTRA);
+                int time_measuredIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_TIME_MEASURED);
+                int conclusionIndex = cursor1.getColumnIndex(DBHelper.DIF_AU_CONCLUSION);
+                do {
+                    uzo = cursor1.getString(uzoIndex);
+                    type_switch = cursor1.getString(type_switchIndex);
+                    u = cursor1.getString(uIndex);
+                    set_thermal = cursor1.getString(set_thermalIndex);
+                    set_electromagn = cursor1.getString(set_electromagnIndex);
+                    check_test_tok = cursor1.getString(check_test_tokIndex);
+                    check_time = cursor1.getString(check_timeIndex);
+                    check_work_tok = cursor1.getString(check_work_tokIndex);
+                    i_nom = cursor1.getString(i_nomIndex);
+                    i_leack = cursor1.getString(i_leackIndex);
+                    i_extra = cursor1.getString(i_extraIndex);
+                    i_measured = cursor1.getString(i_measuredIndex);
+                    time_extra = cursor1.getString(time_extraIndex);
+                    time_measured = cursor1.getString(time_measuredIndex);
+                    conclusion = cursor1.getString(conclusionIndex);
+                } while (cursor1.moveToNext());
+            }
+            cursor1.close();
+
+            if (!conclusion.equals("не соответств.")) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(DBHelper.DIF_AU_ID_ALINE, idLine);
+                contentValues.put(DBHelper.DIF_AU_PLACE, symbol);
+                contentValues.put(DBHelper.DIF_AU_UZO, uzo);
+                contentValues.put(DBHelper.DIF_AU_TYPE_SWITCH, type_switch);
+                contentValues.put(DBHelper.DIF_AU_U, u);
+                contentValues.put(DBHelper.DIF_AU_SET_THERMAL, set_thermal);
+                contentValues.put(DBHelper.DIF_AU_SET_ELECTR_MAGN, set_electromagn);
+                contentValues.put(DBHelper.DIF_AU_CHECK_TEST_TOK, check_test_tok);
+                contentValues.put(DBHelper.DIF_AU_CHECK_TIME_, check_time);
+                contentValues.put(DBHelper.DIF_AU_CHECK_WORK_TOK, check_work_tok);
+                contentValues.put(DBHelper.DIF_AU_I_NOM, i_nom);
+                contentValues.put(DBHelper.DIF_AU_I_LEAK, i_leack);
+                contentValues.put(DBHelper.DIF_AU_I_EXTRA, i_extra);
+                contentValues.put(DBHelper.DIF_AU_I_MEASURED, getIMeasured(i_measured, i_extra));
+                contentValues.put(DBHelper.DIF_AU_TIME_EXTRA, time_extra);
+                contentValues.put(DBHelper.DIF_AU_TIME_MEASURED, getDifTimeMeasured(time_measured, time_extra));
+                contentValues.put(DBHelper.DIF_AU_CONCLUSION, conclusion);
+                database.insert(DBHelper.TABLE_DIF_AUTOMATICS, null, contentValues);
+            }
+        }
+        Cursor cursor3 = database.rawQuery("SELECT last_insert_rowid() as _id", new String[]{});
+        if (cursor3.moveToFirst()) {
+            int idIndex = cursor3.getColumnIndex("_id");
+            new_id = cursor3.getInt(idIndex);
+        }
+        cursor3.close();
+        return new_id;
+    }
+
     //ОБНОВЛЕНИЕ СПИСКА
     public void addSpisokGroups(SQLiteDatabase database, ListView groups, int idLine) {
         final ArrayList<String> spisokGroups = new ArrayList <String>();
@@ -827,6 +1051,68 @@ public class InsulationActivity4 extends AppCompatActivity {
         cursor.close();
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.list_item, spisokGroups);
         groups.setAdapter(adapter);
+    }
+
+    public String getTimeMeasured(String s) {
+        int num = Integer.parseInt(s);
+        Random generator = new Random();
+        if (num <= 32)
+            return String.valueOf(generator.nextInt(21) + 30);
+        return String.valueOf(generator.nextInt(61) + 30);
+    }
+
+    public String getTokWork(String numb) {
+        int x = Integer.parseInt(numb);
+        Random generator = new Random();
+        return String.valueOf(x - ((generator.nextInt(3) + 1) * 10));
+    }
+
+    public String getTimeWork(String name) {
+        Random generator = new Random();
+        if (name.contains("3P") || name.contains("3Р") || name.contains("3p") || name.contains("3р"))
+            return "0," + String.valueOf(generator.nextInt(8) + 12);
+        return "0," + String.valueOf(generator.nextInt(28) + 12);
+    }
+
+    public String getConclusion(String numb1, String numb2, String diapazon, String tok_w) {
+        int left = Integer.parseInt(diapazon.substring(0, diapazon.indexOf('-')));
+        int right = Integer.parseInt(diapazon.substring(diapazon.indexOf('-') + 1));
+        if ((Integer.parseInt(numb2) < Integer.parseInt(numb1)) && (left <= Integer.parseInt(tok_w)) && (right >= Integer.parseInt(tok_w)))
+            return "соответст.";
+        return "не соотв.";
+    }
+
+    public String getIMeasured(String i_prev, String limit) {
+        Random generator = new Random();
+        double left_lim = Double.parseDouble(limit.substring(0, limit.indexOf('\u003C')));
+        double right_lim = Double.parseDouble(limit.substring(limit.indexOf('\u2264') + 1));
+        double i_pr = Double.parseDouble(i_prev.replace(',', '.'));
+        double percent, i_cur;
+        do {
+            percent = (generator.nextInt(26) + 5) / 100.00;
+            if (generator.nextBoolean())
+                i_cur = i_pr + (i_pr * percent);
+            else
+                i_cur = i_pr - (i_pr * percent);
+            i_cur = Math.round(i_cur * 10) / 10.0;
+        } while (i_cur > right_lim || i_cur <= left_lim);
+        return String.valueOf(i_cur).replace('.', ',');
+    }
+
+    public String getDifTimeMeasured(String time_prev, String limit) {
+        Random generator = new Random();
+        double lim = Double.parseDouble(limit.replace(',', '.'));
+        double time_pr = Double.parseDouble(time_prev.replace(',', '.'));
+        double percent, time_cur;
+        do {
+            percent = (generator.nextInt(26) + 5) / 100.00;
+            if (generator.nextBoolean())
+                time_cur = time_pr + (time_pr * percent);
+            else
+                time_cur = time_pr - (time_pr * percent);
+            time_cur = Math.round(time_cur * 1000) / 1000.000;
+        } while (time_cur > lim);
+        return String.valueOf(time_cur).replace('.', ',');
     }
 
     void openKeyboard() {

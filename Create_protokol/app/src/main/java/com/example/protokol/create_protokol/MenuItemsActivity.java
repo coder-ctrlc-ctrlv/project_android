@@ -59,8 +59,21 @@ public class MenuItemsActivity extends AppCompatActivity {
         String nameProject = "";
         LinearLayout[] allLayouts = {title_layout, visual_inspection_layout, insulation_layout,
                 automatics_layout, dif_automatics_layout, grounding_devices_layout, room_element_layout};
+        Button[] btns = {title_btn, visual_inspection_btn, insulation_btn, automatics_btn,
+                dif_automatics_btn, grounding_devices_btn, room_element_btn};
+        final int[] valuesOfItems = new int[7];
+        final Boolean[] array_itemIsEmpty = new Boolean[7];
+        String[] array_queries_for_items = {
+                "SELECT * FROM title LIMIT 1",
+                "",
+                "SELECT * FROM groups LIMIT 1",
+                "SELECT * FROM automatics LIMIT 1",
+                "SELECT * FROM dif_automatics LIMIT 1",
+                "SELECT * FROM grounding_devices LIMIT 1",
+                "SELECT * FROM elements LIMIT 1"
+        };
 
-        //СКРЫВАЕМ НЕНУЖНЫЕ ПУНКТЫ
+        //БЕРЕМ ИНФОРМАЦИЮ О ПРОЕКТЕ
         Cursor cursor1 = database.query(DBHelper.TABLE_PROJECT_INFO, new String[] {DBHelper.PROJECT_NAME, DBHelper.PROJECT_TITLE,
                 DBHelper.PROJECT_VISUAL_INSPECTION, DBHelper.PROJECT_INSULATION, DBHelper.PROJECT_AUTOMATICS,
                 DBHelper.PROJECT_DIF_AUTOMATICS, DBHelper.PROJECT_GROUNDING_DEVICES,
@@ -75,14 +88,30 @@ public class MenuItemsActivity extends AppCompatActivity {
             int groundingDevicesIndex = cursor1.getColumnIndex(DBHelper.PROJECT_GROUNDING_DEVICES);
             int roomElementIndex = cursor1.getColumnIndex(DBHelper.PROJECT_ROOM_ELEMENT);
             nameProject = cursor1.getString(nameIndex);
-            int[] valuesOfLayouts = {cursor1.getInt(titleIndex), cursor1.getInt(visualInspectionIndex),
-                    cursor1.getInt(insulationIndex), cursor1.getInt(automaticsIndex), cursor1.getInt(difAutomaticsIndex),
-                    cursor1.getInt(groundingDevicesIndex), cursor1.getInt(roomElementIndex)};
-            for (int i = 0; i < valuesOfLayouts.length; ++i)
-                if (valuesOfLayouts[i] == 0)
-                    allLayouts[i].setVisibility(View.GONE);
+            valuesOfItems[0] = cursor1.getInt(titleIndex);
+            valuesOfItems[1] = cursor1.getInt(visualInspectionIndex);
+            valuesOfItems[2] = cursor1.getInt(insulationIndex);
+            valuesOfItems[3] = cursor1.getInt(automaticsIndex);
+            valuesOfItems[4] = cursor1.getInt(difAutomaticsIndex);
+            valuesOfItems[5] = cursor1.getInt(groundingDevicesIndex);
+            valuesOfItems[6] = cursor1.getInt(roomElementIndex);
         }
         cursor1.close();
+
+        //СКРЫВАЕМ НЕНУЖНЫЕ ПУНКТЫ, А ОСТАВШИЕСЯ ПРОВЕРЯЕМ НА ПУСТОТУ
+        for (int i = 0; i < valuesOfItems.length; ++i)
+            if (valuesOfItems[i] == 0)
+                allLayouts[i].setVisibility(View.GONE);
+            else {
+                if (i != 1)
+                    array_itemIsEmpty[i] = queryIsEmpty(database, array_queries_for_items[i]);
+                else
+                    array_itemIsEmpty[i] = false;
+                if (!array_itemIsEmpty[i]) {
+                    btns[i].setBackgroundResource(R.drawable.extra_button);
+                    btns[i].setText("\u2611  " + btns[i].getText());
+                }
+            }
 
         //НАСТРАИВАЕМ ACTIONBAR
         getSupportActionBar().setSubtitle("Главное меню");
@@ -147,7 +176,26 @@ public class MenuItemsActivity extends AppCompatActivity {
         save_project_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveProject(database);
+                Boolean emptyItems = checkEmptyItems(valuesOfItems, array_itemIsEmpty);
+                if (emptyItems) {
+                    AlertDialog.Builder builder10 = new AlertDialog.Builder(MenuItemsActivity.this);
+                    builder10.setCancelable(false);
+                    builder10.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            saveProject(database);
+                        }
+                    });
+                    builder10.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                        }
+                    });
+                    builder10.setMessage("Остались незаполненные пункты.\nВы уверены, что хотите продолжить?");
+                    AlertDialog dialog10 = builder10.create();
+                    dialog10.show();
+                }
+                else
+                    saveProject(database);
             }
         });
     }
@@ -169,7 +217,7 @@ public class MenuItemsActivity extends AppCompatActivity {
                 AlertDialog.Builder alert = new AlertDialog.Builder(MenuItemsActivity.this);
                 alert.setCancelable(false);
                 alert.setTitle("Выберите библиотеку:");
-                final String libararies[] = {"\nНазвания элементов\n", "\nМарки\n", "\nКомнаты\n", "\nЩиты\n", "\nЭтажи\n", "\nАвтомат. выкл.\n"};
+                final String libararies[] = {"\nНазвания элементов\n", "\nМарки\n", "\nПомещения\n", "\nЩиты\n", "\nЭтажи\n", "\nАвтомат. выкл.\n"};
                 alert.setItems(libararies, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -297,6 +345,26 @@ public class MenuItemsActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("tag", e.getMessage());
         }
+    }
+
+    boolean checkEmptyItems(int[] arr_items, Boolean[] arr_empty) {
+        boolean res = false;
+        for (int i = 0; i < arr_items.length; ++i)
+            if ((arr_items[i] == 1) && arr_empty[i]) {
+                res = true;
+                break;
+            }
+        return res;
+    }
+
+    boolean queryIsEmpty(SQLiteDatabase database, String query) {
+        Boolean isEmpty = true;
+        Cursor cursor10 = database.rawQuery(query, new String[] { });
+        if (cursor10.moveToFirst()) {
+            isEmpty = false;
+        }
+        cursor10.close();
+        return isEmpty;
     }
 
     boolean isCorrectInput(String data) {

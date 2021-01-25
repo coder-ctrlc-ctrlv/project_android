@@ -39,13 +39,32 @@
         android:textSize="17sp"
         android:text="Добавить этаж"
         android:textColor="@color/fon"
-        app:layout_constraintBottom_toTopOf="@+id/liner"
+        app:layout_constraintBottom_toTopOf="@+id/button8"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/floors" />
 
-    <LinearLayout
-        android:id="@+id/liner"
+    <Button
+        android:id="@+id/button8"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/new_buttons"
+        android:textAllCaps="false"
+        android:textSize="17sp"
+        android:text="Создать PDF"
+        android:textColor="@color/fon"
+        app:layout_constraintBottom_toTopOf="@+id/button10"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button9" />
+
+    <Button
+        android:id="@+id/button10"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_marginStart="15dp"
@@ -53,22 +72,15 @@
         android:layout_marginEnd="15dp"
         android:layout_marginRight="15dp"
         android:layout_marginBottom="15dp"
-        android:orientation="horizontal"
+        android:background="@drawable/extra_button"
+        android:textAllCaps="false"
+        android:textSize="17sp"
+        android:text="Готово"
+        android:textColor="@color/fon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button9">
+        app:layout_constraintTop_toBottomOf="@+id/button8" />
 
-        <Button
-            android:id="@+id/button8"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/new_buttons"
-            android:textAllCaps="false"
-            android:textSize="17sp"
-            android:text="Создать PDF"
-            android:textColor="@color/fon" />
-
-    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

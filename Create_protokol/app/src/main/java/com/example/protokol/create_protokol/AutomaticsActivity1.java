@@ -65,6 +65,7 @@ public class AutomaticsActivity1 extends AppCompatActivity {
         final ListView floors = findViewById(R.id.floors);
         Button addFloor = findViewById(R.id.button9);
         Button pdf = findViewById(R.id.button8);
+        Button back_btn = findViewById(R.id.button10);
 
         //НАСТРАИВАЕМ ACTIONBAR
         getSupportActionBar().setSubtitle("Этажи");
@@ -305,6 +306,15 @@ public class AutomaticsActivity1 extends AppCompatActivity {
                 dialog1.show();
             }
         });
+
+        //ГОТОВО
+        back_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AutomaticsActivity1.this, MenuItemsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     //НАЗАД
@@ -375,7 +385,9 @@ public class AutomaticsActivity1 extends AppCompatActivity {
 
         //ЗАПРОС НА СПИСОК ЭТАЖЕЙ И КОЛ-ВО КОМНАТ
         Cursor cursor = database.rawQuery("SELECT au_floor, count(*) AS count_rooms FROM au_floors AS f " +
-                "JOIN au_rooms AS r ON f._id = r.au_rfl_id GROUP BY f._id ORDER BY f._id, r._id", new String[] { });
+                "JOIN au_rooms AS r ON f._id = r.au_rfl_id AND r._id IN (" +
+                "SELECT au_lroom_id FROM au_lines AS l JOIN automatics AS a ON l._id = a.auline_id GROUP BY au_lroom_id" +
+                ") GROUP BY f._id ORDER BY f._id, r._id", new String[] { });
         if (cursor.moveToFirst()) {
             int nameFloorIndex = cursor.getColumnIndex(DBHelper.AU_FL_NAME);
             int countRoomIndex = cursor.getColumnIndex("count_rooms");
@@ -388,7 +400,9 @@ public class AutomaticsActivity1 extends AppCompatActivity {
 
         //ЗАПРОС НА СПИСОК КОМНАТ И КОЛ-ВО ЩИТОВ
         Cursor cursor1 = database.rawQuery("SELECT au_room, count(*) AS count_lines FROM au_rooms AS r " +
-                "JOIN au_lines AS l ON r._id = l.au_lroom_id GROUP BY r._id ORDER BY r.au_rfl_id, r._id, l._id", new String[] { });
+                "JOIN au_lines AS l ON r._id = l.au_lroom_id AND l._id IN (" +
+                "SELECT auline_id FROM automatics GROUP BY auline_id" +
+                ") GROUP BY r._id ORDER BY r.au_rfl_id, r._id, l._id", new String[] { });
         if (cursor1.moveToFirst()) {
             int nameRoomIndex = cursor1.getColumnIndex(DBHelper.AU_ROOM_NAME);
             int countLineIndex = cursor1.getColumnIndex("count_lines");
